@@ -8,7 +8,8 @@ def main():
     udp_socket()
 
 def udp_socket():
-    server_address = ('192.168.80.77', 7777)
+    #server_address = ('192.168.80.77', 7777)
+    server_address = ('103.49.160.131', 7777)
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     server_socket.bind(server_address)
     previous_connection_ip = ""

@@ -13,16 +13,16 @@ def main():
 
 
 def udp_socket():
-    file_name = 'temp/udp_client_recieve.txt'
+    file_name = 'result/udp_client_recieve.txt'
     if os.path.exists(file_name):
         os.remove(file_name)
-    server_address = ('192.168.80.77', 7777)
-    #server_address = ('103.49.160.131', 7777)
+    #server_address = ('192.168.80.77', 7777)
+    server_address = ('103.49.160.131', 7777)
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     client_socket.settimeout(3)
 
     process_starting_time = time.time()
-    file_write = open(file_name, "a")
+    file_write = open(file_name, "w")
     process_total_time = 120
     connection_total_time = 30
     throughput_calculation_interval = 1
