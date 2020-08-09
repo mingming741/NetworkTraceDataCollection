@@ -26,12 +26,13 @@ def udp_socket():
     print("LTE connection server, start~~")
     while True:
         print("\nConnection [{}] start".format(connection_index))
+        data = ""
         try:
             data, client_address = server_socket.recvfrom(2048)
         except socket.timeout:
             print("Connection [{}], Client connection setup timeout".format(connection_index))
             client_address = ""
-        if len(client_address) != 0:
+        if len(data) != 0:
             client_ip = client_address[0]
             client_port = client_address[1]
             print("Connection [{}], Connection Setup success, client ip {}, client port {}".format(connection_index, client_ip, client_port))

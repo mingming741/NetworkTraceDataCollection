@@ -1,0 +1,26 @@
+# General
+*.log
+*.svg
+*.txt
+*.pdf
+
+
+# C complier
+*.cmd
+*.mod.c
+*.mod.o
+*.o
+*.mk
+*.symvers
+*.order
+*/.tmp_versions/*
+
+# Python cache
+*__pycache__*
+*.pyc
+.ipynb_checkpoints
+
+# Data
+data/*
+result/*
+measurement/crawled_data/*
