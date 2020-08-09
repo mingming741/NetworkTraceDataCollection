@@ -7,63 +7,62 @@ import errno
 import sys
 
 
-def utf8len(s):
-    return len(s.decode('utf-8'))
-
 def main():
+    udp_socket()
+
+
+def udp_socket():
     file_name = 'temp/client_recieve_temp.txt'
     server_address = ('192.168.80.77', 7777)
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     client_socket.settimeout(3)
 
-    starting_time = time.time()
-    throughput_begin = time.time() + 1
+    process_starting_time = time.time()
     file_write = open(file_name, "a")
-
-    sent = 0
-    data = ""
-    temp = 0
-
+    process_total_time = 120
+    connection_total_time = 30
+    throughput_calculation_interval = 1
     connection_index = 1
     print("LTE connection server, start~~")
     while True:
-        print("")
+        print("\nConnection [{}] start".format(connection_index))
         client_socket.sendto("Client Set Up connection message to server".encode(), server_address)
-
-        file_write.write("sending request now!!!!!!!!!\n")
-        begin = time.time()
-        throughput_begin = time.time() + 1
+        file_write.write("Connection [{}]\n".format(connection_index))
+        connection_start_time = time.time()
+        throughput_calculation_begin_time = time.time() + throughput_calculation_interval
+        sent = 0
+        data = ""
+        exit = 0
         while True:
             try:
-                data, addr = client_socket.recvfrom(10000000)
+                data, server_address = client_socket.recvfrom(10000000)
             except socket.timeout:
-                print('caught a timeout')
-            now = time.time()
-            if now - begin > 30:
+                print('Connection [{}] Time out'.format(connection_index))
+                exit = 1
+            if len(data) != 0:
+                if time.time() - throughput_calculation_begin_time  > throughput_calculation_interval:
+                    sent = sent + utf8len(data)
+                    bandwidth = (sent * 8) / throughput_calculation_interval
+                    print("Bandwidth = {:.0f}. time {:.2f}".format(bandwidth, time.time() - connection_start_time))
+                    file_write.write("Bandwidth: " + str(bandwidth) + "\n")
+                    sent = 0
+                    throughput_calculation_begin_time  = throughput_calculation_begin_time  + throughput_calculation_interval
+                else:
+                    sent = sent + utf8len(data)
+            if time.time() - connection_start_time > connection_total_time:
                 break
-                print("break")
-
-
-            if now - throughput_begin  > 1:
-                sent = sent + utf8len(data)
-                temp = sent * 8
-                print("bandwidth=  "),
-                print(temp , now - starting_time)
-                file_write.write("bandwidth: " + str(temp) + "\n")
-                sent = 0
-                throughput_begin  = throughput_begin  + 1
-            else:
-                sent = sent + utf8len(data)
-            if now - starting_time > 60:
+            if exit == 1:
                 break
-        now = time.time()
-        if now - starting_time > 60:
+        connection_index = connection_index + 1
+        if time.time() - process_starting_time >= process_total_time:
             break
+
     client_socket.close()
     file_write.close()
 
 
-
+def utf8len(s):
+    return len(s.decode('utf-8'))
 
 
 if __name__ == '__main__':
