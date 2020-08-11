@@ -22,7 +22,7 @@ def udp_socket():
     previous_connection_port = ""
     data = ""
     client_address = ""
-    file_read = open("input_file.txt")
+    file_read = open("input_file")
     msg_byte = file_read.readline()[0:1000].encode()
     file_read.close()
 
