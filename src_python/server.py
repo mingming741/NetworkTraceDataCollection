@@ -40,7 +40,8 @@ def udp_socket():
         if len(data) != 0:
             client_ip = client_address[0]
             client_port = client_address[1]
-            print("Connection [{}], Connection Setup success, client ip {}, client port {}".format(connection_index, client_ip, client_port))
+            print("Connection [{}], Connection Setup success, client ip "
+                  "{}, client port {}".format(connection_index, client_ip, client_port))
             if previous_connection_ip == "":
                 print("Initial first connection~~")
             elif previous_connection_ip != client_ip or previous_connection_port != client_port:

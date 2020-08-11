@@ -5,6 +5,9 @@ import datetime
 import time
 import os
 import json
+import glob
+import shutil
+
 import utils
 
 main_config = utils.parse_config("config/config.json")
@@ -23,6 +26,9 @@ def udp_socket():
     connection_total_time = main_config["connection_total_time"]
     throughput_calculation_interval = main_config["throughput_calculation_interval"]
 
+    shutil.rmtree(result_path)
+    os.mkdir(result_path)
+
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     client_socket.settimeout(client_timeout_value)
     client_start_time = time.time()
@@ -37,7 +43,7 @@ def udp_socket():
     current_output_file_name = ""
     while True:
         current_datetime = datetime.datetime.now()
-        file_name = "{}{}{}".format(result_file_prefix, current_datetime.strftime("%Y_%m_%d_%H_%M"), result_file_ext)
+        file_name = "{}{}{}".format(result_file_prefix, current_datetime.strftime("%Y_%m_%d_%H"), result_file_ext)
         print(file_name)
         if file_name != current_output_file_name:
             try:
@@ -67,10 +73,10 @@ def udp_socket():
                     file_write.write("{:.3f}\t{}\n".format(time.time(), bandwidth))
                     sent = 0
                     throughput_calculation_begin_time  = throughput_calculation_begin_time  + throughput_calculation_interval
+                if time.time() - connection_start_time > connection_total_time:
+                    break
                 else:
                     sent = sent + utf8len(data)
-            if time.time() - connection_start_time > connection_total_time:
-                break
             if exit == 1:
                 break
         connection_index = connection_index + 1

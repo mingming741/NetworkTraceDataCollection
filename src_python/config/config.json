@@ -1,7 +1,7 @@
 {
   "result_path": "result",
-  "process_total_time": 3600,
-  "connection_total_time": 60,
+  "process_total_time": -1,
+  "connection_total_time": 3600,
   "server_address": ["103.49.160.131", 7777],
   "server_address_test" : ["192.168.80.77", 7777],
   "throughput_calculation_interval": 1,
