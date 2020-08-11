@@ -2,16 +2,22 @@
 
 import socket
 import time
+import utils
 
+main_config = utils.parse_config("config/config.json")
 
 def main():
     udp_socket()
 
 def udp_socket():
-    #server_address = ('192.168.80.77', 7777)
-    server_address = ('103.49.160.131', 7777)
+    server_address = tuple(main_config["server_address"])
+    connection_total_time = main_config["connection_total_time"]
+    server_connection_log_interval = 1000000
+    server_timeout_value = main_config["server_timeout_value"]
+
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     server_socket.bind(server_address)
+    server_socket.settimeout(server_timeout_value)
     previous_connection_ip = ""
     previous_connection_port = ""
     data = ""
@@ -19,9 +25,7 @@ def udp_socket():
     file_read = open("input_file.txt")
     msg_byte = file_read.readline()[0:1000].encode()
     file_read.close()
-    connection_total_time = 30
-    connection_log_interval = 1000000
-    server_socket.settimeout(5)
+
 
     connection_index = 1
     print("LTE connection server, start~~")
@@ -50,8 +54,8 @@ def udp_socket():
                 if len(client_address) != 0:
                     server_socket.sendto(msg_byte, client_address)
                     data_count = data_count + 1
-                    if data_count % connection_log_interval == 0:
-                        print("Time {:.2f}, data sent {} million counts".format(time.time() - connection_start_time, data_count/connection_log_interval))
+                    if data_count % server_connection_log_interval == 0:
+                        print("Time {:.2f}, data sent {} million counts".format(time.time() - connection_start_time, data_count/server_connection_log_interval))
                 if time.time() - connection_start_time >= connection_total_time:
                     break
         else:

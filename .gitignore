@@ -25,3 +25,4 @@
 data/*
 result/*
 measurement/crawled_data/*
+venv/*

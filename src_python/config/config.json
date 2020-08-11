@@ -1,0 +1,12 @@
+{
+  "result_path": "result",
+  "process_total_time": 3600,
+  "connection_total_time": 60,
+  "server_address": ["103.49.160.131", 7777],
+  "server_address_test" : ["192.168.80.77", 7777],
+  "throughput_calculation_interval": 1,
+  "client_timeout_value": 5,
+  "server_timeout_value": 5,
+  "server_connection_log_interval": 1000000,
+  "test_config_file": "result/udp_test.json"
+}
