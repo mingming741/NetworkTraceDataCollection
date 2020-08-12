@@ -33,11 +33,11 @@ def iperf_wireshark():
         output_pcap = os.path.join(main_config["result_path"],  "{}.pcap".format(current_datetime.strftime("%Y_%m_%d_%H_%M")))
         print(output_pcap)
         os.system("tcpdump -i any udp port {} -w {} &".format(main_config["iperf_port"], output_pcap))
-        os.system("iperf3 -c {} -p {}  -R --length 1472 -u -b 60m -t {} &".format(main_config["server_ip_test"], main_config["iperf_port"], main_config["time_each_flow"]))
+        os.system("iperf3 -c {} -p {}  -R --length 1472 -u -b {}m -t {} &".format(main_config["server_ip"], main_config["iperf_port"], main_config["udp_sending_rate"],main_config["time_each_flow"]))
         time.sleep(main_config["time_each_flow"] + main_config["time_flow_interval"])
         os.system('killall iperf3')
         os.system('killall tcpdump')
-        os.system("python3 subprocess.py pcap2txt --mode udp --file-path {} &".format(output_pcap))
+        os.system("python3 my_subprocess.py pcap2txt --mode udp --file-path {} &".format(output_pcap))
     print("All test done Successfully!!")
 
 

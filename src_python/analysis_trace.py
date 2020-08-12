@@ -4,6 +4,7 @@ import os
 import utils
 import time
 import pandas as pd
+import datetime
 import matplotlib.pyplot as plt
 import matplotlib.pylab as pylab
 
@@ -49,13 +50,83 @@ if "PLT" in analysis_category:
     large_data_sample_upperbound = 1000000
 
 def main():
-    result_analysis_udp_socket()
+    #result_analysis_udp_socket()
+    #result_generate_iperf_wireshark()
+    result_analysis_iperf_wireshark()
+
+
+def result_generate_iperf_wireshark():
+    main_config = utils.parse_config("config/config.json")["iperf_wireshark"]
+    time_unit_trace = main_config["time_unit_trace"] # default is 1000, minimum unit is s, can also be ms
+    file_list = os.listdir(main_config["result_path"])
+    file_list.sort()
+    assert len(file_list) != 0, "Empty Analysis directory"
+    df_main = pd.DataFrame()
+    print("Start read result files")
+    for file in file_list:
+        if file.endswith(".txt"):
+            input_path = os.path.join(main_config["result_path"], file)
+            print("File: {}".format(input_path))
+            df_temp = pd.read_csv(input_path, names=["time", "Length"], header=None, sep="\t")
+            df_temp = pd.DataFrame(data = {"time": [int(x*1000/time_unit_trace) for x in df_temp["time"].values], "Bandwidth": [(x * 8 * 1000 /time_unit_trace) for x in df_temp["Length"].values]})
+            df_temp = df_temp.groupby(["time"]).sum().reset_index() # Bandwidth in bps
+            df_main = pd.concat( [df_main, df_temp], ignore_index=True)
+    df_main = df_main.groupby(["time"]).sum().reset_index() # Bandwidth in bps
+    print("Read Files done")
+
+    df_main = pd.DataFrame(data = {"time" : df_main["time"].values, "datetime": [datetime.datetime.fromtimestamp(x).strftime("%Y_%m_%d_%H") for x in df_main["time"].values], "Bandwidth" : df_main["Bandwidth"].values})
+    if not os.path.exists(main_config["result_generated_path"]):
+        os.mkdir(main_config["result_generated_path"])
+    for this_datetime in df_main["datetime"].unique():
+        this_file_path = os.path.join(main_config["result_generated_path"] ,"iperf_wireshark_{}.txt".format(this_datetime))
+        print(this_file_path)
+        df_temp = df_main[df_main["datetime"] == this_datetime]
+        df_temp.to_csv(this_file_path, index = False, header=False,columns=["time","Bandwidth"], sep="\t")
+
+
+def result_analysis_iperf_wireshark():
+    # analysis result file and generate trace:
+    main_config = utils.parse_config("config/config.json")["iperf_wireshark"]
+    #result_config = utils.parse_config(main_config["test_config_file"])
+    file_list = os.listdir(main_config["result_generated_path"])
+    file_list.sort()
+    assert len(file_list) != 0, "Empty Analysis directory"
+    df_main = pd.DataFrame()
+    for file in file_list:
+        if file.endswith(".txt"):
+            input_path = os.path.join(main_config["result_generated_path"], file)
+            #print(input_path)
+            df_temp = pd.read_csv(input_path, names=["time", "Bandwidth"], header=None, sep="\t")
+            df_main = pd.concat( [df_main, df_temp], ignore_index=True)
+
+    time_bin_size = 1
+    _para_x_range = [1, -1]
+    time_list = [int(x/time_bin_size) for x in df_main["time"].values]
+    start_time = min(time_list)
+    time_list = [x - start_time for x in time_list]
+    Bandwidth_list = [round(x/1000000,3) for x in df_main["Bandwidth"].values]
+    df_main = pd.DataFrame(data = {"time": time_list, "Bandwidth": Bandwidth_list})
+    df_main = df_main.groupby(["time"]).mean().reset_index()
+    time_list = df_main["time"].values[_para_x_range[0]: _para_x_range[1]]
+    Bandwidth_list = df_main["Bandwidth"].values[_para_x_range[0]: _para_x_range[1]]
+
+
+    fig, axs = plt.subplots(nrows=1, ncols=1, **figure_config["single"])
+    fig.suptitle('Cellular Capacity with Time')
+    axs.plot(time_list, Bandwidth_list, label='Throughput', **plot_lines["normal"])
+    axs.set_xlabel('Time, Bin size = {}s'.format(time_bin_size))
+    axs.set_ylabel('Throughput (Mbps)')
+    axs.set_xlim(left=1, right=(max(time_list)))
+    axs.set_ylim(bottom=0, top=(max(Bandwidth_list) * 1.2))
+    plt.show()
+
+
+
 
 def result_analysis_udp_socket():
     # analysis result file and generate trace:
     main_config = utils.parse_config("config/config.json")["udp_socket"]
     #result_config = utils.parse_config(main_config["test_config_file"])
-    print()
     file_list = os.listdir(main_config["result_path"])
     file_list.sort()
     assert len(file_list) != 0, "Empty Analysis directory"
@@ -83,13 +154,13 @@ def result_analysis_udp_socket():
     axs.plot(time_list, Bandwidth_list, label='Throughput', **plot_lines["normal"])
     axs.set_xlabel('Time, Bin size = {}s'.format(time_bin_size))
     axs.set_ylabel('Throughput (Mbps)')
-    axs.set_xlim(left=0, right=(max(time_list)))
+    axs.set_xlim(left=1, right=(max(time_list)))
     axs.set_ylim(bottom=0, top=(max(Bandwidth_list) * 1.2))
     plt.show()
 
 
 
-    
+
 
 
 

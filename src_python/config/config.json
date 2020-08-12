@@ -13,13 +13,14 @@
   },
   "iperf_wireshark":{
     "result_path": "result/iperf_wireshark/",
+    "result_generated_path": "result/iperf_wireshark_generated/",
     "total_run": 10,
     "server_ip": "103.49.160.131",
     "server_ip_test": "192.168.80.76",
     "iperf_port": 7777,
-    "time_each_flow": 10,
-    "time_flow_interval": 5
-
+    "time_each_flow": 600,
+    "time_flow_interval": 5,
+    "udp_sending_rate": 30,
+    "time_unit_trace": 1000
   }
-
 }

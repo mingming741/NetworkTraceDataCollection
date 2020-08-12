@@ -20,8 +20,9 @@ def main():
         if args.mode == 'udp':
             if os.path.exists(args.file_path):
                 txt_dir = args.file_path[0:-4] + 'txt'
-                os.system("tshark -r " + args.file_path + " -T fields -e frame.time_relative -e frame.cap_len > " + txt_dir)
-                #os.system("rm " + args.file_path)
+                #os.system("tshark -r " + args.file_path + " -T fields -e frame.time_relative -e frame.cap_len > " + txt_dir)
+                os.system("tshark -r " + args.file_path + " -T fields -e frame.time_epoch -e frame.cap_len > " + txt_dir)
+                os.system("rm " + args.file_path)
 
     # generate a large file for wget testing
     if args.mission == "generate_large_file":
