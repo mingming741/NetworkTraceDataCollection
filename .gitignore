@@ -24,5 +24,6 @@
 # Data
 data/*
 result/*
+src_python/result/*
 measurement/crawled_data/*
 venv/*
