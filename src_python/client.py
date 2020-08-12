@@ -7,16 +7,42 @@ import os
 import json
 import glob
 import shutil
+import requests
 
 import utils
 
-main_config = utils.parse_config("config/config.json")
+
 
 def main():
-    initial_dir()
-    udp_socket()
+    init_dir()
+    #udp_socket()
+    iperf_wireshark()
+
+
+def iperf_wireshark():
+    main_config = utils.parse_config("config/config.json")["iperf_wireshark"]
+    if not os.path.exists(main_config["result_path"]):
+        os.mkdir(main_config["result_path"])
+    else:
+        shutil.rmtree(main_config["result_path"])
+        os.mkdir(main_config["result_path"])
+
+    for i in range(0, int(main_config["total_run"])):
+        #os.system("tcpdump -i any udp port " + str(config['host']['desktop']['port']) + " -w " + str(config["result_directory"]) + variant[j] + "/" + str(i) + ".pcap &")
+        current_datetime = datetime.datetime.now()
+        output_pcap = os.path.join(main_config["result_path"],  "{}.pcap".format(current_datetime.strftime("%Y_%m_%d_%H_%M")))
+        print(output_pcap)
+        os.system("tcpdump -i any udp port {} -w {} &".format(main_config["iperf_port"], output_pcap))
+        os.system("iperf3 -c {} -p {}  -R --length 1472 -u -b 60m -t {} &".format(main_config["server_ip_test"], main_config["iperf_port"], main_config["time_each_flow"]))
+        time.sleep(main_config["time_each_flow"] + main_config["time_flow_interval"])
+        os.system('killall iperf3')
+        os.system('killall tcpdump')
+        os.system("python3 subprocess.py pcap2txt --mode udp --file-path {} &".format(output_pcap))
+    print("All test done Successfully!!")
+
 
 def udp_socket():
+    main_config = utils.parse_config("config/config.json")["udp_socket"]
     result_path = main_config["result_path"]
     result_file_prefix = os.path.join(result_path, "udp_client_recieve_")
     result_file_ext = ".txt"
@@ -85,10 +111,7 @@ def udp_socket():
     client_socket.close()
 
 
-
-def initial_dir():
-    if not os.path.exists("output_trace"):
-        os.mkdir("output_trace")
+def init_dir():
     if not os.path.exists("result"):
         os.mkdir("result")
 
