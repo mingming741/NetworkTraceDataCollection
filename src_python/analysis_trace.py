@@ -7,7 +7,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.pylab as pylab
 
-main_config = utils.parse_config("config/config.json")
+
 analysis_category = ["CIF", "VC", "NTC", "APPU", "IDX", "PLT"]
 
 if "PLT" in analysis_category:
@@ -49,11 +49,13 @@ if "PLT" in analysis_category:
     large_data_sample_upperbound = 1000000
 
 def main():
-    result_analysis()
+    result_analysis_udp_socket()
 
-def result_analysis():
+def result_analysis_udp_socket():
     # analysis result file and generate trace:
-    result_config = utils.parse_config(main_config["test_config_file"])
+    main_config = utils.parse_config("config/config.json")["udp_socket"]
+    #result_config = utils.parse_config(main_config["test_config_file"])
+    print()
     file_list = os.listdir(main_config["result_path"])
     file_list.sort()
     assert len(file_list) != 0, "Empty Analysis directory"
@@ -64,16 +66,25 @@ def result_analysis():
             df_temp = pd.read_csv(input_path, names=["time", "Bandwidth"], header=None, sep="\t")
             df_main = pd.concat( [df_main, df_temp], ignore_index=True)
 
-    time_list = [int(x) for x in df_main["time"].values]
+    time_bin_size = 60
+    _para_x_range = [1, -1]
+    time_list = [int(x/time_bin_size) for x in df_main["time"].values]
     start_time = min(time_list)
     time_list = [x - start_time for x in time_list]
     Bandwidth_list = [round(x/1000000,3) for x in df_main["Bandwidth"].values]
+    df_main = pd.DataFrame(data = {"time": time_list, "Bandwidth": Bandwidth_list})
+    df_main = df_main.groupby(["time"]).mean().reset_index()
+    time_list = df_main["time"].values[_para_x_range[0]: _para_x_range[1]]
+    Bandwidth_list = df_main["Bandwidth"].values[_para_x_range[0]: _para_x_range[1]]
 
-    fig, axs = plt.subplots(nrows=1, ncols=1, sharex=False, sharey=False, num=1)
+
+    fig, axs = plt.subplots(nrows=1, ncols=1, **figure_config["single"])
     fig.suptitle('Cellular Capacity with Time')
     axs.plot(time_list, Bandwidth_list, label='Throughput', **plot_lines["normal"])
-    axs.set_xlabel('Time')
-    axs.set_ylabel('Throughput')
+    axs.set_xlabel('Time, Bin size = {}s'.format(time_bin_size))
+    axs.set_ylabel('Throughput (Mbps)')
+    axs.set_xlim(left=0, right=(max(time_list)))
+    axs.set_ylim(bottom=0, top=(max(Bandwidth_list) * 1.2))
     plt.show()
 
 
