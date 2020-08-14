@@ -7,7 +7,13 @@ import utils
 main_config = utils.parse_config("config/config.json")
 
 def main():
-    udp_socket()
+    #udp_socket()
+
+
+def iperf_wireshark():
+    pass()
+
+
 
 def udp_socket():
     server_address = tuple(main_config["server_address"])

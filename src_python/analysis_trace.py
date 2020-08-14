@@ -4,9 +4,9 @@ import os
 import utils
 import time
 import pandas as pd
-import datetime
 import matplotlib.pyplot as plt
 import matplotlib.pylab as pylab
+from datetime import datetime, timezone
 
 
 analysis_category = ["CIF", "VC", "NTC", "APPU", "IDX", "PLT"]
@@ -51,7 +51,7 @@ if "PLT" in analysis_category:
 
 def main():
     #result_analysis_udp_socket()
-    #result_generate_iperf_wireshark()
+    result_generate_iperf_wireshark()
     result_analysis_iperf_wireshark()
 
 
@@ -74,12 +74,11 @@ def result_generate_iperf_wireshark():
     df_main = df_main.groupby(["time"]).sum().reset_index() # Bandwidth in bps
     print("Read Files done")
 
-    df_main = pd.DataFrame(data = {"time" : df_main["time"].values, "datetime": [datetime.datetime.fromtimestamp(x).strftime("%Y_%m_%d_%H") for x in df_main["time"].values], "Bandwidth" : df_main["Bandwidth"].values})
+    df_main = pd.DataFrame(data = {"time" : df_main["time"].values, "datetime": [datetime.fromtimestamp(x).strftime("%Y_%m_%d_%H") for x in df_main["time"].values], "Bandwidth" : df_main["Bandwidth"].values})
     if not os.path.exists(main_config["result_generated_path"]):
         os.mkdir(main_config["result_generated_path"])
     for this_datetime in df_main["datetime"].unique():
         this_file_path = os.path.join(main_config["result_generated_path"] ,"iperf_wireshark_{}.txt".format(this_datetime))
-        print(this_file_path)
         df_temp = df_main[df_main["datetime"] == this_datetime]
         df_temp.to_csv(this_file_path, index = False, header=False,columns=["time","Bandwidth"], sep="\t")
 
@@ -99,7 +98,7 @@ def result_analysis_iperf_wireshark():
             df_temp = pd.read_csv(input_path, names=["time", "Bandwidth"], header=None, sep="\t")
             df_main = pd.concat( [df_main, df_temp], ignore_index=True)
 
-    time_bin_size = 1
+    time_bin_size = 60
     _para_x_range = [1, -1]
     time_list = [int(x/time_bin_size) for x in df_main["time"].values]
     start_time = min(time_list)
@@ -113,7 +112,8 @@ def result_analysis_iperf_wireshark():
 
     fig, axs = plt.subplots(nrows=1, ncols=1, **figure_config["single"])
     fig.suptitle('Cellular Capacity with Time')
-    axs.plot(time_list, Bandwidth_list, label='Throughput', **plot_lines["normal"])
+    #axs.plot(time_list, Bandwidth_list, label='Throughput', **plot_lines["normal"])
+    axs.bar(time_list, Bandwidth_list, label='Throughput')
     axs.set_xlabel('Time, Bin size = {}s'.format(time_bin_size))
     axs.set_ylabel('Throughput (Mbps)')
     axs.set_xlim(left=1, right=(max(time_list)))
@@ -160,7 +160,8 @@ def result_analysis_udp_socket():
 
 
 
-
+def utc_to_local(utc_dt):
+    return utc_dt.replace(tzinfo=timezone.utc).astimezone(tz=None)
 
 
 

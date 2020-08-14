@@ -8,6 +8,7 @@ import json
 import glob
 import shutil
 import requests
+from datetime import datetime, timezone
 
 import utils
 
@@ -29,7 +30,7 @@ def iperf_wireshark():
 
     for i in range(0, int(main_config["total_run"])):
         #os.system("tcpdump -i any udp port " + str(config['host']['desktop']['port']) + " -w " + str(config["result_directory"]) + variant[j] + "/" + str(i) + ".pcap &")
-        current_datetime = datetime.datetime.now()
+        current_datetime = datetime.fromtimestamp(time.time())
         output_pcap = os.path.join(main_config["result_path"],  "{}.pcap".format(current_datetime.strftime("%Y_%m_%d_%H_%M")))
         print(output_pcap)
         os.system("tcpdump -i any udp port {} -w {} &".format(main_config["iperf_port"], output_pcap))
@@ -114,6 +115,7 @@ def udp_socket():
 def init_dir():
     if not os.path.exists("result"):
         os.mkdir("result")
+        os.system("sudo chmod 777 result")
 
 
 def utf8len(s):
