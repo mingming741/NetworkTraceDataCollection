@@ -7,6 +7,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.pylab as pylab
 from datetime import datetime, timezone
+import pathlib
 
 
 analysis_category = ["CIF", "VC", "NTC", "APPU", "IDX", "PLT"]
@@ -74,10 +75,7 @@ def result_generate_download_iperf_wireshark():
     print("Read Files done")
 
     df_main = pd.DataFrame(data = {"time" : df_main["time"].values, "datetime": [datetime.fromtimestamp(x).strftime("%Y_%m_%d_%H") for x in df_main["time"].values], "Bandwidth" : df_main["Bandwidth"].values})
-    if not os.path.exists(main_config["result_generated_path"]):
-        os.mkdir(main_config["result_generated_path"])
-    if not os.path.exists(os.path.join(main_config["result_generated_path"], main_config["variant"])):
-        os.mkdir(os.path.join(main_config["result_generated_path"], main_config["variant"]))
+    pathlib.Path(os.path.join(main_config["result_generated_path"], main_config["variant"])).mkdir(parents=True, exist_ok=True)
     for this_datetime in df_main["datetime"].unique():
         this_file_path = os.path.join(main_config["result_generated_path"], main_config["variant"],"download_{}_{}.txt".format(main_config["variant"], this_datetime))
         df_temp = df_main[df_main["datetime"] == this_datetime]
@@ -114,7 +112,6 @@ def result_draw_download_iperf_wireshark():
     df_main = df_main.groupby(["time"]).mean().reset_index()
     time_list = df_main["time"].values #[_para_x_range[0]: _para_x_range[1]]
     Bandwidth_list = df_main["Bandwidth"].values #[_para_x_range[0]: _para_x_range[1]]
-    print(len(time_list))
 
 
     fig, axs = plt.subplots(nrows=1, ncols=1, **figure_config["single"])

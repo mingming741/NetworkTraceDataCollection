@@ -13,7 +13,7 @@
   "download_iperf_wireshark":{
     "server_restart_time": 1,
     "result_path": "result/download_iperf_wireshark/",
-    "result_generated_path": "trace/download_iperf_wireshark/",
+    "result_generated_path": "trace/3HK_4G/download",
     "total_run": 12,
     "server_ip": "103.49.160.132",
     "iperf_port": 7777,
