@@ -4,13 +4,59 @@ import socket
 import time
 import utils
 import os
+import shutil
+import threading
+from datetime import datetime, timezone
 
 main_config = utils.parse_config("config/config.json")
 
 def main():
+    utils.init_dir()
     #udp_socket()
-    download_iperf_wireshark()
+    upload_iperf_wireshark()
 
+
+def upload_iperf_wireshark():
+    main_config = utils.parse_config("config/config.json")["upload_iperf_wireshark"]
+    print("Upload iperf server, start~~")
+    if os.path.exists(main_config["result_path"]):
+        shutil.rmtree(main_config["result_path"])
+    os.mkdir(main_config["result_path"])
+    os.system("sudo chmod 777 {}".format(main_config["result_path"]))
+    os.mkdir(os.path.join(main_config["result_path"], main_config["variant"]))
+    os.system("sudo chmod 777 {}".format(os.path.join(main_config["result_path"], main_config["variant"])))
+    server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    server_socket.bind(tuple(main_config["server_cmd_address"]))
+    server_socket.listen(10)
+    while True:
+        client_socket, client_address = server_socket.accept()
+        print("Recieve from client {}".format(client_address))
+        count = 0
+        message = ""
+        while True:
+            count = count + 1
+            data = client_socket.recv(1024).decode("utf-8")
+            message = message + data
+            if "##DOKI##" in data:
+                break
+        message = message.replace("##DOKI##", "")
+        print(message)
+        if message == "Start":
+            os.system("iperf3 -s -p 7777 &")
+            current_datetime = datetime.fromtimestamp(time.time())
+            output_pcap = os.path.join(main_config["result_path"], main_config["variant"], "{}.pcap".format(current_datetime.strftime("%Y_%m_%d_%H_%M")))
+            if main_config["variant"] == "udp":
+                os.system("tcpdump -i any udp port {} -w {} &".format(main_config["iperf_port"], output_pcap))
+                time.sleep(main_config["time_each_flow"] + 2 * main_config["time_flow_interval"])
+                os.system('killall tcpdump')
+                os.system("python3 my_subprocess.py pcap2txt --mode udp --file-path {} &".format(output_pcap))
+            if main_config["variant"] != "udp" and main_config["variant"] in main_config["variants_list"]:
+                os.system("tcpdump -i any tcp port {} -w {} &".format(main_config["iperf_port"], output_pcap))
+                time.sleep(main_config["time_each_flow"] + main_config["time_flow_interval"])
+                os.system('killall tcpdump')
+                os.system("python3 my_subprocess.py pcap2txt --mode tcp --file-path {} &".format(output_pcap))
+            os.system('killall iperf3')
+            print("Server One flow finished~")
 
 def download_iperf_wireshark():
     print("Download iperf server, start~~")
@@ -19,7 +65,7 @@ def download_iperf_wireshark():
         os.system("sudo sysctl net.ipv4.tcp_congestion_control={}".format(main_config["variant"]))
     while True:
         os.system("iperf3 -s -p 7777")
-        time.sleep(5)
+        time.sleep(main_config["server_restart_time"])
 
 
 def download_socket():

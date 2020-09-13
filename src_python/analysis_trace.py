@@ -51,12 +51,12 @@ if "PLT" in analysis_category:
     large_data_sample_upperbound = 1000000
 
 def main():
-    result_generate_download_iperf_wireshark()
-    result_draw_download_iperf_wireshark()
+    main_config = utils.parse_config("config/config.json")["upload_iperf_wireshark"]
+    result_generate_iperf_wireshark(main_config)
+    result_draw_iperf_wireshark(main_config)
 
 
-def result_generate_download_iperf_wireshark():
-    main_config = utils.parse_config("config/config.json")["download_iperf_wireshark"]
+def result_generate_iperf_wireshark(main_config):
     time_unit_trace = main_config["time_unit_trace"] # default is 1000, minimum unit is s, can also be ms
     file_list = os.listdir(os.path.join(main_config["result_path"], main_config["variant"]))
     file_list.sort()
@@ -83,10 +83,8 @@ def result_generate_download_iperf_wireshark():
     print("Generate trace done~~")
 
 
-def result_draw_download_iperf_wireshark():
+def result_draw_iperf_wireshark(main_config):
     # analysis result file and generate trace:
-    main_config = utils.parse_config("config/config.json")["download_iperf_wireshark"]
-    #result_config = utils.parse_config(main_config["test_config_file"])
     file_list = os.listdir(os.path.join(main_config["result_generated_path"], main_config["variant"]))
     file_list.sort()
     assert len(file_list) != 0, "Empty Analysis directory"

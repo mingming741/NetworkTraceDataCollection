@@ -15,13 +15,35 @@ import utils
 
 
 def main():
-    init_dir()
+    utils.init_dir()
     #download_socket()
-    download_iperf_wireshark()
+    upload_iperf_wireshark()
+
+
+def upload_iperf_wireshark():
+    main_config = utils.parse_config("config/config.json")["upload_iperf_wireshark"]
+    print("Upload iperf client, start~~")
+    for i in range(0, int(main_config["total_run"])):
+        client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        client_socket.connect(tuple(main_config["server_cmd_address"]))
+        this_cmd = "Start"
+        message = this_cmd + "##DOKI##"
+        client_socket.send(message.encode("utf-8"))
+        time.sleep(main_config["time_flow_interval"])
+        if main_config["variant"] == "udp":
+            os.system("iperf3 -c {} -p {} --length 1472 -u -b {}m -t {} &".format(main_config["server_ip"], main_config["iperf_port"], main_config["udp_sending_rate"],main_config["time_each_flow"]))
+            time.sleep(main_config["time_each_flow"] + main_config["time_flow_interval"])
+            os.system('killall iperf3')
+        if main_config["variant"] != "udp" and main_config["variant"] in main_config["variants_list"]:
+            os.system("iperf3 -c {} -p {} -t {} &".format(main_config["server_ip"], main_config["iperf_port"], main_config["time_each_flow"]))
+            time.sleep(main_config["time_each_flow"] + main_config["time_flow_interval"])
+            os.system('killall iperf3')
+        time.sleep(main_config["time_flow_interval"])
 
 
 def download_iperf_wireshark():
     main_config = utils.parse_config("config/config.json")["download_iperf_wireshark"]
+    print("Download iperf client, start~~")
     if os.path.exists(main_config["result_path"]):
         shutil.rmtree(main_config["result_path"])
     os.mkdir(main_config["result_path"])
@@ -33,7 +55,7 @@ def download_iperf_wireshark():
         #os.system("tcpdump -i any udp port " + str(config['host']['desktop']['port']) + " -w " + str(config["result_directory"]) + variant[j] + "/" + str(i) + ".pcap &")
         current_datetime = datetime.fromtimestamp(time.time())
         output_pcap = os.path.join(main_config["result_path"], main_config["variant"], "{}.pcap".format(current_datetime.strftime("%Y_%m_%d_%H_%M")))
-        print(output_pcap)
+        #print(output_pcap)
         if main_config["variant"] == "udp":
             os.system("tcpdump -i any udp port {} -w {} &".format(main_config["iperf_port"], output_pcap))
             os.system("iperf3 -c {} -p {} -R --length 1472 -u -b {}m -t {} &".format(main_config["server_ip"], main_config["iperf_port"], main_config["udp_sending_rate"],main_config["time_each_flow"]))
@@ -121,13 +143,7 @@ def download_socket():
     client_socket.close()
 
 
-def init_dir():
-    if not os.path.exists("result"):
-        os.mkdir("result")
-        os.system("sudo chmod 777 result")
-    if not os.path.exists("trace"):
-        os.mkdir("trace")
-        os.system("sudo chmod 777 trace")
+
 
 
 def utf8len(s):
