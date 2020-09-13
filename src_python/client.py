@@ -35,6 +35,7 @@ def upload_iperf_wireshark():
             time.sleep(main_config["time_each_flow"] + main_config["time_flow_interval"])
             os.system('killall iperf3')
         if main_config["variant"] != "udp" and main_config["variant"] in main_config["variants_list"]:
+            os.system("sudo sysctl net.ipv4.tcp_congestion_control={}".format(main_config["variant"]))
             os.system("iperf3 -c {} -p {} -t {} &".format(main_config["server_ip"], main_config["iperf_port"], main_config["time_each_flow"]))
             time.sleep(main_config["time_each_flow"] + main_config["time_flow_interval"])
             os.system('killall iperf3')
