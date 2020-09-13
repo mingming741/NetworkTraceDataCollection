@@ -1,6 +1,6 @@
 {
-  "download_udp_socket": {
-    "result_path": "result/download_udp_socket/",
+  "download_socket": {
+    "result_path": "result/download_socket/",
     "process_total_time": -1,
     "connection_total_time": 3600,
     "server_address": ["103.49.160.131", 7777],
@@ -13,13 +13,19 @@
   "download_iperf_wireshark":{
     "server_restart_time": 1,
     "result_path": "result/download_iperf_wireshark/",
-    "result_generated_path": "result/download_iperf_wireshark_generated/",
+    "result_generated_path": "trace/download_iperf_wireshark/",
     "total_run": 12,
     "server_ip": "103.49.160.132",
     "iperf_port": 7777,
     "time_each_flow": 60,
     "time_flow_interval": 5,
     "udp_sending_rate": 20,
-    "time_unit_trace": 1000
+    "time_unit_trace": 1000,
+    "variant": "bbr",
+    "variants_list": [
+      "udp",
+      "cubic",
+      "bbr"
+    ]
   }
 }

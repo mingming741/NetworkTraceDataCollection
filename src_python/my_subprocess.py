@@ -15,7 +15,7 @@ def main():
         if args.mode == 'tcp':
             if os.path.exists(args.file_path):
                 txt_dir = args.file_path[0:-4] + 'txt'
-                os.system("tshark -r " + args.file_path + " -T fields -e frame.time_relative -e frame.cap_len -e tcp.srcport -e tcp.dstport > " + txt_dir)
+                os.system("tshark -r " + args.file_path + " -T fields -e frame.time_epoch -e frame.cap_len > " + txt_dir)
                 os.system("rm " + args.file_path)
         if args.mode == 'udp':
             if os.path.exists(args.file_path):

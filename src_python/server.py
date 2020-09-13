@@ -14,13 +14,16 @@ def main():
 
 def download_iperf_wireshark():
     print("Download iperf server, start~~")
+    main_config = utils.parse_config("config/config.json")["download_iperf_wireshark"]
+    if main_config["variant"] in main_config["variants_list"] and main_config["variant"] != "udp":
+        os.system("sudo sysctl net.ipv4.tcp_congestion_control={}".format(main_config["variant"]))
     while True:
         os.system("iperf3 -s -p 7777")
         time.sleep(5)
 
 
-
-def download_udp_socket():
+def download_socket():
+    main_config = utils.parse_config("config/config.json")["download_socket"]
     server_address = tuple(main_config["server_address"])
     connection_total_time = main_config["connection_total_time"]
     server_connection_log_interval = 1000000
@@ -36,7 +39,6 @@ def download_udp_socket():
     file_read = open("input_file")
     msg_byte = file_read.readline()[0:1000].encode()
     file_read.close()
-
 
     connection_index = 1
     print("LTE connection server, start~~")

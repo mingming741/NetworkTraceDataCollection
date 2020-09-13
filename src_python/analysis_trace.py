@@ -50,13 +50,12 @@ if "PLT" in analysis_category:
     large_data_sample_upperbound = 1000000
 
 def main():
-    #result_analysis_udp_socket()
-    result_generate_iperf_wireshark()
-    result_analysis_iperf_wireshark()
+    result_generate_download_iperf_wireshark()
+    result_draw_download_iperf_wireshark()
 
 
-def result_generate_iperf_wireshark():
-    main_config = utils.parse_config("config/config.json")["iperf_wireshark"]
+def result_generate_download_iperf_wireshark():
+    main_config = utils.parse_config("config/config.json")["download_iperf_wireshark"]
     time_unit_trace = main_config["time_unit_trace"] # default is 1000, minimum unit is s, can also be ms
     file_list = os.listdir(main_config["result_path"])
     file_list.sort()
@@ -78,14 +77,14 @@ def result_generate_iperf_wireshark():
     if not os.path.exists(main_config["result_generated_path"]):
         os.mkdir(main_config["result_generated_path"])
     for this_datetime in df_main["datetime"].unique():
-        this_file_path = os.path.join(main_config["result_generated_path"] ,"iperf_wireshark_{}.txt".format(this_datetime))
+        this_file_path = os.path.join(main_config["result_generated_path"] ,"download_iperf_wireshark_{}.txt".format(this_datetime))
         df_temp = df_main[df_main["datetime"] == this_datetime]
         df_temp.to_csv(this_file_path, index = False, header=False,columns=["time","Bandwidth"], sep="\t")
 
 
-def result_analysis_iperf_wireshark():
+def result_draw_download_iperf_wireshark():
     # analysis result file and generate trace:
-    main_config = utils.parse_config("config/config.json")["iperf_wireshark"]
+    main_config = utils.parse_config("config/config.json")["download_iperf_wireshark"]
     #result_config = utils.parse_config(main_config["test_config_file"])
     file_list = os.listdir(main_config["result_generated_path"])
     file_list.sort()

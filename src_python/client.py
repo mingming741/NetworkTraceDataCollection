@@ -16,34 +16,43 @@ import utils
 
 def main():
     init_dir()
-    #udp_socket()
+    #download_socket()
     download_iperf_wireshark()
 
 
 def download_iperf_wireshark():
     main_config = utils.parse_config("config/config.json")["download_iperf_wireshark"]
-    if not os.path.exists(main_config["result_path"]):
-        os.mkdir(main_config["result_path"])
-    else:
+    if os.path.exists(main_config["result_path"]):
         shutil.rmtree(main_config["result_path"])
-        os.mkdir(main_config["result_path"])
+    os.mkdir(main_config["result_path"])
+    os.system("sudo chmod 777 {}".format(main_config["result_path"]))
+    os.mkdir(os.path.join(main_config["result_path"], main_config["variant"]))
+    os.system("sudo chmod 777 {}".format(os.path.join(main_config["result_path"], main_config["variant"]))
 
     for i in range(0, int(main_config["total_run"])):
         #os.system("tcpdump -i any udp port " + str(config['host']['desktop']['port']) + " -w " + str(config["result_directory"]) + variant[j] + "/" + str(i) + ".pcap &")
         current_datetime = datetime.fromtimestamp(time.time())
-        output_pcap = os.path.join(main_config["result_path"],  "{}.pcap".format(current_datetime.strftime("%Y_%m_%d_%H_%M")))
+        output_pcap = os.path.join(main_config["result_path"], main_config["variant"], "{}.pcap".format(current_datetime.strftime("%Y_%m_%d_%H_%M")))
         print(output_pcap)
-        os.system("tcpdump -i any udp port {} -w {} &".format(main_config["iperf_port"], output_pcap))
-        os.system("iperf3 -c {} -p {}  -R --length 1472 -u -b {}m -t {} &".format(main_config["server_ip"], main_config["iperf_port"], main_config["udp_sending_rate"],main_config["time_each_flow"]))
-        time.sleep(main_config["time_each_flow"] + main_config["time_flow_interval"])
-        os.system('killall iperf3')
-        os.system('killall tcpdump')
-        os.system("python3 my_subprocess.py pcap2txt --mode udp --file-path {} &".format(output_pcap))
+        if main_config["variant"] == udp:
+            os.system("tcpdump -i any udp port {} -w {} &".format(main_config["iperf_port"], output_pcap))
+            os.system("iperf3 -c {} -p {} -R --length 1472 -u -b {}m -t {} &".format(main_config["server_ip"], main_config["iperf_port"], main_config["udp_sending_rate"],main_config["time_each_flow"]))
+            time.sleep(main_config["time_each_flow"] + main_config["time_flow_interval"])
+            os.system('killall iperf3')
+            os.system('killall tcpdump')
+            os.system("python3 my_subprocess.py pcap2txt --mode udp --file-path {} &".format(output_pcap))
+        if main_config["variant"] != udp and main_config["variant"] in main_config["variants_list"]:
+            os.system("tcpdump -i any tcp port {} -w {} &".format(main_config["iperf_port"], output_pcap))
+            os.system("iperf3 -c {} -p {} -R -t {} &".format(main_config["server_ip"], main_config["iperf_port"], main_config["time_each_flow"]))
+            time.sleep(main_config["time_each_flow"] + main_config["time_flow_interval"])
+            os.system('killall iperf3')
+            os.system('killall tcpdump')
+            os.system("python3 my_subprocess.py pcap2txt --mode tcp --file-path {} &".format(output_pcap))
     print("All test done Successfully!!")
 
 
-def download_udp_socket():
-    main_config = utils.parse_config("config/config.json")["udp_socket"]
+def download_socket():
+    main_config = utils.parse_config("config/config.json")["download_socket"]
     result_path = main_config["result_path"]
     result_file_prefix = os.path.join(result_path, "udp_client_recieve_")
     result_file_ext = ".txt"
@@ -116,6 +125,9 @@ def init_dir():
     if not os.path.exists("result"):
         os.mkdir("result")
         os.system("sudo chmod 777 result")
+    if not os.path.exists("trace"):
+        os.mkdir("trace")
+        os.system("sudo chmod 777 trace")
 
 
 def utf8len(s):
