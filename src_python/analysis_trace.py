@@ -57,14 +57,14 @@ def main():
 def result_generate_download_iperf_wireshark():
     main_config = utils.parse_config("config/config.json")["download_iperf_wireshark"]
     time_unit_trace = main_config["time_unit_trace"] # default is 1000, minimum unit is s, can also be ms
-    file_list = os.listdir(main_config["result_path"])
+    file_list = os.listdir(os.path.join(main_config["result_path"], main_config["variant"]))
     file_list.sort()
     assert len(file_list) != 0, "Empty Analysis directory"
     df_main = pd.DataFrame()
     print("Start read result files")
     for file in file_list:
         if file.endswith(".txt"):
-            input_path = os.path.join(main_config["result_path"], file)
+            input_path = os.path.join(main_config["result_path"],  main_config["variant"], file)
             print("File: {}".format(input_path))
             df_temp = pd.read_csv(input_path, names=["time", "Length"], header=None, sep="\t")
             df_temp = pd.DataFrame(data = {"time": [int(x*1000/time_unit_trace) for x in df_temp["time"].values], "Bandwidth": [(x * 8 * 1000 /time_unit_trace) for x in df_temp["Length"].values]})
@@ -76,37 +76,45 @@ def result_generate_download_iperf_wireshark():
     df_main = pd.DataFrame(data = {"time" : df_main["time"].values, "datetime": [datetime.fromtimestamp(x).strftime("%Y_%m_%d_%H") for x in df_main["time"].values], "Bandwidth" : df_main["Bandwidth"].values})
     if not os.path.exists(main_config["result_generated_path"]):
         os.mkdir(main_config["result_generated_path"])
+    if not os.path.exists(os.path.join(main_config["result_generated_path"], main_config["variant"])):
+        os.mkdir(os.path.join(main_config["result_generated_path"], main_config["variant"]))
     for this_datetime in df_main["datetime"].unique():
-        this_file_path = os.path.join(main_config["result_generated_path"] ,"download_iperf_wireshark_{}.txt".format(this_datetime))
+        this_file_path = os.path.join(main_config["result_generated_path"], main_config["variant"],"download_{}_{}.txt".format(main_config["variant"], this_datetime))
         df_temp = df_main[df_main["datetime"] == this_datetime]
         df_temp.to_csv(this_file_path, index = False, header=False,columns=["time","Bandwidth"], sep="\t")
+    print("Generate trace done~~")
 
 
 def result_draw_download_iperf_wireshark():
     # analysis result file and generate trace:
     main_config = utils.parse_config("config/config.json")["download_iperf_wireshark"]
     #result_config = utils.parse_config(main_config["test_config_file"])
-    file_list = os.listdir(main_config["result_generated_path"])
+    file_list = os.listdir(os.path.join(main_config["result_generated_path"], main_config["variant"]))
     file_list.sort()
     assert len(file_list) != 0, "Empty Analysis directory"
     df_main = pd.DataFrame()
     for file in file_list:
         if file.endswith(".txt"):
-            input_path = os.path.join(main_config["result_generated_path"], file)
+            input_path = os.path.join(main_config["result_generated_path"], main_config["variant"], file)
             #print(input_path)
             df_temp = pd.read_csv(input_path, names=["time", "Bandwidth"], header=None, sep="\t")
             df_main = pd.concat( [df_main, df_temp], ignore_index=True)
 
+    print("Start time: {}".format(datetime.fromtimestamp(min(df_main["time"].values))))
+    print("End time: {}".format(datetime.fromtimestamp(max(df_main["time"].values))))
     time_bin_size = 60
-    _para_x_range = [1, -1]
+    #_para_x_range = [1, -1]
     time_list = [int(x/time_bin_size) for x in df_main["time"].values]
     start_time = min(time_list)
     time_list = [x - start_time for x in time_list]
+
+
     Bandwidth_list = [round(x/1000000,3) for x in df_main["Bandwidth"].values]
     df_main = pd.DataFrame(data = {"time": time_list, "Bandwidth": Bandwidth_list})
     df_main = df_main.groupby(["time"]).mean().reset_index()
-    time_list = df_main["time"].values[_para_x_range[0]: _para_x_range[1]]
-    Bandwidth_list = df_main["Bandwidth"].values[_para_x_range[0]: _para_x_range[1]]
+    time_list = df_main["time"].values #[_para_x_range[0]: _para_x_range[1]]
+    Bandwidth_list = df_main["Bandwidth"].values #[_para_x_range[0]: _para_x_range[1]]
+    print(len(time_list))
 
 
     fig, axs = plt.subplots(nrows=1, ncols=1, **figure_config["single"])
@@ -115,7 +123,7 @@ def result_draw_download_iperf_wireshark():
     axs.bar(time_list, Bandwidth_list, label='Throughput')
     axs.set_xlabel('Time, Bin size = {}s'.format(time_bin_size))
     axs.set_ylabel('Throughput (Mbps)')
-    axs.set_xlim(left=1, right=(max(time_list)))
+    axs.set_xlim(left=-1, right=(max(time_list)+1))
     axs.set_ylim(bottom=0, top=(max(Bandwidth_list) * 1.2))
     plt.show()
 

@@ -27,21 +27,21 @@ def download_iperf_wireshark():
     os.mkdir(main_config["result_path"])
     os.system("sudo chmod 777 {}".format(main_config["result_path"]))
     os.mkdir(os.path.join(main_config["result_path"], main_config["variant"]))
-    os.system("sudo chmod 777 {}".format(os.path.join(main_config["result_path"], main_config["variant"]))
+    os.system("sudo chmod 777 {}".format(os.path.join(main_config["result_path"], main_config["variant"])))
 
     for i in range(0, int(main_config["total_run"])):
         #os.system("tcpdump -i any udp port " + str(config['host']['desktop']['port']) + " -w " + str(config["result_directory"]) + variant[j] + "/" + str(i) + ".pcap &")
         current_datetime = datetime.fromtimestamp(time.time())
         output_pcap = os.path.join(main_config["result_path"], main_config["variant"], "{}.pcap".format(current_datetime.strftime("%Y_%m_%d_%H_%M")))
         print(output_pcap)
-        if main_config["variant"] == udp:
+        if main_config["variant"] == "udp":
             os.system("tcpdump -i any udp port {} -w {} &".format(main_config["iperf_port"], output_pcap))
             os.system("iperf3 -c {} -p {} -R --length 1472 -u -b {}m -t {} &".format(main_config["server_ip"], main_config["iperf_port"], main_config["udp_sending_rate"],main_config["time_each_flow"]))
             time.sleep(main_config["time_each_flow"] + main_config["time_flow_interval"])
             os.system('killall iperf3')
             os.system('killall tcpdump')
             os.system("python3 my_subprocess.py pcap2txt --mode udp --file-path {} &".format(output_pcap))
-        if main_config["variant"] != udp and main_config["variant"] in main_config["variants_list"]:
+        if main_config["variant"] != "udp" and main_config["variant"] in main_config["variants_list"]:
             os.system("tcpdump -i any tcp port {} -w {} &".format(main_config["iperf_port"], output_pcap))
             os.system("iperf3 -c {} -p {} -R -t {} &".format(main_config["server_ip"], main_config["iperf_port"], main_config["time_each_flow"]))
             time.sleep(main_config["time_each_flow"] + main_config["time_flow_interval"])
