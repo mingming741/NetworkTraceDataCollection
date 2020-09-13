@@ -51,7 +51,7 @@ def upload_iperf_wireshark():
                 os.system('killall tcpdump')
                 os.system("python3 my_subprocess.py pcap2txt --mode udp --file-path {} &".format(output_pcap))
             if main_config["variant"] != "udp" and main_config["variant"] in main_config["variants_list"]:
-                os.system("tcpdump -i any tcp port {} -w {} &".format(main_config["iperf_port"], output_pcap))
+                os.system("tcpdump -i any tcp dst port {} -w {} &".format(main_config["iperf_port"], output_pcap))
                 time.sleep(main_config["time_each_flow"] + main_config["time_flow_interval"])
                 os.system('killall tcpdump')
                 os.system("python3 my_subprocess.py pcap2txt --mode tcp --file-path {} &".format(output_pcap))

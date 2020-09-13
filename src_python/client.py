@@ -16,8 +16,8 @@ import utils
 
 def main():
     utils.init_dir()
-    #download_socket()
-    upload_iperf_wireshark()
+    download_iperf_wireshark()
+    #upload_iperf_wireshark()
 
 
 def upload_iperf_wireshark():
@@ -65,7 +65,7 @@ def download_iperf_wireshark():
             os.system('killall tcpdump')
             os.system("python3 my_subprocess.py pcap2txt --mode udp --file-path {} &".format(output_pcap))
         if main_config["variant"] != "udp" and main_config["variant"] in main_config["variants_list"]:
-            os.system("tcpdump -i any tcp port {} -w {} &".format(main_config["iperf_port"], output_pcap))
+            os.system("tcpdump -i any tcp src port {} -w {} &".format(main_config["iperf_port"], output_pcap))
             os.system("iperf3 -c {} -p {} -R -t {} &".format(main_config["server_ip"], main_config["iperf_port"], main_config["time_each_flow"]))
             time.sleep(main_config["time_each_flow"] + main_config["time_flow_interval"])
             os.system('killall iperf3')
