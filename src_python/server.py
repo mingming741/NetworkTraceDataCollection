@@ -3,11 +3,13 @@
 import socket
 import time
 import utils
+import os
 
 main_config = utils.parse_config("config/config.json")
 
 def main():
     #udp_socket()
+    download_iperf_wireshark()
 
 
 def download_iperf_wireshark():
