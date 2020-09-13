@@ -16,8 +16,8 @@ import utils
 
 def main():
     utils.init_dir()
-    download_iperf_wireshark()
-    #upload_iperf_wireshark()
+    #download_iperf_wireshark()
+    upload_iperf_wireshark()
 
 
 def upload_iperf_wireshark():
