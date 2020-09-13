@@ -17,11 +17,11 @@ import utils
 def main():
     init_dir()
     #udp_socket()
-    iperf_wireshark()
+    download_iperf_wireshark()
 
 
-def iperf_wireshark():
-    main_config = utils.parse_config("config/config.json")["iperf_wireshark"]
+def download_iperf_wireshark():
+    main_config = utils.parse_config("config/config.json")["download_iperf_wireshark"]
     if not os.path.exists(main_config["result_path"]):
         os.mkdir(main_config["result_path"])
     else:
@@ -42,7 +42,7 @@ def iperf_wireshark():
     print("All test done Successfully!!")
 
 
-def udp_socket():
+def download_udp_socket():
     main_config = utils.parse_config("config/config.json")["udp_socket"]
     result_path = main_config["result_path"]
     result_file_prefix = os.path.join(result_path, "udp_client_recieve_")

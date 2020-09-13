@@ -10,12 +10,15 @@ def main():
     #udp_socket()
 
 
-def iperf_wireshark():
-    pass()
+def download_iperf_wireshark():
+    print("Download iperf server, start~~")
+    while True:
+        os.system("iperf3 -s -p 7777")
+        time.sleep(5)
 
 
 
-def udp_socket():
+def download_udp_socket():
     server_address = tuple(main_config["server_address"])
     connection_total_time = main_config["connection_total_time"]
     server_connection_log_interval = 1000000

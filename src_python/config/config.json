@@ -1,23 +1,21 @@
 {
-  "udp_socket": {
-    "result_path": "result/udp_socket/",
+  "download_udp_socket": {
+    "result_path": "result/download_udp_socket/",
     "process_total_time": -1,
     "connection_total_time": 3600,
     "server_address": ["103.49.160.131", 7777],
-    "server_address_test" : ["192.168.80.77", 7777],
     "throughput_calculation_interval": 1,
     "client_timeout_value": 5,
     "server_timeout_value": 5,
     "server_connection_log_interval": 1000000,
     "test_config_file": "result/udp_test.json"
   },
-  "iperf_wireshark":{
+  "download_iperf_wireshark":{
     "server_restart_time": 1,
-    "result_path": "result/iperf_wireshark/",
-    "result_generated_path": "result/iperf_wireshark_generated/",
+    "result_path": "result/download_iperf_wireshark/",
+    "result_generated_path": "result/download_iperf_wireshark_generated/",
     "total_run": 12,
     "server_ip": "103.49.160.132",
-    "server_ip_test": "192.168.80.76",
     "iperf_port": 7777,
     "time_each_flow": 60,
     "time_flow_interval": 5,
