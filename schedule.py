@@ -22,7 +22,7 @@ def main():
         peer_machine_profile = meta_config["test_machines"][peer_machine]
         server_address_port = (peer_machine_profile["ip"], 2334)
         for task in schedule_profile_list:
-            test_config = utils.parse_config("config/config.json")
+            test_config = {}
             test_config[task["name"]] = task["config"]
 
             print("-- Run Experiment: {}, {}, {}".format(task["config"]["network"], task["name"], task["config"]["variant"]))
@@ -44,7 +44,16 @@ def main():
             if message == "Done":
                 print("SYN with server successfully, start to run the experiment..")
             print("\n")
-            break
+
+            time.sleep(5)
+
+            main_config = utils.parse_config("config/config.json")
+            for key in main_config:
+                task_name = key
+            print("Experiment Start: {}, {}, {}".format(main_config[task_name]["network"], task_name, main_config[task_name]["variant"]))
+            this_cmd = "sudo python3 client.py {}".format(task_name)
+            os.system(this_cmd)
+
 
 
     if this_machine_profile["role"] == "server":
@@ -64,12 +73,21 @@ def main():
                     break
             test_config = json.loads(message.replace("##DOKI##", ""))
             with open("config/config.json", 'w') as f:
-                    json.dump(test_config, f)
+                    json.dump(test_config, f, indent = 2)
             print("Receive client config file successfully, send ACK back to client")
             message = "Done" + "##DOKI##"
             client_socket.send(message.encode("utf-8"))
             print("SYN with client successfully, save client config and start to run experiment..")
             print("\n")
+
+            time.sleep(5)
+
+            main_config = utils.parse_config("config/config.json")
+            for key in main_config:
+                task_name = key
+            print("Experiment Start: {}, {}, {}".format(main_config[task_name]["network"], task_name, main_config[task_name]["variant"]))
+            this_cmd = "sudo python3 server.py {}".format(task_name)
+            os.system(this_cmd)
 
 
 

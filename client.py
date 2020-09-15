@@ -13,11 +13,17 @@ from datetime import datetime, timezone
 import utils
 
 
-
 def main():
     utils.init_dir()
-    #download_iperf_wireshark()
-    upload_iperf_wireshark()
+    parser = argparse.ArgumentParser(description='For different background job')
+    parser.add_argument('function', type=str, help='the job')
+    args = parser.parse_args()
+
+    #udp_socket()
+    if args.function == "upload_iperf_wireshark":
+        upload_iperf_wireshark()
+    if args.function == "upload_iperf_wireshark":
+        download_iperf_wireshark()
 
 
 def upload_iperf_wireshark():

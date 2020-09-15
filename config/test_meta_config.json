@@ -49,9 +49,9 @@
   "scheduling_config":{
     "download_iperf_wireshark":{
       "result_path": "result/download_iperf_wireshark/",
-      "total_run": 12,
+      "total_run": 3,
       "iperf_port": 7777,
-      "time_each_flow": 3600,
+      "time_each_flow": 60,
       "time_flow_interval": 10,
       "udp_sending_rate": 20,
       "time_unit_trace": 1000,

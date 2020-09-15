@@ -6,14 +6,22 @@ import utils
 import os
 import shutil
 import threading
+import argparse
 from datetime import datetime, timezone
 
 main_config = utils.parse_config("config/config.json")
 
 def main():
     utils.init_dir()
+    parser = argparse.ArgumentParser(description='For different background job')
+    parser.add_argument('function', type=str, help='the job')
+    args = parser.parse_args()
+
     #udp_socket()
-    upload_iperf_wireshark()
+    if args.function == "upload_iperf_wireshark":
+        upload_iperf_wireshark()
+    if args.function == "upload_iperf_wireshark":
+        download_iperf_wireshark()
 
 
 def upload_iperf_wireshark():
