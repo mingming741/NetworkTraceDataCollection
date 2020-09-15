@@ -118,6 +118,17 @@ def get_schedule_profile(meta_config, tasks_list):
             example_config["variants_list"] =  variants_list
             example_config["result_generated_path"] =  os.path.join("trace", client_network, "upload")
             schedule_profile_list.append({"name": "download_iperf_wireshark", "config": example_config})
+    if "upload_iperf_wireshark" in tasks_list:
+        for variant in variants_list:
+            example_config = copy.deepcopy(meta_config["scheduling_config"]["download_iperf_wireshark"])
+            example_config["server_ip"] =  server_ip
+            example_config["server_cmd_address"] =  [server_ip, server_cmd_address_port_zero]
+            server_cmd_address_port_zero = server_cmd_address_port_zero + 1
+            example_config["variant"] =  variant
+            example_config["network"] =  client_network
+            example_config["variants_list"] =  variants_list
+            example_config["result_generated_path"] =  os.path.join("trace", client_network, "upload")
+            schedule_profile_list.append({"name": "download_iperf_wireshark", "config": example_config})
     return schedule_profile_list
 
 
