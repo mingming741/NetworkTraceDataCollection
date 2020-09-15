@@ -31,7 +31,7 @@ def main():
             client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             client_socket.connect(server_address_port)
             print("Start sending config to server {}".format(server_address_port))
-            message = test_config + "##DOKI##"
+            message = json.dumps(test_config) + "##DOKI##"
             client_socket.send(message.encode("utf-8"))
             print("Wait for server ACK")
             message = ""
@@ -62,7 +62,7 @@ def main():
                 message = message + data
                 if "##DOKI##" in data:
                     break
-            test_config = message.replace("##DOKI##", "")
+            test_config = json.loads(message.replace("##DOKI##", ""))
             with open("config/config.json", 'w') as f:
                     json.dump(test_config, f)
             print("Receive client config file successfully, send ACK back to client")
