@@ -20,7 +20,7 @@ def main():
     #udp_socket()
     if args.function == "upload_iperf_wireshark":
         upload_iperf_wireshark()
-    if args.function == "upload_iperf_wireshark":
+    if args.function == "download_iperf_wireshark":
         download_iperf_wireshark()
 
 

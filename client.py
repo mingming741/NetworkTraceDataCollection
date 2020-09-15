@@ -8,6 +8,7 @@ import json
 import glob
 import shutil
 import requests
+import argparse
 from datetime import datetime, timezone
 
 import utils
@@ -22,7 +23,7 @@ def main():
     #udp_socket()
     if args.function == "upload_iperf_wireshark":
         upload_iperf_wireshark()
-    if args.function == "upload_iperf_wireshark":
+    if args.function == "download_iperf_wireshark":
         download_iperf_wireshark()
 
 

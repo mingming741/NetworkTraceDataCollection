@@ -1,55 +1,21 @@
 {
-  "download_socket": {
-    "connection_total_time": 3600,
-    "test_config_file": "result/udp_test.json",
-    "throughput_calculation_interval": 1,
-    "client_timeout_value": 5,
-    "process_total_time": -1,
-    "server_address": [
-      "103.49.160.131",
-      7777
-    ],
-    "server_connection_log_interval": 1000000,
-    "result_path": "result/download_socket/",
-    "server_timeout_value": 5
-  },
-  "upload_iperf_wireshark": {
-    "server_ip": "103.49.160.132",
-    "total_run": 12,
-    "variant": "cubic",
-    "time_each_flow": 3600,
-    "server_cmd_address": [
-      "103.49.160.132",
-      2333
-    ],
-    "time_unit_trace": 1000,
-    "result_path": "result/upload_iperf_wireshark/",
-    "time_flow_interval": 10,
-    "iperf_port": 7777,
-    "variants_list": [
-      "udp",
-      "cubic",
-      "bbr"
-    ],
-    "result_generated_path": "trace/CSL/upload"
-  },
   "download_iperf_wireshark": {
-    "time_unit_trace": 1000,
-    "server_restart_time": 5,
-    "time_each_flow": 3600,
-    "result_generated_path": "trace/CSL_4G/upload",
-    "network": "CSL_4G",
-    "time_flow_interval": 10,
     "iperf_port": 7777,
-    "udp_sending_rate": 20,
-    "server_ip": "103.49.160.132",
-    "total_run": 12,
-    "variant": "bbr",
+    "time_flow_interval": 10,
     "result_path": "result/download_iperf_wireshark/",
+    "variant": "udp",
     "variants_list": [
       "bbr",
       "cubic",
       "udp"
-    ]
+    ],
+    "total_run": 3,
+    "udp_sending_rate": 20,
+    "time_each_flow": 60,
+    "result_generated_path": "trace/CSL_4G/upload",
+    "server_ip": "103.49.160.132",
+    "server_restart_time": 5,
+    "time_unit_trace": 1000,
+    "network": "CSL_4G"
   }
 }
