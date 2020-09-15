@@ -21,7 +21,7 @@ def main():
     if this_machine_profile["role"] ==  "client":
         peer_machine = this_machine_profile["peer_machine"]
         peer_machine_profile = meta_config["test_machines"][peer_machine]
-        server_address_port = (peer_machine_profile["ip"], 2334)
+        server_address_port = (peer_machine_profile["ip"], 1999)
         for task in schedule_profile_list:
             test_config = {}
             test_config[task["name"]] = task["config"]
@@ -59,7 +59,7 @@ def main():
 
     if this_machine_profile["role"] == "server":
         server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        server_address_port = (this_machine_profile["ip"], 2334)
+        server_address_port = (this_machine_profile["ip"], 1999)
         server_socket.bind(server_address_port)
         server_socket.listen(10)
         while True:
