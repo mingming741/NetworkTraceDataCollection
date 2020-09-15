@@ -4,6 +4,7 @@ import time
 import getpass
 import copy
 import socket
+import random
 from datetime import datetime, timezone
 
 import utils
@@ -105,8 +106,8 @@ def get_schedule_profile(meta_config, tasks_list):
     client_network = this_machine_profile["network"]
     schedule_profile_list = list()
 
+    server_cmd_address_port_zero = random.randint(2000, 3000)
     if "download_iperf_wireshark" in tasks_list:
-        server_cmd_address_port_zero = 2333
         for variant in variants_list:
             example_config = copy.deepcopy(meta_config["scheduling_config"]["download_iperf_wireshark"])
             example_config["server_ip"] =  server_ip

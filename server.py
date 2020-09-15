@@ -34,6 +34,7 @@ def upload_iperf_wireshark():
     os.mkdir(os.path.join(main_config["result_path"], main_config["variant"]))
     os.system("sudo chmod 777 {}".format(os.path.join(main_config["result_path"], main_config["variant"])))
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     server_socket.bind(tuple(main_config["server_cmd_address"]))
     server_socket.listen(10)
     while True:
@@ -79,6 +80,7 @@ def download_iperf_wireshark():
     if main_config["variant"] in main_config["variants_list"] and main_config["variant"] != "udp":
         os.system("sudo sysctl net.ipv4.tcp_congestion_control={}".format(main_config["variant"]))
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     server_socket.bind(tuple(main_config["server_cmd_address"]))
     server_socket.listen(10)
     while True:
