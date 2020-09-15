@@ -125,7 +125,7 @@ def get_schedule_profile(meta_config, tasks_list):
             example_config["variant"] =  variant
             example_config["network"] =  client_network
             example_config["variants_list"] =  variants_list
-            example_config["result_generated_path"] =  os.path.join("trace", client_network, "upload")
+            example_config["result_generated_path"] =  os.path.join("trace", client_network, "download")
             schedule_profile_list.append({"name": "download_iperf_wireshark", "config": example_config})
     if "upload_iperf_wireshark" in tasks_list:
         for variant in variants_list:
