@@ -13,3 +13,15 @@ def init_dir():
     if not os.path.exists("trace"):
         os.mkdir("trace")
         os.system("sudo chmod 777 trace")
+
+
+def dict_key_to_ordered_list(input_dict):
+        newlist = list()
+        for i in input_dict.keys():
+            newlist.append(i)
+        newlist.sort()
+        return newlist
+
+
+def init_apache_dir():
+    pass
