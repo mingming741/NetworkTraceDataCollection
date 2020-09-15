@@ -51,9 +51,12 @@ if "PLT" in analysis_category:
     large_data_sample_upperbound = 1000000
 
 def main():
-    main_config = utils.parse_config("config/config.json")["upload_iperf_wireshark"]
+    parser = argparse.ArgumentParser(description='For different background job')
+    parser.add_argument('function', type=str, help='the job')
+    args = parser.parse_args()
+    main_config = utils.parse_config("config/config.json")[args.function]
     result_generate_iperf_wireshark(main_config)
-    result_draw_iperf_wireshark(main_config)
+    #result_draw_iperf_wireshark(main_config)
 
 
 def result_generate_iperf_wireshark(main_config):

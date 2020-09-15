@@ -27,10 +27,11 @@ def main():
 def upload_iperf_wireshark():
     main_config = utils.parse_config("config/config.json")["upload_iperf_wireshark"]
     print("Upload iperf server, start~~")
-    if os.path.exists(main_config["result_path"]):
-        shutil.rmtree(main_config["result_path"])
-    os.mkdir(main_config["result_path"])
-    os.system("sudo chmod 777 {}".format(main_config["result_path"]))
+    if not os.path.exists(main_config["result_path"]):
+        os.mkdir(main_config["result_path"])
+    os.system("sudo chmod -R 777 {}".format(main_config["result_path"]))
+    if os.path.exists(os.path.join(main_config["result_path"], main_config["variant"])):
+        os.system("sudo rm -rf {}".format(os.path.join(main_config["result_path"], main_config["variant"])))
     os.mkdir(os.path.join(main_config["result_path"], main_config["variant"]))
     os.system("sudo chmod 777 {}".format(os.path.join(main_config["result_path"], main_config["variant"])))
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
