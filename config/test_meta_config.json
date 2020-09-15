@@ -17,33 +17,33 @@
     }
   },
   "test_machines":{
-    "doki2":{
+    "doki2-OptiPlex-7040":{
       "enable" : 1,
       "ip": "-1",
       "role": "client",
       "network": "CSL_4G",
-      "peer_machine": "dokiserver2"
+      "peer_machine": "dokiserver2-OptiPlex-990"
     },
-    "doki3":{
+    "doki3-OptiPlex-9010":{
       "enable": 1,
       "ip": -1,
       "role": "client",
       "network": "3HK_4G",
-      "peer_machine": "dokiserver"
+      "peer_machine": "dokiserver-OptiPlex-9020"
     },
-    "dokiserver":{
+    "dokiserver-OptiPlex-9020":{
       "enable": 1,
       "ip": "103.49.160.131",
       "role": "server",
       "network": "wired",
-      "peer_machine": "doki3"
+      "peer_machine": "doki3-OptiPlex-9010"
     },
-    "dokiserver2":{
+    "dokiserver2-OptiPlex-990":{
       "enable": 1,
       "ip": "103.49.160.132",
       "role": "server",
       "network": "wired",
-      "peer_machine": "doki2"
+      "peer_machine": "doki2-OptiPlex-7040"
     }
   },
   "scheduling_config":{

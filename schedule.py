@@ -14,7 +14,7 @@ def main():
     meta_config = utils.parse_config("config/test_meta_config.json")
     tasks_list = utils.dict_key_to_ordered_list(meta_config["scheduling_config"])
     schedule_profile_list = get_schedule_profile(meta_config, tasks_list)
-    this_machine = getpass.getuser()
+    this_machine = socket.gethostname()
     this_machine_profile = meta_config["test_machines"][this_machine]
 
     if this_machine_profile["role"] ==  "client":
@@ -94,7 +94,7 @@ def main():
 def get_schedule_profile(meta_config, tasks_list):
     variants_list = utils.dict_key_to_ordered_list(meta_config["vaild_config"]["variants_list"])
 
-    this_machine = getpass.getuser()
+    this_machine = socket.gethostname()
     this_machine_profile = meta_config["test_machines"][this_machine]
     peer_machine = this_machine_profile["peer_machine"]
     peer_machine_profile = meta_config["test_machines"][peer_machine]
