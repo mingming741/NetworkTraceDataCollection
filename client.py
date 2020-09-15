@@ -60,6 +60,13 @@ def download_iperf_wireshark():
     os.system("sudo chmod 777 {}".format(os.path.join(main_config["result_path"], main_config["variant"])))
 
     for i in range(0, int(main_config["total_run"])):
+        client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        client_socket.connect(tuple(main_config["server_cmd_address"]))
+        this_cmd = "Start"
+        message = this_cmd + "##DOKI##"
+        client_socket.send(message.encode("utf-8"))
+        time.sleep(main_config["time_flow_interval"])
+
         #os.system("tcpdump -i any udp port " + str(config['host']['desktop']['port']) + " -w " + str(config["result_directory"]) + variant[j] + "/" + str(i) + ".pcap &")
         current_datetime = datetime.fromtimestamp(time.time())
         output_pcap = os.path.join(main_config["result_path"], main_config["variant"], "{}.pcap".format(current_datetime.strftime("%Y_%m_%d_%H_%M")))
@@ -78,6 +85,7 @@ def download_iperf_wireshark():
             os.system('killall iperf3')
             os.system('killall tcpdump')
             os.system("python3 my_subprocess.py pcap2txt --mode tcp --file-path {} &".format(output_pcap))
+        time.sleep(main_config["time_flow_interval"])
     print("All test done Successfully!!")
 
 

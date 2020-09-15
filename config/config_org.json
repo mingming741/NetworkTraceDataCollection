@@ -11,7 +11,6 @@
     "test_config_file": "result/udp_test.json"
   },
   "download_iperf_wireshark":{
-    "server_restart_time": 5,
     "result_path": "result/download_iperf_wireshark/",
     "result_generated_path": "trace/3HK_4G/download",
     "total_run": 12,

@@ -60,7 +60,7 @@ def upload_iperf_wireshark():
                 os.system("python3 my_subprocess.py pcap2txt --mode udp --file-path {} &".format(output_pcap))
             if main_config["variant"] != "udp" and main_config["variant"] in main_config["variants_list"]:
                 os.system("tcpdump -i any tcp dst port {} -w {} &".format(main_config["iperf_port"], output_pcap))
-                time.sleep(main_config["time_each_flow"] + main_config["time_flow_interval"])
+                time.sleep(main_config["time_each_flow"] + 2 * main_config["time_flow_interval"])
                 os.system('killall tcpdump')
                 os.system("python3 my_subprocess.py pcap2txt --mode tcp --file-path {} &".format(output_pcap))
             os.system('killall iperf3')
@@ -71,9 +71,26 @@ def download_iperf_wireshark():
     main_config = utils.parse_config("config/config.json")["download_iperf_wireshark"]
     if main_config["variant"] in main_config["variants_list"] and main_config["variant"] != "udp":
         os.system("sudo sysctl net.ipv4.tcp_congestion_control={}".format(main_config["variant"]))
+    server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    server_socket.bind(tuple(main_config["server_cmd_address"]))
+    server_socket.listen(10)
     while True:
-        os.system("iperf3 -s -p 7777")
-        time.sleep(main_config["server_restart_time"])
+        client_socket, client_address = server_socket.accept()
+        print("Recieve from client {}".format(client_address))
+        count = 0
+        message = ""
+        while True:
+            count = count + 1
+            data = client_socket.recv(1024).decode("utf-8")
+            message = message + data
+            if "##DOKI##" in data:
+                break
+        message = message.replace("##DOKI##", "")
+        if message == "Start":
+            os.system("iperf3 -s -p 7777 &")
+            time.sleep(main_config["time_each_flow"] + 2 * main_config["time_flow_interval"])
+        os.system('killall iperf3')
+        print("Server One flow finished~")
 
 
 def download_socket():
