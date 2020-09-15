@@ -58,6 +58,7 @@ def main():
             time.sleep(10)
             if task_name == "download_iperf_wireshark":
                 os.system("python3 analysis_trace.py {} &".format(task_name))
+            time.sleep(10)
 
 
 
@@ -97,6 +98,7 @@ def main():
             time.sleep(10)
             if task_name == "upload_iperf_wireshark":
                 os.system("python3 analysis_trace.py {} &".format(task_name))
+            time.sleep(10)
 
 
 def get_schedule_profile(meta_config, tasks_list):
