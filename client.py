@@ -37,6 +37,7 @@ def upload_iperf_wireshark():
         message = this_cmd + "##DOKI##"
         client_socket.send(message.encode("utf-8"))
         time.sleep(main_config["time_flow_interval"])
+        client_socket.close()
         if main_config["variant"] == "udp":
             os.system("iperf3 -c {} -p {} --length 1472 -u -b {}m -t {} &".format(main_config["server_ip"], main_config["iperf_port"], main_config["udp_sending_rate"],main_config["time_each_flow"]))
             time.sleep(main_config["time_each_flow"] + main_config["time_flow_interval"])
@@ -47,6 +48,14 @@ def upload_iperf_wireshark():
             time.sleep(main_config["time_each_flow"] + main_config["time_flow_interval"])
             os.system('killall iperf3')
         time.sleep(main_config["time_flow_interval"])
+
+    client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    client_socket.connect(tuple(main_config["server_cmd_address"]))
+    this_cmd = "END"
+    message = this_cmd + "##DOKI##"
+    client_socket.send(message.encode("utf-8"))
+    client_socket.close()
+    print("All test done Successfully!!")
 
 
 def download_iperf_wireshark():
@@ -66,6 +75,7 @@ def download_iperf_wireshark():
         message = this_cmd + "##DOKI##"
         client_socket.send(message.encode("utf-8"))
         time.sleep(main_config["time_flow_interval"])
+        client_socket.close()
 
         #os.system("tcpdump -i any udp port " + str(config['host']['desktop']['port']) + " -w " + str(config["result_directory"]) + variant[j] + "/" + str(i) + ".pcap &")
         current_datetime = datetime.fromtimestamp(time.time())
@@ -92,6 +102,7 @@ def download_iperf_wireshark():
     this_cmd = "END"
     message = this_cmd + "##DOKI##"
     client_socket.send(message.encode("utf-8"))
+    client_socket.close()
     print("All test done Successfully!!")
 
 

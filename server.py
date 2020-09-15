@@ -47,6 +47,7 @@ def upload_iperf_wireshark():
             message = message + data
             if "##DOKI##" in data:
                 break
+        client_socket.close()
         message = message.replace("##DOKI##", "")
         print(message)
         if message == "Start":
@@ -65,6 +66,12 @@ def upload_iperf_wireshark():
                 os.system("python3 my_subprocess.py pcap2txt --mode tcp --file-path {} &".format(output_pcap))
             os.system('killall iperf3')
             print("Server One flow finished~")
+        if message == "END":
+            print("Client Test done, exit")
+            server_socket.close()
+            exit()
+
+
 
 def download_iperf_wireshark():
     print("Download iperf server, start~~")
@@ -85,15 +92,19 @@ def download_iperf_wireshark():
             message = message + data
             if "##DOKI##" in data:
                 break
+        client_socket.close()
         message = message.replace("##DOKI##", "")
         if message == "Start":
             os.system("iperf3 -s -p 7777 &")
             time.sleep(main_config["time_each_flow"] + 2 * main_config["time_flow_interval"])
+            os.system('killall iperf3')
+            print("Server One flow finished~")
         if message == "END":
             print("Client Test done, exit")
+            server_socket.close()
             exit()
-        os.system('killall iperf3')
-        print("Server One flow finished~")
+
+
 
 
 def download_socket():
