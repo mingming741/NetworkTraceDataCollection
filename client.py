@@ -86,6 +86,12 @@ def download_iperf_wireshark():
             os.system('killall tcpdump')
             os.system("python3 my_subprocess.py pcap2txt --mode tcp --file-path {} &".format(output_pcap))
         time.sleep(main_config["time_flow_interval"])
+
+    client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    client_socket.connect(tuple(main_config["server_cmd_address"]))
+    this_cmd = "END"
+    message = this_cmd + "##DOKI##"
+    client_socket.send(message.encode("utf-8"))
     print("All test done Successfully!!")
 
 

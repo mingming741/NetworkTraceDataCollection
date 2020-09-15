@@ -89,6 +89,9 @@ def download_iperf_wireshark():
         if message == "Start":
             os.system("iperf3 -s -p 7777 &")
             time.sleep(main_config["time_each_flow"] + 2 * main_config["time_flow_interval"])
+        if message == "END":
+            print("Client Test done, exit")
+            exit()
         os.system('killall iperf3')
         print("Server One flow finished~")
 
