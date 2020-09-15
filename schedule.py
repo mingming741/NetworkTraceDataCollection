@@ -106,10 +106,12 @@ def get_schedule_profile(meta_config, tasks_list):
     schedule_profile_list = list()
 
     if "download_iperf_wireshark" in tasks_list:
+        server_cmd_address_port_zero = 2333
         for variant in variants_list:
             example_config = copy.deepcopy(meta_config["scheduling_config"]["download_iperf_wireshark"])
             example_config["server_ip"] =  server_ip
-            example_config["server_cmd_address"] =  [server_ip, 2333]
+            example_config["server_cmd_address"] =  [server_ip, server_cmd_address_port_zero]
+            server_cmd_address_port_zero = server_cmd_address_port_zero + 1
             example_config["variant"] =  variant
             example_config["network"] =  client_network
             example_config["variants_list"] =  variants_list
