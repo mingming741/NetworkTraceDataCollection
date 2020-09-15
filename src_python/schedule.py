@@ -48,6 +48,7 @@ def main():
 
 
     if this_machine_profile["role"] == "server":
+        server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         server_address_port = (this_machine_profile["ip"], "2334")
         server_socket.bind(server_address_port)
         server_socket.listen(10)
