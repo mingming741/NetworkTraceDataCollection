@@ -9,6 +9,7 @@ import matplotlib.pylab as pylab
 from datetime import datetime, timezone
 import argparse
 import pathlib
+import requests
 
 
 analysis_category = ["CIF", "VC", "NTC", "APPU", "IDX", "PLT"]
@@ -54,13 +55,16 @@ if "PLT" in analysis_category:
 def main():
     parser = argparse.ArgumentParser(description='For different background job')
     parser.add_argument('function', type=str, help='the job')
+    parser.add_argument('--post', type=int, help='whether post to server')
     args = parser.parse_args()
     main_config = utils.parse_config("config/config.json")[args.function]
-    result_generate_iperf_wireshark(main_config)
-    #result_draw_iperf_wireshark(main_config)
+    if args.post == 1:
+        result_generate_iperf_wireshark(main_config, post_to_server=True)
+    else:
+        result_generate_iperf_wireshark(main_config, post_to_server=False)
 
 
-def result_generate_iperf_wireshark(main_config):
+def result_generate_iperf_wireshark(main_config, post_to_server=False):
     time_unit_trace = main_config["time_unit_trace"] # default is 1000, minimum unit is s, can also be ms
     file_list = os.listdir(os.path.join(main_config["result_path"], main_config["variant"]))
     file_list.sort()
@@ -81,10 +85,43 @@ def result_generate_iperf_wireshark(main_config):
     df_main = pd.DataFrame(data = {"time" : df_main["time"].values, "datetime": [datetime.fromtimestamp(x).strftime("%Y_%m_%d_%H") for x in df_main["time"].values], "Bandwidth" : df_main["Bandwidth"].values})
     pathlib.Path(os.path.join(main_config["result_generated_path"], main_config["variant"])).mkdir(parents=True, exist_ok=True)
     for this_datetime in df_main["datetime"].unique():
-        this_file_path = os.path.join(main_config["result_generated_path"], main_config["variant"],"download_{}_{}.txt".format(main_config["variant"], this_datetime))
+        this_file_name = "download_{}_{}.txt".format(main_config["variant"], this_datetime)
+        this_file_path = os.path.join(main_config["result_generated_path"], main_config["variant"], this_file_name)
         df_temp = df_main[df_main["datetime"] == this_datetime]
         df_temp.to_csv(this_file_path, index = False, header=False,columns=["time","Bandwidth"], sep="\t")
+        _, network, direction = main_config["result_generated_path"].split('/')
+        if post_to_server == True:
+            post_file_to_server(this_file_path, network, direction, main_config["variant"])
+
     print("Generate trace done~~")
+
+
+def get_db_info(server_host="103.49.160.133"):
+    server_url = 'http://{}/php/fields_value.php'.format(server_host)
+    data = requests.get(server_url, dict(field='Network')).json()
+    network_dict = {}
+    for i in range(0, len(data)):
+        network_dict[data[i]["Network"]] = data[i]["ID"]
+    data = requests.get(server_url, dict(field='Variant')).json()
+    variant_dict = {}
+    for i in range(0, len(data)):
+        variant_dict[data[i]["Variant"]] = data[i]["ID"]
+    data = requests.get(server_url, dict(field='Direction')).json()
+    direction_dict = {}
+    for i in range(0, len(data)):
+        direction_dict[data[i]["Direction"]] = data[i]["ID"]
+    return network_dict, variant_dict, direction_dict
+
+
+def post_file_to_server(file_path, network, direction, variant, server_host="103.49.160.133"):
+    print("Post {}->{}->{}->{} to server".format(network, direction, variant, file_path))
+    server_url = 'http://{}/php/handler.php?action=Upload_Record'.format(server_host)
+    network_dict, variant_dict, direction_dict = get_db_info()
+    parameters = {"Network_ID": network_dict[network], "Variant_ID": variant_dict[variant], "Direction_ID": direction_dict[direction]}
+    files = {'file': open(file_path,'rb')}
+    response = requests.post(server_url, files=files, data=parameters)
+    print(response.json())
+
 
 
 def result_draw_iperf_wireshark(main_config):

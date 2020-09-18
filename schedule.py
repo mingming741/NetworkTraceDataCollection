@@ -25,7 +25,6 @@ def main():
         for task in schedule_profile_list:
             test_config = {}
             test_config[task["name"]] = task["config"]
-
             print("-- Run Experiment: {}, {}, {}".format(task["config"]["network"], task["name"], task["config"]["variant"]))
             with open("config/config.json", 'w') as f:
                 json.dump(test_config, f, indent = 2)
@@ -45,22 +44,29 @@ def main():
             if message == "Done":
                 print("SYN with server successfully, start to run the experiment..")
             print("\n")
-
             time.sleep(5)
-
             main_config = utils.parse_config("config/config.json")
             for key in main_config:
                 task_name = key
             print("Experiment Start: {}, {}, {}".format(main_config[task_name]["network"], task_name, main_config[task_name]["variant"]))
             this_cmd = "sudo python3 client.py {}".format(task_name)
             os.system(this_cmd)
-
-            time.sleep(10)
-            if task_name == "download_iperf_wireshark":
-                os.system("python3 analysis_trace.py {} &".format(task_name))
             time.sleep(5)
-
-
+        client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        client_socket.connect(server_address_port)
+        print("Start sending EXIT singal to server {}".format(server_address_port))
+        message = json.dumps(test_config) + "##DOKI##"
+        client_socket.send(message.encode("utf-8"))
+        print("Experiment Done, start to analysis the log")
+        for task in schedule_profile_list:
+            test_config = {}
+            test_config[task["name"]] = task["config"]
+            if task_name == "download_iperf_wireshark":
+                with open("config/config.json", 'w') as f:
+                    json.dump(test_config, f, indent = 2)
+                time.sleep(5)
+                os.system("python3 analysis_trace.py {} --post=1".format(task_name))                
+        print("All test done Successfully~~")
 
     if this_machine_profile["role"] == "server":
         server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -77,28 +83,37 @@ def main():
                 message = message + data
                 if "##DOKI##" in data:
                     break
-            test_config = json.loads(message.replace("##DOKI##", ""))
-            with open("config/config.json", 'w') as f:
-                    json.dump(test_config, f, indent = 2)
-            print("Receive client config file successfully, send ACK back to client")
-            message = "Done" + "##DOKI##"
-            client_socket.send(message.encode("utf-8"))
-            print("SYN with client successfully, save client config and start to run experiment..")
-            print("\n")
-
-            time.sleep(5)
-
-            main_config = utils.parse_config("config/config.json")
-            for key in main_config:
-                task_name = key
-            print("Experiment Start: {}, {}, {}".format(main_config[task_name]["network"], task_name, main_config[task_name]["variant"]))
-            this_cmd = "sudo python3 server.py {}".format(task_name)
-            os.system(this_cmd)
-
-            time.sleep(10)
+            message = message.replace("##DOKI##", "")
+            if message == "END":
+                break
+            else:
+                test_config = json.loads(message)
+                with open("config/config.json", 'w') as f:
+                        json.dump(test_config, f, indent = 2)
+                print("Receive client config file successfully, send ACK back to client")
+                message = "Done" + "##DOKI##"
+                client_socket.send(message.encode("utf-8"))
+                print("SYN with client successfully, save client config and start to run experiment..")
+                print("\n")
+                time.sleep(5)
+                main_config = utils.parse_config("config/config.json")
+                for key in main_config:
+                    task_name = key
+                print("Experiment Start: {}, {}, {}".format(main_config[task_name]["network"], task_name, main_config[task_name]["variant"]))
+                this_cmd = "sudo python3 server.py {}".format(task_name)
+                os.system(this_cmd)
+                time.sleep(5)
+        print("Experiment Done, start to analysis the log")
+        for task in schedule_profile_list:
+            test_config = {}
+            test_config[task["name"]] = task["config"]
             if task_name == "upload_iperf_wireshark":
-                os.system("python3 analysis_trace.py {} &".format(task_name))
-            time.sleep(5)
+                with open("config/config.json", 'w') as f:
+                    json.dump(test_config, f, indent = 2)
+                time.sleep(5)
+                os.system("python3 analysis_trace.py {}".format(task_name))
+
+    print("All test done Successfully~~")
 
 
 def get_schedule_profile(meta_config, tasks_list):
