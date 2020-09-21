@@ -10,8 +10,7 @@
       "CSL_3G": 0
     },
     "direction":{
-      "upload": 1,
-      "download": 1
+      "upload": 1
     }
   },
   "test_machines":{

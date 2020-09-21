@@ -56,7 +56,7 @@ def main():
                 with open("config/config.json", 'w') as f:
                     json.dump(test_config, f, indent = 2)
                 time.sleep(3)
-                os.system("python3 analysis_trace.py {} --post=1".format(task["name"]))
+                os.system("python3 analysis_trace.py download_iperf_wireshark --post=1")
                 time.sleep(3)
 
     if this_machine_profile["role"] == "server":
@@ -89,7 +89,7 @@ def main():
                 with open("config/config.json", 'w') as f:
                     json.dump(test_config, f, indent = 2)
                 time.sleep(3)
-                os.system("python3 analysis_trace.py {} --post=1".format("upload_iperf_wireshark"))
+                os.system("python3 analysis_trace.py upload_iperf_wireshark --post=1")
                 time.sleep(3)
 
     print("All test done Successfully~~")
