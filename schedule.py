@@ -87,7 +87,7 @@ def main():
         for test_config in schedule_profile_list_from_client:
             if "upload_iperf_wireshark" in test_config:
                 with open("config/config.json", 'w') as f:
-                    json.dump(test_config, f, indent = 2)
+                    json.dump(json.loads(test_config), f, indent = 2)
                 time.sleep(3)
                 os.system("python3 analysis_trace.py upload_iperf_wireshark --post=1")
                 time.sleep(3)
