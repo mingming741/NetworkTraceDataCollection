@@ -15,6 +15,7 @@ def main():
     meta_config = utils.parse_config("config/test_meta_config.json")
     tasks_list = utils.dict_key_to_ordered_list(meta_config["scheduling_config"])
     schedule_profile_list = get_schedule_profile(meta_config, tasks_list)
+    schedule_profile_list_from_client = []
     this_machine = socket.gethostname()
     this_machine_profile = meta_config["test_machines"][this_machine]
 
@@ -51,12 +52,12 @@ def main():
         for task in schedule_profile_list:
             test_config = {}
             test_config[task["name"]] = task["config"]
-            print(task["name"])
             if task["name"] == "download_iperf_wireshark":
                 with open("config/config.json", 'w') as f:
                     json.dump(test_config, f, indent = 2)
-                time.sleep(5)
+                time.sleep(3)
                 os.system("python3 analysis_trace.py {} --post=1".format(task["name"]))
+                time.sleep(3)
 
     if this_machine_profile["role"] == "server":
         server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -72,6 +73,7 @@ def main():
                 break
             else:
                 test_config = json.loads(message)
+                schedule_profile_list_from_client.append(message)
                 with open("config/config.json", 'w') as f:
                     json.dump(test_config, f, indent = 2)
                 retry_send(client_socket, ("Done" + "##DOKI##").encode("utf-8"))
@@ -82,15 +84,13 @@ def main():
                 print("Experiment Start: {}, {}, {}".format(main_config[task_name]["network"], task_name, main_config[task_name]["variant"]))
                 os.system("sudo python3 server.py {}".format(task_name))
         print("Experiment Done, start to analysis the log")
-        for task in schedule_profile_list:
-            test_config = {}
-            test_config[task["name"]] = task["config"]
-            print(task["name"])
-            if task["name"] == "upload_iperf_wireshark":
+        for test_config in schedule_profile_list_from_client:
+            if "upload_iperf_wireshark" in test_config:
                 with open("config/config.json", 'w') as f:
                     json.dump(test_config, f, indent = 2)
-                time.sleep(5)
-                os.system("python3 analysis_trace.py {} --post=1".format(task["name"]))
+                time.sleep(3)
+                os.system("python3 analysis_trace.py {} --post=1".format("upload_iperf_wireshark"))
+                time.sleep(3)
 
     print("All test done Successfully~~")
 
