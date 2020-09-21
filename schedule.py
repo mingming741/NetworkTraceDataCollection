@@ -29,7 +29,16 @@ def main():
             with open("config/config.json", 'w') as f:
                 json.dump(test_config, f, indent = 2)
             client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            client_socket.connect(server_address_port)
+            exit_flag = 0
+            while not exit_flag:
+                try:
+                    client_socket.connect(server_address_port)
+                    exit_flag = 1
+                except Exception as e:
+                    print("Exception happen when connect to server: ")
+                    print(e)
+                    time.sleep(5)
+                    print("Retry..")
             print("Start sending config to server {}".format(server_address_port))
             message = json.dumps(test_config) + "##DOKI##"
             client_socket.send(message.encode("utf-8"))
@@ -53,7 +62,15 @@ def main():
             os.system(this_cmd)
             time.sleep(5)
         client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        client_socket.connect(server_address_port)
+        while not exit_flag:
+            try:
+                client_socket.connect(server_address_port)
+                exit_flag = 1
+            except Exception as e:
+                print("Exception happen when connect to server: ")
+                print(e)
+                time.sleep(5)
+                print("Retry..")
         print("Start sending EXIT singal to server {}".format(server_address_port))
         message = json.dumps(test_config) + "##DOKI##"
         client_socket.send(message.encode("utf-8"))
@@ -65,7 +82,7 @@ def main():
                 with open("config/config.json", 'w') as f:
                     json.dump(test_config, f, indent = 2)
                 time.sleep(5)
-                os.system("python3 analysis_trace.py {} --post=1".format(task_name))                
+                os.system("python3 analysis_trace.py {} --post=1".format(task_name))
         print("All test done Successfully~~")
 
     if this_machine_profile["role"] == "server":
