@@ -29,27 +29,9 @@ def main():
             with open("config/config.json", 'w') as f:
                 json.dump(test_config, f, indent = 2)
             client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            exit_flag = 0
-            while not exit_flag:
-                try:
-                    client_socket.connect(server_address_port)
-                    exit_flag = 1
-                except Exception as e:
-                    print("Exception happen when connect to server: ")
-                    print(e)
-                    time.sleep(5)
-                    print("Retry..")
-            print("Start sending config to server {}".format(server_address_port))
-            message = json.dumps(test_config) + "##DOKI##"
-            client_socket.send(message.encode("utf-8"))
-            print("Wait for server ACK")
-            message = ""
-            while True:
-                data = client_socket.recv(1024).decode("utf-8")
-                message = message + data
-                if "##DOKI##" in data:
-                    break
-            message = message.replace("##DOKI##", "")
+            retry_connect(client_socket, server_address_port)
+            retry_send(client_socket, (json.dumps(test_config) + "##DOKI##").encode("utf-8"))
+            message = doki_wait_receive_message(client_socket)
             if message == "Done":
                 print("SYN with server successfully, start to run the experiment..")
             print("\n")
@@ -62,19 +44,10 @@ def main():
             os.system(this_cmd)
             time.sleep(5)
         client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        while not exit_flag:
-            try:
-                client_socket.connect(server_address_port)
-                exit_flag = 1
-            except Exception as e:
-                print("Exception happen when connect to server: ")
-                print(e)
-                time.sleep(5)
-                print("Retry..")
-        print("Start sending EXIT singal to server {}".format(server_address_port))
-        message = json.dumps(test_config) + "##DOKI##"
-        client_socket.send(message.encode("utf-8"))
+        retry_connect(client_socket, server_address_port)
+        retry_send(client_socket, (json.dumps(test_config) + "##DOKI##").encode("utf-8"))
         print("Experiment Done, start to analysis the log")
+        time.sleep(5)
         for task in schedule_profile_list:
             test_config = {}
             test_config[task["name"]] = task["config"]
@@ -128,9 +101,49 @@ def main():
                 with open("config/config.json", 'w') as f:
                     json.dump(test_config, f, indent = 2)
                 time.sleep(5)
-                os.system("python3 analysis_trace.py {}".format(task_name))
+                os.system("python3 analysis_trace.py {} --post=1".format(task_name))
 
     print("All test done Successfully~~")
+
+
+def doki_wait_receive_message(my_socket):
+    print("Receive Peer message")
+    message = ""
+    while True:
+        data = my_socket.recv(1024).decode("utf-8")
+        message = message + data
+        if "##DOKI##" in data:
+            break
+    message = message.replace("##DOKI##", "")
+    return message
+
+
+def retry_connect(my_socket, server_address_port, retry_timeout=5, stable_wait_time=1):
+    print("Connect to {}".format(server_address_port))
+    exit_flag = 0
+    while not exit_flag:
+        try:
+            my_socket.connect(server_address_port)
+            time.sleep(stable_wait_time)
+            exit_flag = 1
+        except Exception as e:
+            print("Exception happen when connect to server: ".format(e))
+            time.sleep(retry_timeout)
+            print("Retry..")
+
+
+def retry_send(my_socket, message, retry_timeout=5, stable_wait_time=1):
+    print("Send message {}".format(message))
+    exit_flag = 0
+    while not exit_flag:
+        try:
+            my_socket.send(message)
+            time.sleep(stable_wait_time)
+            exit_flag = 1
+        except Exception as e:
+            print("Exception happen when connect to server: ".format(e))
+            time.sleep(retry_timeout)
+            print("Retry..")
 
 
 def get_schedule_profile(meta_config, tasks_list):
