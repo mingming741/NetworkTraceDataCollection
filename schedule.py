@@ -56,7 +56,7 @@ def main():
                 with open("config/config.json", 'w') as f:
                     json.dump(test_config, f, indent = 2)
                 time.sleep(5)
-                os.system("python3 analysis_trace.py {} --post=1".format(task["config"]))
+                os.system("python3 analysis_trace.py {} --post=1".format(task["name"]))
 
     if this_machine_profile["role"] == "server":
         server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -90,7 +90,7 @@ def main():
                 with open("config/config.json", 'w') as f:
                     json.dump(test_config, f, indent = 2)
                 time.sleep(5)
-                os.system("python3 analysis_trace.py {} --post=1".format(task["config"]))
+                os.system("python3 analysis_trace.py {} --post=1".format(task["name"]))
 
     print("All test done Successfully~~")
 
