@@ -1,8 +1,6 @@
 {
   "vaild_config":{
     "variants_list":{
-      "udp" : 1,
-      "cubic": 1,
       "bbr": 1
     },
     "networks_list":{

@@ -56,12 +56,17 @@ def main():
     parser = argparse.ArgumentParser(description='For different background job')
     parser.add_argument('function', type=str, help='the job')
     parser.add_argument('--post', type=int, help='whether post to server')
+    parser.add_argument('--display', type=int, help='whether draw graph')
     args = parser.parse_args()
-    main_config = utils.parse_config("config/config.json")[args.function]
-    if args.post == 1:
-        result_generate_iperf_wireshark(main_config, post_to_server=True)
-    else:
-        result_generate_iperf_wireshark(main_config, post_to_server=False)
+    if args.function in ["download_iperf_wireshark", "upload_iperf_wireshark"]:
+        main_config = utils.parse_config("config/config.json")[args.function]
+        if args.post == 1:
+            result_generate_iperf_wireshark(main_config, post_to_server=True)
+        else:
+            result_generate_iperf_wireshark(main_config, post_to_server=False)
+        if args.display == 1:
+            result_draw_iperf_wireshark(main_config)
+
 
 
 def result_generate_iperf_wireshark(main_config, post_to_server=False):

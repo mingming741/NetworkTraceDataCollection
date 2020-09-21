@@ -45,13 +45,14 @@ def main():
             time.sleep(5)
         client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         retry_connect(client_socket, server_address_port)
-        retry_send(client_socket, (json.dumps(test_config) + "##DOKI##").encode("utf-8"))
+        retry_send(client_socket, ("END" + "##DOKI##").encode("utf-8"))
         print("Experiment Done, start to analysis the log")
         time.sleep(5)
         for task in schedule_profile_list:
             test_config = {}
             test_config[task["name"]] = task["config"]
-            if task["config"] == "download_iperf_wireshark":
+            print(task["name"])
+            if task["name"] == "download_iperf_wireshark":
                 with open("config/config.json", 'w') as f:
                     json.dump(test_config, f, indent = 2)
                 time.sleep(5)
@@ -84,7 +85,8 @@ def main():
         for task in schedule_profile_list:
             test_config = {}
             test_config[task["name"]] = task["config"]
-            if task["config"] == "upload_iperf_wireshark":
+            print(task["name"])
+            if task["name"] == "upload_iperf_wireshark":
                 with open("config/config.json", 'w') as f:
                     json.dump(test_config, f, indent = 2)
                 time.sleep(5)
