@@ -33,15 +33,15 @@ def main():
             retry_send(client_socket, (json.dumps(test_config) + "##DOKI##").encode("utf-8"))
             message = doki_wait_receive_message(client_socket)
             if message == "Done":
-                print("SYN with server successfully, start to run the experiment..")
-            print("\n")
+                print("SYN with server successfully, start to run the experiment..\n")
+            else:
+                print("Error!!")
             time.sleep(5)
             main_config = utils.parse_config("config/config.json")
             for key in main_config:
                 task_name = key
             print("Experiment Start: {}, {}, {}".format(main_config[task_name]["network"], task_name, main_config[task_name]["variant"]))
-            this_cmd = "sudo python3 client.py {}".format(task_name)
-            os.system(this_cmd)
+            os.system("sudo python3 client.py {}".format(task_name))
             time.sleep(5)
         client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         retry_connect(client_socket, server_address_port)
@@ -51,12 +51,11 @@ def main():
         for task in schedule_profile_list:
             test_config = {}
             test_config[task["name"]] = task["config"]
-            if task_name == "download_iperf_wireshark":
+            if task["config"] == "download_iperf_wireshark":
                 with open("config/config.json", 'w') as f:
                     json.dump(test_config, f, indent = 2)
                 time.sleep(5)
-                os.system("python3 analysis_trace.py {} --post=1".format(task_name))
-        print("All test done Successfully~~")
+                os.system("python3 analysis_trace.py {} --post=1".format(task["config"]))
 
     if this_machine_profile["role"] == "server":
         server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -67,41 +66,29 @@ def main():
             print("-- Wait client message to start the experiment")
             client_socket, client_address = server_socket.accept()
             print("Recieve from client {}".format(client_address))
-            message = ""
-            while True:
-                data = client_socket.recv(1024).decode("utf-8")
-                message = message + data
-                if "##DOKI##" in data:
-                    break
-            message = message.replace("##DOKI##", "")
+            message = doki_wait_receive_message(client_socket)
             if message == "END":
                 break
             else:
                 test_config = json.loads(message)
                 with open("config/config.json", 'w') as f:
-                        json.dump(test_config, f, indent = 2)
-                print("Receive client config file successfully, send ACK back to client")
-                message = "Done" + "##DOKI##"
-                client_socket.send(message.encode("utf-8"))
-                print("SYN with client successfully, save client config and start to run experiment..")
-                print("\n")
-                time.sleep(5)
+                    json.dump(test_config, f, indent = 2)
+                retry_send(client_socket, ("Done" + "##DOKI##").encode("utf-8"))
+                print("SYN with client successfully, save client config and start to run experiment..\n")
                 main_config = utils.parse_config("config/config.json")
                 for key in main_config:
                     task_name = key
                 print("Experiment Start: {}, {}, {}".format(main_config[task_name]["network"], task_name, main_config[task_name]["variant"]))
-                this_cmd = "sudo python3 server.py {}".format(task_name)
-                os.system(this_cmd)
-                time.sleep(5)
+                os.system("sudo python3 server.py {}".format(task_name))
         print("Experiment Done, start to analysis the log")
         for task in schedule_profile_list:
             test_config = {}
             test_config[task["name"]] = task["config"]
-            if task_name == "upload_iperf_wireshark":
+            if task["config"] == "upload_iperf_wireshark":
                 with open("config/config.json", 'w') as f:
                     json.dump(test_config, f, indent = 2)
                 time.sleep(5)
-                os.system("python3 analysis_trace.py {} --post=1".format(task_name))
+                os.system("python3 analysis_trace.py {} --post=1".format(task["config"]))
 
     print("All test done Successfully~~")
 

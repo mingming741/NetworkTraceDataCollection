@@ -52,7 +52,7 @@
       "total_run": 1,
       "iperf_port": 7777,
       "time_each_flow": 60,
-      "time_flow_interval": 10,
+      "time_flow_interval": 1,
       "udp_sending_rate": 20,
       "time_unit_trace": 1000,
 
@@ -67,7 +67,7 @@
       "iperf_port": 7777,
       "total_run": 1,
       "time_each_flow": 60,
-      "time_flow_interval": 10,
+      "time_flow_interval": 1,
       "udp_sending_rate": 20,
       "time_unit_trace": 1000,
 
