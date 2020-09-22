@@ -97,7 +97,7 @@ def main():
                         time.sleep(3)
             print("All test done Successfully~~")
         else:
-            print("Scheduling will start at {} o'clock, Now is not the right time~~".format(meta_config["general_config"]["resume_time_hour"]))
+            print("Scheduling will start at {} o'clock, Now is {} o'clock~~".format(meta_config["general_config"]["resume_time_hour"], current_datetime.hour))
             time.sleep(meta_config["general_config"]["resume_check_peroid"])
 
 
