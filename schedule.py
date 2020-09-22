@@ -19,13 +19,12 @@ def main():
     this_machine = socket.gethostname()
     this_machine_profile = meta_config["test_machines"][this_machine]
 
-
-    if this_machine_profile["role"] ==  "client":
-        while True:
-            current_datetime = datetime.now()
-            if current_datetime.hour == meta_config["general_config"]["resume_time_hour"]:
-                print("Entering scheduling, data collection start")
-                time.sleep(meta_config["general_config"]["resume_check_peroid"])
+    while True:
+        current_datetime = datetime.now()
+        if current_datetime.hour == meta_config["general_config"]["resume_time_hour"]:
+            print("Entering scheduling, data collection start")
+            if this_machine_profile["role"] ==  "client":
+                time.sleep(meta_config["general_config"]["resume_check_peroid"] + 10)
                 peer_machine = this_machine_profile["peer_machine"]
                 peer_machine_profile = meta_config["test_machines"][peer_machine]
                 server_address_port = (peer_machine_profile["ip"], 1999)
@@ -64,15 +63,7 @@ def main():
                         time.sleep(3)
                         os.system("python3 analysis_trace.py download_iperf_wireshark --post=1")
                         time.sleep(3)
-            else:
-                print("Now is not the right time~~")
-                time.sleep(meta_config["general_config"]["resume_check_peroid"])
-
-    if this_machine_profile["role"] == "server":
-        while True:
-            current_datetime = datetime.now()
-            if current_datetime.hour == meta_config["general_config"]["resume_time_hour"]:
-                print("Entering scheduling, data collection start")
+            if this_machine_profile["role"] == "server":
                 server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 server_address_port = (this_machine_profile["ip"], 1999)
                 server_socket.bind(server_address_port)
@@ -104,11 +95,10 @@ def main():
                         time.sleep(3)
                         os.system("python3 analysis_trace.py upload_iperf_wireshark --post=1")
                         time.sleep(3)
-            else:
-                print("Now is not the right time~~")
-                time.sleep(meta_config["general_config"]["resume_check_peroid"])
-
-    print("All test done Successfully~~")
+            print("All test done Successfully~~")
+        else:
+            print("Scheduling will start at {} o'clock, Now is not the right time~~".format(meta_config["general_config"]["resume_time_hour"]))
+            time.sleep(meta_config["general_config"]["resume_check_peroid"])
 
 
 def doki_wait_receive_message(my_socket):
