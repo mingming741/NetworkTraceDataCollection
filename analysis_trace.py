@@ -11,7 +11,7 @@ import argparse
 import pathlib
 import requests
 
-
+meta_config = utils.parse_config("config/test_meta_config.json")
 analysis_category = ["CIF", "VC", "NTC", "APPU", "IDX", "PLT"]
 
 if "PLT" in analysis_category:
@@ -101,7 +101,7 @@ def result_generate_iperf_wireshark(main_config, post_to_server=False):
     print("Generate trace done~~")
 
 
-def get_db_info(server_host="103.49.160.133"):
+def get_db_info(server_host=meta_config["general_config"]["web_interface_server_ip"]):
     server_url = 'http://{}/php/fields_value.php'.format(server_host)
     data = requests.get(server_url, dict(field='Network')).json()
     network_dict = {}
@@ -118,7 +118,7 @@ def get_db_info(server_host="103.49.160.133"):
     return network_dict, variant_dict, direction_dict
 
 
-def post_file_to_server(file_path, network, direction, variant, server_host="103.49.160.133"):
+def post_file_to_server(file_path, network, direction, variant, server_host=meta_config["general_config"]["web_interface_server_ip"]):
     print("Post {}->{}->{}->{} to server".format(network, direction, variant, file_path))
     server_url = 'http://{}/php/handler.php?action=Upload_Record'.format(server_host)
     network_dict, variant_dict, direction_dict = get_db_info()
