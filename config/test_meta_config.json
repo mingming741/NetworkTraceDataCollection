@@ -49,9 +49,9 @@
   "scheduling_config":{
     "download_iperf_wireshark":{
       "result_path": "result/download_iperf_wireshark/",
-      "total_run": 1,
+      "total_run": 3,
       "iperf_port": 7777,
-      "time_each_flow": 60,
+      "time_each_flow": 3600,
       "time_flow_interval": 5,
       "udp_sending_rate": 20,
       "time_unit_trace": 1000,
@@ -65,8 +65,8 @@
     "upload_iperf_wireshark":{
       "result_path": "result/upload_iperf_wireshark/",
       "iperf_port": 7777,
-      "total_run": 1,
-      "time_each_flow": 60,
+      "total_run": 3,
+      "time_each_flow": 3600,
       "time_flow_interval": 5,
       "udp_sending_rate": 20,
       "time_unit_trace": 1000,
@@ -81,7 +81,7 @@
   },
   "general_config":{
     "web_interface_server_ip": "103.49.160.136",
-    "resume_time_hour": 12,
+    "resume_time_hour": 13,
     "resume_check_peroid": 60
   }
 }
