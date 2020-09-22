@@ -8,6 +8,7 @@ include_once('csrf.php');
 #session_regenerate_id();
 $direction = "*";
 $networkType = "*";
+$variant = "*";
 
 $db = ierg4210_DB();
 parse_str($_SERVER['QUERY_STRING']);
@@ -68,7 +69,7 @@ parse_str($_SERVER['QUERY_STRING']);
 								$result->execute();
 								$Network = $result->fetchAll(PDO::FETCH_ASSOC);
 								for ($i = 0; $i < count($Network); $i++){
-										echo '<button type "button"><a href="?networkType=' .$Network[$i]['Network']. '&direction=' .$direction. '">'. $Network[$i]['Network']. '</a></button>';
+										echo '<button type "button"><a href="?networkType=' .$Network[$i]['Network']. '&direction=' .$direction. '&variant=' .$variant. '">'. $Network[$i]['Network']. '</a></button>';
 								}
 						?>
 						<h4>Please Select a Direction (uplink/downlink): <b><u><i><?php echo $direction ?></i></u></b></h4>
@@ -78,9 +79,19 @@ parse_str($_SERVER['QUERY_STRING']);
 								$result->execute();
 								$Direction = $result->fetchAll(PDO::FETCH_ASSOC);
 								for ($i = 0; $i < count($Direction); $i++){
-										echo '<button type "button"><a href="?networkType=' .$networkType. '&direction=' .$Direction[$i]['Direction']. '">'.$Direction[$i]['Direction']. '</a></button>';
+										echo '<button type "button"><a href="?networkType=' .$networkType. '&direction=' .$Direction[$i]['Direction']. '&variant=' .$variant. '">'.$Direction[$i]['Direction'].  '</a></button>';
 								}
 						?>
+            <h4>Please Select a Variant: <b><u><i><?php echo $variant ?></i></u></b></h4>
+            <?php
+                $q = 'SELECT ID, Variant FROM [Variant_List]';
+                $result = $db->prepare($q);
+                $result->execute();
+                $Variant = $result->fetchAll(PDO::FETCH_ASSOC);
+                for ($i = 0; $i < count($Variant); $i++){
+                    echo '<button type "button"><a href="?networkType=' .$networkType. '&direction=' .$direction. '&variant=' .$Variant[$i]['Variant']. '">'.$Variant[$i]['Variant']. '</a></button>';
+                }
+            ?>
 		  	</div>
 			</div>
 
@@ -100,9 +111,9 @@ parse_str($_SERVER['QUERY_STRING']);
 						<tbody>
 							<?php
 							if($networkType != null && $direction != null){
-								$q = 'SELECT ID, Network, Direction, Variant, Trace_Name, Upload_Time FROM [Trace] WHERE Network = (?) and Direction = (?)';
+								$q = 'SELECT ID, Network, Direction, Variant, Trace_Name, Upload_Time FROM [Trace] WHERE Network = (?) and Direction = (?) and Variant = (?)';
 								$result = $db->prepare($q);
-								$result->execute(array($networkType, $direction));
+								$result->execute(array($networkType, $direction, $variant));
 								$Trace = $result->fetchAll(PDO::FETCH_ASSOC);
 								for ($i = 0; $i < count($Trace); $i++){
 									echo '<tr>';
