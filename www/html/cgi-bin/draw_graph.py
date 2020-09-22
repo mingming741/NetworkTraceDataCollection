@@ -113,7 +113,7 @@ def draw_graph(network, direction, variant, start_time, end_time, scale=None):
             df_temp = df_temp[(df_temp["time"] >= start_timestamp) & (df_temp["time"] <= end_timestamp)]
             df_main = pd.concat( [df_main, df_temp], ignore_index=True)
     if scale ==  None:
-        total_scale = int(end_timestamp - start_timestamp)
+        total_scale = int(max(df_main["time"].values) - min(df_main["time"].values))
         if total_scale <= 600:
             scale = 1
         elif total_scale > 600 and total_scale <= 36000:
@@ -126,6 +126,7 @@ def draw_graph(network, direction, variant, start_time, end_time, scale=None):
     if df_main.shape[0] > 0:
         time_list = [int(x/scale) for x in df_main["time"].values]
         list_start_time = min(time_list)
+        list_end_time = max(time_list)
         time_list = [x - list_start_time for x in time_list]
         Bandwidth_list = [round(x/1000000,3) for x in df_main["Bandwidth"].values]
         df_main = pd.DataFrame(data = {"time": time_list, "Bandwidth": Bandwidth_list})

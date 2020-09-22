@@ -95,6 +95,32 @@ parse_str($_SERVER['QUERY_STRING']);
 		  	</div>
 			</div>
 
+      <div class="panel panel-info">
+		  	<div class="panel-heading">Time Graph</div>
+		  	<div class="panel-body">
+          <?php
+            if ($networkType != "*" && $direction != "*" && $variant != "*")
+              echo
+              '<label> Select Start/End Time ("YYYY_MM_DD_HH", e.g. 2020_09_15_12) </label>
+                  <form id = "TimeSelect" method= "GET" action="../cgi-bin/draw_graph.py" enctype="multipart/form-data">
+                  <input id= "operation" type="hidden" name= "operation" value="draw_graph", required="true" />
+                  <input id= "network" type="hidden" name= "network" value="'  .$networkType. '", required="true" />
+                  <input id= "direction" type="hidden" name= "direction" value="'  .$direction. '", required="true" />
+                  <input id= "variant" type="hidden" name= "variant" value="'  .$variant. '", required="true" />
+                  <label> Start </label>
+                  <input id= "start_time" type="text" name= "start_time" required="true" />
+                  <label> End </label>
+                  <input id= "end_time" type="text" name= "end_time" required="true" />
+                  <br/>
+                  <label> Select Scale </label>
+                  <br/>
+                  <input id= "scale" type="text" name= "scale" pattern="^[0-9]*$" />
+                  <input type= "submit" value="Submit" />
+              </form>';
+           ?>
+				</div>
+			</div>
+
 			<div class="panel panel-info">
 		  	<div class="panel-heading">Trace List</div>
 		  	<div class="panel-body">
@@ -130,6 +156,7 @@ parse_str($_SERVER['QUERY_STRING']);
 					</table>
 				</div>
 			</div>
+
 		</div>
 
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
