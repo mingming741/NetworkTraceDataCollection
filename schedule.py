@@ -15,7 +15,6 @@ def main():
     meta_config = utils.parse_config("config/test_meta_config.json")
     tasks_list = utils.dict_key_to_ordered_list(meta_config["scheduling_config"])
     schedule_profile_list = get_schedule_profile(meta_config, tasks_list)
-    schedule_profile_list_from_client = []
     this_machine = socket.gethostname()
     this_machine_profile = meta_config["test_machines"][this_machine]
 
@@ -66,6 +65,7 @@ def main():
                         time.sleep(3)
 
             if this_machine_profile["role"] == "server":
+                schedule_profile_list_from_client = []
                 server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 retry_bind(server_socket, (this_machine_profile["ip"], 1999))
                 server_socket.listen(10)
@@ -89,6 +89,7 @@ def main():
                         print("Experiment Start: {}, {}, {}".format(main_config[task_name]["network"], task_name, main_config[task_name]["variant"]))
                         os.system("sudo python3 server.py {}".format(task_name))
                 print("Experiment Done, start to analysis the log")
+                server_socket.close()
                 for test_config in schedule_profile_list_from_client:
                     if "upload_iperf_wireshark" in test_config:
                         with open("config/config.json", 'w') as f:
