@@ -70,7 +70,7 @@ def main():
 
     if this_machine_profile["role"] == "server":
         while True:
-            current_datetime = datetime.datetime.now()
+            current_datetime = datetime.now()
             if current_datetime.hour == meta_config["general_config"]["resume_time_hour"]:
                 print("Entering scheduling, data collection start")
                 server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

@@ -80,7 +80,7 @@
     }
   },
   "general_config":{
-    "resume_time_hour": 10,
+    "resume_time_hour": 11,
     "resume_check_peroid": 60
   }
 }
