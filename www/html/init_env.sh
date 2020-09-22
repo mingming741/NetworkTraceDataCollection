@@ -1,6 +1,9 @@
+#!/bin/bash
+
 sudo apt-get update
 sudo apt-get install -y python3
 sudo apt-get install -y apache2
+sudo apt-get install -y curl
 sudo apt-get install -y sqlite3
 sudo apt-get install -y sqlite
 sudo apt-get install -y sqlitebrowser
@@ -13,6 +16,8 @@ sudo chmod -R 777 db/
 cd html/
 sudo mkdir trace
 sudo chmod -R 777 trace/
+sudo mkdir graph
+sudo chmod -R 777 graph/
 
 sudo a2enmod cgi
 sudo service apache2 restart
