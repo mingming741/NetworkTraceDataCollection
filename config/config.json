@@ -1,24 +1,24 @@
 {
   "download_iperf_wireshark": {
-    "time_flow_interval": 1,
-    "time_unit_trace": 1000,
-    "network": "CSL_4G",
-    "variant": "udp",
+    "total_run": 4,
+    "server_ip": "103.49.160.132",
+    "time_flow_interval": 5,
     "iperf_port": 7777,
     "result_generated_path": "trace/CSL_4G/download",
-    "server_ip": "103.49.160.132",
+    "time_each_flow": 3600,
+    "time_unit_trace": 1000,
+    "udp_sending_rate": 20,
+    "server_cmd_address": [
+      "103.49.160.132",
+      2867
+    ],
+    "result_path": "result/download_iperf_wireshark/",
+    "variant": "bbr",
     "variants_list": [
       "bbr",
       "cubic",
       "udp"
     ],
-    "udp_sending_rate": 20,
-    "time_each_flow": 60,
-    "result_path": "result/download_iperf_wireshark/",
-    "server_cmd_address": [
-      "103.49.160.132",
-      2311
-    ],
-    "total_run": 1
+    "network": "CSL_4G"
   }
 }
