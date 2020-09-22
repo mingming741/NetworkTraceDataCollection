@@ -23,6 +23,7 @@ def main():
         current_datetime = datetime.now()
         if current_datetime.hour == meta_config["general_config"]["resume_time_hour"]:
             print("Entering scheduling, data collection start")
+
             if this_machine_profile["role"] ==  "client":
                 time.sleep(meta_config["general_config"]["resume_check_peroid"] + 10)
                 peer_machine = this_machine_profile["peer_machine"]
@@ -63,10 +64,10 @@ def main():
                         time.sleep(3)
                         os.system("python3 analysis_trace.py download_iperf_wireshark --post=1")
                         time.sleep(3)
+
             if this_machine_profile["role"] == "server":
                 server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                server_address_port = (this_machine_profile["ip"], 1999)
-                server_socket.bind(server_address_port)
+                retry_bind(server_socket, (this_machine_profile["ip"], 1999))
                 server_socket.listen(10)
                 while True:
                     print("-- Wait client message to start the experiment")
@@ -113,6 +114,20 @@ def doki_wait_receive_message(my_socket):
     return message
 
 
+
+def retry_bind(my_socket, my_socket_address_port, retry_timeout=60, stable_wait_time=1):
+    exit_flag = 0
+    while not exit_flag:
+        try:
+            my_socket.bind(my_socket_address_port)
+            time.sleep(stable_wait_time)
+            exit_flag = 1
+        except Exception as e:
+            print("Exception happen when bind address: ".format(e))
+            time.sleep(retry_timeout)
+            print("Retry..")
+
+
 def retry_connect(my_socket, server_address_port, retry_timeout=5, stable_wait_time=1):
     print("Connect to {}".format(server_address_port))
     exit_flag = 0
@@ -136,7 +151,7 @@ def retry_send(my_socket, message, retry_timeout=5, stable_wait_time=1):
             time.sleep(stable_wait_time)
             exit_flag = 1
         except Exception as e:
-            print("Exception happen when connect to server: ".format(e))
+            print("Exception happen send message: ".format(e))
             time.sleep(retry_timeout)
             print("Retry..")
 
