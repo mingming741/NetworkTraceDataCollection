@@ -3,7 +3,8 @@
     "variants_list":{
       "bbr": 1,
       "cubic": 1,
-      "udp": 1
+      "udp": 1,
+      "westwood": 1
     },
     "networks_list":{
       "3HK_4G": 1,
@@ -21,22 +22,8 @@
       "enable" : 1,
       "ip": "-1",
       "role": "client",
-      "network": "CSL_4G",
-      "peer_machine": "dokiserver2-OptiPlex-990"
-    },
-    "doki3-OptiPlex-9010":{
-      "enable": 1,
-      "ip": -1,
-      "role": "client",
       "network": "3HK_4G",
-      "peer_machine": "dokiserver-OptiPlex-9020"
-    },
-    "dokiserver-OptiPlex-9020":{
-      "enable": 1,
-      "ip": "103.49.160.131",
-      "role": "server",
-      "network": "wired",
-      "peer_machine": "doki3-OptiPlex-9010"
+      "peer_machine": "dokiserver2-OptiPlex-990"
     },
     "dokiserver2-OptiPlex-990":{
       "enable": 1,
@@ -49,7 +36,7 @@
   "scheduling_config":{
     "download_iperf_wireshark":{
       "result_path": "result/download_iperf_wireshark/",
-      "total_run": 3,
+      "total_run": 1,
       "iperf_port": 7777,
       "time_each_flow": 3600,
       "time_flow_interval": 5,
@@ -65,7 +52,7 @@
     "upload_iperf_wireshark":{
       "result_path": "result/upload_iperf_wireshark/",
       "iperf_port": 7777,
-      "total_run": 3,
+      "total_run": 1,
       "time_each_flow": 3600,
       "time_flow_interval": 5,
       "udp_sending_rate": 20,
@@ -81,7 +68,7 @@
   },
   "general_config":{
     "web_interface_server_ip": "103.49.160.136",
-    "resume_time_hour": 13,
+    "resume_time_hour": 12,
     "resume_check_peroid": 60
   }
 }
