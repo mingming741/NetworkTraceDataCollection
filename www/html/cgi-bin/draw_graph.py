@@ -100,7 +100,7 @@ def draw_graph(network, direction, variant, start_time, end_time, scale=None):
     end_timestamp = int(datetime.timestamp(end_datetime))
 
     log_sentence("Throughput for {}, {}, {}".format(network, direction, variant))
-    log_sentence("Start at {} (ts:{}),  End at {} (ts:{})".format(start_datetime, end_datetime, end_time, end_timestamp))
+    log_sentence("Start at {} (ts:{}),  End at {} (ts:{})".format(start_datetime, start_timestamp, end_datetime, end_timestamp))
 
     target_directory = "{}trace/{}/{}/{}/".format(html_dir, network, direction, variant)
     file_list = os.listdir(target_directory)
