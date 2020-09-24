@@ -31,6 +31,20 @@
       "role": "server",
       "network": "wired",
       "peer_machine": "doki2-OptiPlex-7040"
+    },
+    "doki-OptiPlex-7040":{
+      "enable" : 1,
+      "ip": "-1",
+      "role": "client",
+      "network": "CSL_4G",
+      "peer_machine": "dokiserver-OptiPlex-9020"
+    },
+    "dokiserver-OptiPlex-9020":{
+      "enable": 1,
+      "ip": "103.49.160.131",
+      "role": "server",
+      "network": "wired",
+      "peer_machine": "doki-OptiPlex-7040"
     }
   },
   "scheduling_config":{
