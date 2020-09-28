@@ -28,3 +28,6 @@ trace/*
 src_python/result/*
 measurement/crawled_data/*
 venv/*
+
+# Variable config
+config/config.json
