@@ -24,7 +24,7 @@ def main():
             print("Entering scheduling, data collection start")
 
             if this_machine_profile["role"] ==  "client":
-                time.sleep(meta_config["general_config"]["resume_check_peroid"] + 10)
+                time.sleep(meta_config["general_config"]["resume_check_peroid"] + 60)
                 peer_machine = this_machine_profile["peer_machine"]
                 peer_machine_profile = meta_config["test_machines"][peer_machine]
                 server_address_port = (peer_machine_profile["ip"], 1999)
@@ -65,6 +65,7 @@ def main():
                         time.sleep(3)
 
             if this_machine_profile["role"] == "server":
+                time.sleep(meta_config["general_config"]["resume_check_peroid"] + 30)
                 schedule_profile_list_from_client = []
                 server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 retry_bind(server_socket, (this_machine_profile["ip"], 1999))
@@ -116,7 +117,7 @@ def doki_wait_receive_message(my_socket):
 
 
 
-def retry_bind(my_socket, my_socket_address_port, retry_timeout=60, stable_wait_time=1):
+def retry_bind(my_socket, my_socket_address_port, retry_timeout=300, stable_wait_time=1):
     exit_flag = 0
     while not exit_flag:
         try:
