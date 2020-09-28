@@ -90,7 +90,7 @@ def result_generate_iperf_wireshark(main_config, post_to_server=False):
     df_main = pd.DataFrame(data = {"time" : df_main["time"].values, "datetime": [datetime.fromtimestamp(x).strftime("%Y_%m_%d_%H") for x in df_main["time"].values], "Bandwidth" : df_main["Bandwidth"].values})
     pathlib.Path(os.path.join(main_config["result_generated_path"], main_config["variant"])).mkdir(parents=True, exist_ok=True)
     for this_datetime in df_main["datetime"].unique():
-        this_file_name = "download_{}_{}.txt".format(main_config["variant"], this_datetime)
+        this_file_name = "{}_{}_{}.txt".format(main_config["direction"], main_config["variant"], this_datetime)
         this_file_path = os.path.join(main_config["result_generated_path"], main_config["variant"], this_file_name)
         df_temp = df_main[df_main["datetime"] == this_datetime]
         df_temp.to_csv(this_file_path, index = False, header=False,columns=["time","Bandwidth"], sep="\t")

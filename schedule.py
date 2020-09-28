@@ -179,6 +179,7 @@ def get_schedule_profile(meta_config, tasks_list):
             example_config["server_cmd_address"] =  [server_ip, server_cmd_address_port_zero]
             server_cmd_address_port_zero = server_cmd_address_port_zero + 1
             example_config["variant"] =  variant
+            example_config["direction"] =  "download"
             example_config["network"] =  client_network
             example_config["variants_list"] =  variants_list
             example_config["result_generated_path"] =  os.path.join("trace", client_network, "download")
@@ -190,6 +191,7 @@ def get_schedule_profile(meta_config, tasks_list):
             example_config["server_cmd_address"] =  [server_ip, server_cmd_address_port_zero]
             server_cmd_address_port_zero = server_cmd_address_port_zero + 1
             example_config["variant"] =  variant
+            example_config["direction"] =  "upload"
             example_config["network"] =  client_network
             example_config["variants_list"] =  variants_list
             example_config["result_generated_path"] =  os.path.join("trace", client_network, "upload")
