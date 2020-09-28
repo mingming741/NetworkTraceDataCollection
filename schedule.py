@@ -20,7 +20,7 @@ def main():
 
     while True:
         current_datetime = datetime.now()
-        if current_datetime.hour == meta_config["general_config"]["resume_time_hour"]:
+        if (current_datetime.hour == meta_config["general_config"]["resume_time_hour"]) or meta_config["general_config"]["resume_time_hour"] == -1:
             print("Entering scheduling, data collection start")
 
             if this_machine_profile["role"] ==  "client":
