@@ -55,7 +55,7 @@
       "time_each_flow": 3600,
       "time_flow_interval": 5,
       "udp_sending_rate": 20,
-      "time_unit_trace": 1000,
+      "time_unit_trace": 1,
 
       "network": "",
       "result_generated_path": "",
@@ -70,7 +70,7 @@
       "time_each_flow": 3600,
       "time_flow_interval": 5,
       "udp_sending_rate": 20,
-      "time_unit_trace": 1000,
+      "time_unit_trace": 1,
 
       "network": "",
       "result_generated_path": "",
