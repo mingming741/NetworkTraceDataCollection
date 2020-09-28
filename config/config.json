@@ -1,24 +1,26 @@
 {
   "download_iperf_wireshark": {
+    "total_run": 1,
+    "result_generated_path": "trace/3HK_4G/download",
     "iperf_port": 7777,
     "time_flow_interval": 5,
-    "result_generated_path": "trace/CSL_4G/download",
+    "server_cmd_address": [
+      "103.49.160.132",
+      2777
+    ],
     "variants_list": [
       "bbr",
       "cubic",
-      "udp"
+      "udp",
+      "westwood"
     ],
-    "udp_sending_rate": 20,
-    "variant": "udp",
-    "time_each_flow": 60,
-    "network": "CSL_4G",
-    "server_cmd_address": [
-      "103.49.160.132",
-      2834
-    ],
+    "time_unit_trace": 1,
+    "time_each_flow": 3600,
+    "direction": "download",
     "server_ip": "103.49.160.132",
-    "total_run": 1,
-    "time_unit_trace": 1000,
-    "result_path": "result/download_iperf_wireshark/"
+    "variant": "westwood",
+    "result_path": "result/download_iperf_wireshark/",
+    "udp_sending_rate": 20,
+    "network": "3HK_4G"
   }
 }

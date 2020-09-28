@@ -87,7 +87,7 @@ def result_generate_iperf_wireshark(main_config, post_to_server=False):
     df_main = df_main.groupby(["time"]).sum().reset_index() # Bandwidth in bps
     print("Read Files done")
 
-    df_main = pd.DataFrame(data = {"time" : df_main["time"].values, "datetime": [datetime.fromtimestamp(x).strftime("%Y_%m_%d_%H") for x in df_main["time"].values], "Bandwidth" : df_main["Bandwidth"].values})
+    df_main = pd.DataFrame(data = {"time" : df_main["time"].values, "datetime": [datetime.fromtimestamp(int(x * time_unit_trace / 1000)).strftime("%Y_%m_%d_%H") for x in df_main["time"].values], "Bandwidth" : df_main["Bandwidth"].values})
     pathlib.Path(os.path.join(main_config["result_generated_path"], main_config["variant"])).mkdir(parents=True, exist_ok=True)
     for this_datetime in df_main["datetime"].unique():
         this_file_name = "{}_{}_{}.txt".format(main_config["direction"], main_config["variant"], this_datetime)
