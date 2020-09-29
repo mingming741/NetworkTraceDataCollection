@@ -11,6 +11,7 @@ from datetime import datetime, timezone
 import utils
 import my_socket
 
+test_meta_config = utils.parse_config("config/test_meta_config.json")
 
 def main():
     utils.init_dir()
@@ -33,7 +34,6 @@ def upload_iperf_wireshark(main_config=None):
     selected_network = main_config["network"]
     selected_direction = main_config["direction"]
     selected_variant = main_config["variant"]
-    selected_variants_list = main_config["variants_list"]
     pcap_result_path = os.path.join(main_config["pcap_path"], main_config["task_name"])
     pcap_result_subpath_variant = os.path.join(pcap_result_path, selected_variant)
 
@@ -52,14 +52,14 @@ def upload_iperf_wireshark(main_config=None):
     for i in range(0, total_run):
         client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         my_socket.retry_connect(client_socket, server_address_port)
-        my_socket.retry_send(client_socket, ("iperf_start" + "##DOKI##").encode("utf-8"))
+        my_socket.retry_send(client_socket, ("upload_iperf_start" + "##DOKI##").encode("utf-8"))
         time.sleep(time_flow_interval)
         client_socket.close()
         if selected_variant == "udp":
             os.system("iperf3 -c {} -p {} --length 1472 -u -b {}m -t {} &".format(server_ip, server_iperf_port, udp_sending_rate, task_time))
             time.sleep(task_time + time_flow_interval)
             os.system('killall iperf3')
-        if selected_variant != "udp" and selected_variant in selected_variants_list:
+        if selected_variant != "udp":
             os.system("sudo sysctl net.ipv4.tcp_congestion_control={}".format(selected_variant))
             os.system("iperf3 -c {} -p {} -t {} &".format(selected_variant, server_iperf_port, task_time))
             time.sleep(task_time + time_flow_interval)
@@ -69,7 +69,7 @@ def upload_iperf_wireshark(main_config=None):
 
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     my_socket.retry_connect(client_socket, server_address_port)
-    my_socket.retry_send(client_socket, ("iperf_end" + "##DOKI##").encode("utf-8"))
+    my_socket.retry_send(client_socket, ("upload_iperf_end" + "##DOKI##").encode("utf-8"))
     client_socket.close()
     print("Client--> download_iperf_wireshark, All test Done~~")
 
@@ -80,7 +80,6 @@ def download_iperf_wireshark(main_config=None):
     selected_network = main_config["network"]
     selected_direction = main_config["direction"]
     selected_variant = main_config["variant"]
-    selected_variants_list = main_config["variants_list"]
     pcap_result_path = os.path.join(main_config["pcap_path"], main_config["task_name"])
     pcap_result_subpath_variant = os.path.join(pcap_result_path, selected_variant)
 
@@ -101,7 +100,7 @@ def download_iperf_wireshark(main_config=None):
     for i in range(0, total_run):
         client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         my_socket.retry_connect(client_socket, server_address_port)
-        my_socket.retry_send(client_socket, ("iperf_start" + "##DOKI##").encode("utf-8"))
+        my_socket.retry_send(client_socket, ("download_iperf_start" + "##DOKI##").encode("utf-8"))
         time.sleep(time_flow_interval)
         client_socket.close()
 
@@ -114,7 +113,7 @@ def download_iperf_wireshark(main_config=None):
             os.system('killall iperf3')
             os.system('killall tcpdump')
             os.system("python3 my_subprocess.py pcap2txt --mode udp --file-path {} &".format(output_pcap))
-        if selected_variant != "udp" and selected_variant in selected_variants_list:
+        if selected_variant != "udp":
             os.system("tcpdump -i any tcp src port {} -w {} &".format(server_iperf_port, output_pcap))
             os.system("iperf3 -c {} -p {} -R -t {} &".format(server_ip, server_iperf_port, task_time))
             time.sleep(task_time + time_flow_interval)
@@ -126,7 +125,7 @@ def download_iperf_wireshark(main_config=None):
 
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     my_socket.retry_connect(client_socket, server_address_port)
-    my_socket.retry_send(client_socket, ("iperf_end" + "##DOKI##").encode("utf-8"))
+    my_socket.retry_send(client_socket, ("download_iperf_end" + "##DOKI##").encode("utf-8"))
     client_socket.close()
     print("Client--> download_iperf_wireshark, All test Done~~")
 

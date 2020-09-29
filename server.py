@@ -28,7 +28,6 @@ def upload_iperf_wireshark():
     selected_network = main_config["network"]
     selected_direction = main_config["direction"]
     selected_variant = main_config["variant"]
-    selected_variants_list = main_config["variants_list"]
     pcap_result_path = os.path.join(main_config["pcap_path"], main_config["task_name"])
     pcap_result_subpath_variant = os.path.join(pcap_result_path, selected_variant)
 
@@ -53,8 +52,8 @@ def upload_iperf_wireshark():
         client_socket, client_address = server_socket.accept()
         print("Recieve from client {}".format(client_address))
         message = my_socket.doki_wait_receive_message(client_socket).replace("##DOKI##", "")
-        client_socket.close()
-        if message == "Start":
+        if message == "upload_iperf_start":
+            client_socket.close()
             os.system("iperf3 -s -p 7777 &")
             current_datetime = datetime.fromtimestamp(time.time())
             output_pcap = os.path.join(pcap_result_subpath_variant, "{}.pcap".format(current_datetime.strftime("%Y_%m_%d_%H_%M")))
@@ -63,14 +62,15 @@ def upload_iperf_wireshark():
                 time.sleep(task_time + 2 * time_flow_interval)
                 os.system('killall tcpdump')
                 os.system("python3 my_subprocess.py pcap2txt --mode udp --file-path {} &".format(output_pcap))
-            if selected_variant != "udp" and selected_variant in selected_variants_list:
+            if selected_variant != "udp":
                 os.system("tcpdump -i any tcp dst port {} -w {} &".format(server_iperf_port, output_pcap))
                 time.sleep(task_time + 2 * time_flow_interval)
                 os.system('killall tcpdump')
                 os.system("python3 my_subprocess.py pcap2txt --mode tcp --file-path {} &".format(output_pcap))
             os.system('killall iperf3')
             print("Server One flow finished~")
-        if message == "END":
+        if message == "upload_iperf_end":
+            client_socket.close()
             print("Client Test done, exit")
             server_socket.close()
             exit()
@@ -81,7 +81,6 @@ def download_iperf_wireshark():
     print("Download iperf server, start~~")
     main_config = utils.parse_config("config/config.json")["download_iperf_wireshark"]
     selected_variant = main_config["variant"]
-    selected_variants_list = main_config["variants_list"]
 
     server_ip = main_config["server_ip"]
     server_packet_sending_port = main_config["server_packet_sending_port"]
@@ -90,7 +89,7 @@ def download_iperf_wireshark():
 
     task_time = main_config["time_each_flow"]
     time_flow_interval = 5 # wait some time to keep stability
-    if selected_variant in selected_variants_list and selected_variant != "udp":
+    if selected_variant != "udp":
         os.system("sudo sysctl net.ipv4.tcp_congestion_control={}".format(selected_variant))
 
     print("Server--> download_iperf_wireshark, Start~~")
@@ -101,15 +100,17 @@ def download_iperf_wireshark():
         client_socket, client_address = server_socket.accept()
         print("Recieve from client {}".format(client_address))
         message = my_socket.doki_wait_receive_message(client_socket).replace("##DOKI##", "")
-        if message == "iperf_start":
+        if message == "download_iperf_start":
+            client_socket.close()
             os.system("iperf3 -s -p 7777 &")
             time.sleep(task_time + 2 * time_flow_interval)
             os.system('killall iperf3')
-        if message == "END":
+        if message == "download_iperf_end":
+            client_socket.close()
             print("Server--> download_iperf_wireshark, Done~~")
             server_socket.close()
             exit()
-        client_socket.close()
+
 
 
 

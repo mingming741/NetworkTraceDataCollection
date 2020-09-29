@@ -3,52 +3,30 @@
     "task_name": "download_iperf_wireshark",
     "trace_path": "trace/",
     "pcap_path": "result/",
-
     "network": "3HK_4G",
     "direction": "download",
     "variant": "cubic",
-
-    "total_run": 1,
-    "trace_min_time_unit": 1,
-
     "server_ip": "103.49.160.132",
     "server_packet_sending_port": 2001,
     "iperf_port": 7777,
-
     "udp_sending_rate": 20,
-    "time_each_flow": 60,
+    "total_run": 1,
+    "time_each_flow": 60
 
-    "variants_list": [
-      "bbr",
-      "cubic",
-      "udp",
-      "westwood"
-    ]
   },
   "upload_iperf_wireshark":{
     "task_name": "upload_iperf_wireshark",
     "trace_path": "trace/",
     "pcap_path": "result/",
-
     "network": "3HK_4G",
     "direction": "upload",
     "variant": "cubic",
-
-    "total_run": 1,
-    "trace_min_time_unit": 1,
-
     "server_ip": "103.49.160.132",
     "server_packet_sending_port": 2001,
     "iperf_port": 7777,
-
     "udp_sending_rate": 60,
-    "time_each_flow": 3600,
+    "total_run": 1,
+    "time_each_flow": 60
 
-    "variants_list": [
-      "bbr",
-      "cubic",
-      "udp",
-      "westwood"
-    ]
   }
 }

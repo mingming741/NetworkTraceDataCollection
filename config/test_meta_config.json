@@ -82,6 +82,7 @@
   },
   "general_config":{
     "web_interface_server_ip": "103.49.160.136",
+    "trace_min_time_unit": 1,
     "resume_time_hour": -1,
     "resume_check_peroid": 60
   }
