@@ -96,7 +96,7 @@ def download_iperf_wireshark():
     while True:
         client_socket, client_address = server_socket.accept()
         print("Recieve from client {}".format(client_address))
-        message = doki_wait_receive_message(client_socket).replace("##DOKI##", "")
+        message = my_socket.doki_wait_receive_message(client_socket).replace("##DOKI##", "")
         if message == "iperf_start":
             os.system("iperf3 -s -p 7777 &")
             time.sleep(task_time + 2 * time_flow_interval)

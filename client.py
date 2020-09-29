@@ -64,7 +64,7 @@ def download_iperf_wireshark():
     selected_direction = main_config["direction"]
     selected_variant = main_config["variant"]
     selected_variants_list = main_config["variants_list"]
-    pcap_result_path = os.path.join(main_config["result_path"], main_config["task_name"])
+    pcap_result_path = os.path.join(main_config["pcap_path"], main_config["task_name"])
     pcap_result_subpath_variant = os.path.join(pcap_result_path, selected_variant)
 
     total_run = int(main_config["total_run"])
