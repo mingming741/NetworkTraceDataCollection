@@ -73,7 +73,7 @@ def result_generate_iperf_wireshark(main_config, post_to_server=False):
     selected_network = main_config["network"]
     selected_direction = main_config["direction"]
     selected_variant = main_config["variant"]
-    trace_generated_path = os.path.join(main_config["trace_path"], main_config["direction"], main_config["variant"])
+    trace_generated_path = os.path.join(main_config["trace_path"], main_config["network"], main_config["direction"], main_config["variant"])
     utils.make_public_dir(trace_generated_path)
     pcap_result_subpath_variant = os.path.join(main_config["pcap_path"], main_config["task_name"], main_config["variant"])
     file_list = os.listdir(pcap_result_subpath_variant)

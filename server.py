@@ -43,7 +43,8 @@ def upload_iperf_wireshark(main_config = None):
     utils.make_public_dir(pcap_result_path)
     utils.remake_public_dir(pcap_result_subpath_variant)
     time_flow_interval = 5 # wait some time to keep stability
-    print("Upload iperf server, start~~")
+    print("Server--> upload_iperf_wireshark, Start~~")
+
 
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     my_socket.retry_bind(server_socket, server_address_port)
@@ -71,8 +72,7 @@ def upload_iperf_wireshark(main_config = None):
             print("Server One flow finished~")
         if message == "upload_iperf_end":
             client_socket.close()
-            print("Client Test done, exit")
-            server_socket.close()
+            print("Server--> upload_iperf_wireshark, All test Done~~")
             exit()
 
 

@@ -71,7 +71,7 @@ def upload_iperf_wireshark(main_config=None):
     my_socket.retry_connect(client_socket, server_address_port)
     my_socket.retry_send(client_socket, ("upload_iperf_end" + "##DOKI##").encode("utf-8"))
     client_socket.close()
-    print("Client--> download_iperf_wireshark, All test Done~~")
+    print("Client--> upload_iperf_wireshark, All test Done~~")
 
 
 def download_iperf_wireshark(main_config=None):
