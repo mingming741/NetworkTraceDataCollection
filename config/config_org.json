@@ -1,4 +1,56 @@
 {
+  "download_iperf_wireshark": {
+    "task_name": "download_iperf_wireshark",
+    "trace_path": "trace/",
+    "pcap_path": "result/",
+
+    "network": "3HK_4G",
+    "direction": "download",
+    "variant": "cubic",
+
+    "total_run": 1,
+    "trace_min_time_unit": 1,
+
+    "server_ip": "103.49.160.132",
+    "server_packet_sending_port": 2001,
+    "iperf_port": 7777,
+
+    "udp_sending_rate": 20,
+    "time_each_flow": 3600,
+
+    "variants_list": [
+      "bbr",
+      "cubic",
+      "udp",
+      "westwood"
+    ]
+  },
+  "upload_iperf_wireshark":{
+    "task_name": "upload_iperf_wireshark",
+    "trace_path": "trace/",
+    "pcap_path": "result/",
+
+    "network": "3HK_4G",
+    "direction": "upload",
+    "variant": "cubic",
+
+    "total_run": 1,
+    "trace_min_time_unit": 1,
+
+    "server_ip": "103.49.160.132",
+    "server_packet_sending_port": 2001,
+    "iperf_port": 7777,
+
+    "udp_sending_rate": 20,
+    "time_each_flow": 3600,
+
+    "variants_list": [
+      "bbr",
+      "cubic",
+      "udp",
+      "westwood"
+    ]
+  },
   "download_socket": {
     "result_path": "result/download_socket/",
     "process_total_time": -1,
@@ -10,38 +62,4 @@
     "server_connection_log_interval": 1000000,
     "test_config_file": "result/udp_test.json"
   },
-  "download_iperf_wireshark":{
-    "result_path": "result/download_iperf_wireshark/",
-    "result_generated_path": "trace/3HK_4G/download",
-    "total_run": 12,
-    "server_ip": "103.49.160.132",
-    "iperf_port": 7777,
-    "time_each_flow": 3600,
-    "time_flow_interval": 10,
-    "udp_sending_rate": 20,
-    "time_unit_trace": 1000,
-    "variant": "udp",
-    "variants_list": [
-      "udp",
-      "cubic",
-      "bbr"
-    ]
-  },
-  "upload_iperf_wireshark":{
-    "result_path": "result/upload_iperf_wireshark/",
-    "result_generated_path": "trace/CSL/upload",
-    "server_cmd_address": ["103.49.160.132", 2333],
-    "server_ip": "103.49.160.132",
-    "iperf_port": 7777,
-    "total_run": 12,
-    "time_each_flow": 3600,
-    "time_flow_interval": 10,
-    "time_unit_trace": 1000,
-    "variant": "cubic",
-    "variants_list": [
-      "udp",
-      "cubic",
-      "bbr"
-    ]
-  }
 }

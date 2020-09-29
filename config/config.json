@@ -16,7 +16,7 @@
     "iperf_port": 7777,
 
     "udp_sending_rate": 20,
-    "time_each_flow": 3600,
+    "time_each_flow": 60,
 
     "variants_list": [
       "bbr",
@@ -41,7 +41,7 @@
     "server_packet_sending_port": 2001,
     "iperf_port": 7777,
 
-    "udp_sending_rate": 20,
+    "udp_sending_rate": 60,
     "time_each_flow": 3600,
 
     "variants_list": [

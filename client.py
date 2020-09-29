@@ -27,39 +27,9 @@ def main():
         download_socket()
 
 
-def upload_iperf_wireshark():
-    main_config = utils.parse_config("config/config.json")["upload_iperf_wireshark"]
-    print("Upload iperf client, start~~")
-    for i in range(0, int(main_config["total_run"])):
-        client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        client_socket.connect(tuple(main_config["server_cmd_address"]))
-        this_cmd = "Start"
-        message = this_cmd + "##DOKI##"
-        client_socket.send(message.encode("utf-8"))
-        time.sleep(main_config["time_flow_interval"])
-        client_socket.close()
-        if main_config["variant"] == "udp":
-            os.system("iperf3 -c {} -p {} --length 1472 -u -b {}m -t {} &".format(main_config["server_ip"], main_config["iperf_port"], main_config["udp_sending_rate"],main_config["time_each_flow"]))
-            time.sleep(main_config["time_each_flow"] + main_config["time_flow_interval"])
-            os.system('killall iperf3')
-        if main_config["variant"] != "udp" and main_config["variant"] in main_config["variants_list"]:
-            os.system("sudo sysctl net.ipv4.tcp_congestion_control={}".format(main_config["variant"]))
-            os.system("iperf3 -c {} -p {} -t {} &".format(main_config["server_ip"], main_config["iperf_port"], main_config["time_each_flow"]))
-            time.sleep(main_config["time_each_flow"] + main_config["time_flow_interval"])
-            os.system('killall iperf3')
-        time.sleep(main_config["time_flow_interval"])
-
-    client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    client_socket.connect(tuple(main_config["server_cmd_address"]))
-    this_cmd = "END"
-    message = this_cmd + "##DOKI##"
-    client_socket.send(message.encode("utf-8"))
-    client_socket.close()
-    print("All test done Successfully!!")
-
-
-def download_iperf_wireshark():
-    main_config = utils.parse_config("config/config.json")["download_iperf_wireshark"]
+def upload_iperf_wireshark(main_config=None):
+    if main_config == None:
+        main_config = utils.parse_config("config/config.json")["upload_iperf_wireshark"]
     selected_network = main_config["network"]
     selected_direction = main_config["direction"]
     selected_variant = main_config["variant"]
@@ -76,11 +46,57 @@ def download_iperf_wireshark():
     task_time = main_config["time_each_flow"]
     udp_sending_rate = main_config["udp_sending_rate"]
 
+    time_flow_interval = 5 # wait some time to keep stability
+
+    print("Client--> upload_iperf_wireshark, Start~~")
+    for i in range(0, total_run):
+        client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        my_socket.retry_connect(client_socket, server_address_port)
+        my_socket.retry_send(client_socket, ("iperf_start" + "##DOKI##").encode("utf-8"))
+        time.sleep(time_flow_interval)
+        client_socket.close()
+        if selected_variant == "udp":
+            os.system("iperf3 -c {} -p {} --length 1472 -u -b {}m -t {} &".format(server_ip, server_iperf_port, udp_sending_rate, task_time))
+            time.sleep(task_time + time_flow_interval)
+            os.system('killall iperf3')
+        if selected_variant != "udp" and selected_variant in selected_variants_list:
+            os.system("sudo sysctl net.ipv4.tcp_congestion_control={}".format(selected_variant))
+            os.system("iperf3 -c {} -p {} -t {} &".format(selected_variant, server_iperf_port, task_time))
+            time.sleep(task_time + time_flow_interval)
+            os.system('killall iperf3')
+        print("Client--> download_iperf_wireshark {}, {}, {}, Done".format(selected_network, selected_direction, selected_variant))
+        time.sleep(time_flow_interval)
+
+    client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    my_socket.retry_connect(client_socket, server_address_port)
+    my_socket.retry_send(client_socket, ("iperf_end" + "##DOKI##").encode("utf-8"))
+    client_socket.close()
+    print("Client--> download_iperf_wireshark, All test Done~~")
+
+
+def download_iperf_wireshark(main_config=None):
+    if main_config == None:
+        main_config = utils.parse_config("config/config.json")["download_iperf_wireshark"]
+    selected_network = main_config["network"]
+    selected_direction = main_config["direction"]
+    selected_variant = main_config["variant"]
+    selected_variants_list = main_config["variants_list"]
+    pcap_result_path = os.path.join(main_config["pcap_path"], main_config["task_name"])
+    pcap_result_subpath_variant = os.path.join(pcap_result_path, selected_variant)
+
+    total_run = int(main_config["total_run"])
+    server_ip = main_config["server_ip"]
+    server_packet_sending_port = main_config["server_packet_sending_port"]
+    server_iperf_port = main_config["iperf_port"]
+    server_address_port = (server_ip, server_packet_sending_port)
+
+    task_time = main_config["time_each_flow"]
+    udp_sending_rate = main_config["udp_sending_rate"]
+    time_flow_interval = 5 # wait some time to keep stability
+
     utils.make_public_dir(pcap_result_path)
     utils.remake_public_dir(pcap_result_subpath_variant)
     print("Client--> download_iperf_wireshark, Start~~")
-
-    time_flow_interval = 5 # wait some time to keep stability
 
     for i in range(0, total_run):
         client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

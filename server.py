@@ -23,45 +23,49 @@ def main():
 
 
 def upload_iperf_wireshark():
-    main_config = utils.parse_config("config/config.json")["upload_iperf_wireshark"]
+    if main_config == None:
+        main_config = utils.parse_config("config/config.json")["download_iperf_wireshark"]
+    selected_network = main_config["network"]
+    selected_direction = main_config["direction"]
+    selected_variant = main_config["variant"]
+    selected_variants_list = main_config["variants_list"]
+    pcap_result_path = os.path.join(main_config["pcap_path"], main_config["task_name"])
+    pcap_result_subpath_variant = os.path.join(pcap_result_path, selected_variant)
+
+    total_run = int(main_config["total_run"])
+    server_ip = main_config["server_ip"]
+    server_packet_sending_port = main_config["server_packet_sending_port"]
+    server_iperf_port = main_config["iperf_port"]
+    server_address_port = (server_ip, server_packet_sending_port)
+
+    task_time = main_config["time_each_flow"]
+    udp_sending_rate = main_config["udp_sending_rate"]
+
+    utils.make_public_dir(pcap_result_path)
+    utils.remake_public_dir(pcap_result_subpath_variant)
+    time_flow_interval = 5 # wait some time to keep stability
     print("Upload iperf server, start~~")
-    if not os.path.exists(main_config["result_path"]):
-        os.mkdir(main_config["result_path"])
-    os.system("sudo chmod -R 777 {}".format(main_config["result_path"]))
-    if os.path.exists(os.path.join(main_config["result_path"], main_config["variant"])):
-        os.system("sudo rm -rf {}".format(os.path.join(main_config["result_path"], main_config["variant"])))
-    os.mkdir(os.path.join(main_config["result_path"], main_config["variant"]))
-    os.system("sudo chmod 777 {}".format(os.path.join(main_config["result_path"], main_config["variant"])))
+
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    server_socket.bind(tuple(main_config["server_cmd_address"]))
+    my_socket.retry_bind(server_socket, server_address_port)
     server_socket.listen(10)
     while True:
         client_socket, client_address = server_socket.accept()
         print("Recieve from client {}".format(client_address))
-        count = 0
-        message = ""
-        while True:
-            count = count + 1
-            data = client_socket.recv(1024).decode("utf-8")
-            message = message + data
-            if "##DOKI##" in data:
-                break
+        message = my_socket.doki_wait_receive_message(client_socket).replace("##DOKI##", "")
         client_socket.close()
-        message = message.replace("##DOKI##", "")
-        print(message)
         if message == "Start":
             os.system("iperf3 -s -p 7777 &")
             current_datetime = datetime.fromtimestamp(time.time())
-            output_pcap = os.path.join(main_config["result_path"], main_config["variant"], "{}.pcap".format(current_datetime.strftime("%Y_%m_%d_%H_%M")))
-            if main_config["variant"] == "udp":
-                os.system("tcpdump -i any udp port {} -w {} &".format(main_config["iperf_port"], output_pcap))
-                time.sleep(main_config["time_each_flow"] + 2 * main_config["time_flow_interval"])
+            output_pcap = os.path.join(pcap_result_subpath_variant, "{}.pcap".format(current_datetime.strftime("%Y_%m_%d_%H_%M")))
+            if selected_variant == "udp":
+                os.system("tcpdump -i any udp port {} -w {} &".format(server_iperf_port, output_pcap))
+                time.sleep(task_time + 2 * time_flow_interval)
                 os.system('killall tcpdump')
                 os.system("python3 my_subprocess.py pcap2txt --mode udp --file-path {} &".format(output_pcap))
-            if main_config["variant"] != "udp" and main_config["variant"] in main_config["variants_list"]:
-                os.system("tcpdump -i any tcp dst port {} -w {} &".format(main_config["iperf_port"], output_pcap))
-                time.sleep(main_config["time_each_flow"] + 2 * main_config["time_flow_interval"])
+            if selected_variant != "udp" and selected_variant in selected_variants_list:
+                os.system("tcpdump -i any tcp dst port {} -w {} &".format(server_iperf_port, output_pcap))
+                time.sleep(task_time + 2 * time_flow_interval)
                 os.system('killall tcpdump')
                 os.system("python3 my_subprocess.py pcap2txt --mode tcp --file-path {} &".format(output_pcap))
             os.system('killall iperf3')

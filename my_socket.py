@@ -13,8 +13,6 @@ def doki_wait_receive_message(my_socket):
     message = message.replace("##DOKI##", "")
     return message
 
-
-
 def retry_bind(my_socket, my_socket_address_port, retry_timeout=300, stable_wait_time=1):
     exit_flag = 0
     while not exit_flag:
@@ -28,7 +26,6 @@ def retry_bind(my_socket, my_socket_address_port, retry_timeout=300, stable_wait
             time.sleep(retry_timeout)
             print("Retry..")
 
-
 def retry_connect(my_socket, server_address_port, retry_timeout=5, stable_wait_time=1):
     print("Connect to {}".format(server_address_port))
     exit_flag = 0
@@ -41,7 +38,6 @@ def retry_connect(my_socket, server_address_port, retry_timeout=5, stable_wait_t
             print("Exception happen when connect to server: {}".format(e))
             time.sleep(retry_timeout)
             print("Retry..")
-
 
 def retry_send(my_socket, message, retry_timeout=5, stable_wait_time=1):
     print("Send message {}".format(message))
