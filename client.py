@@ -61,7 +61,7 @@ def upload_iperf_wireshark(main_config=None):
             os.system('killall iperf3')
         if selected_variant != "udp":
             os.system("sudo sysctl net.ipv4.tcp_congestion_control={}".format(selected_variant))
-            os.system("iperf3 -c {} -p {} -t {} &".format(selected_variant, server_iperf_port, task_time))
+            os.system("iperf3 -c {} -p {} -t {} &".format(server_ip, server_iperf_port, task_time))
             time.sleep(task_time + time_flow_interval)
             os.system('killall iperf3')
         print("Client--> download_iperf_wireshark {}, {}, {}, Done".format(selected_network, selected_direction, selected_variant))

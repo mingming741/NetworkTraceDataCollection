@@ -22,7 +22,7 @@ def main():
         download_iperf_wireshark()
 
 
-def upload_iperf_wireshark():
+def upload_iperf_wireshark(main_config = None):
     if main_config == None:
         main_config = utils.parse_config("config/config.json")["download_iperf_wireshark"]
     selected_network = main_config["network"]
@@ -77,7 +77,9 @@ def upload_iperf_wireshark():
 
 
 
-def download_iperf_wireshark():
+def download_iperf_wireshark(main_config = None):
+    if main_config == None:
+        main_config = utils.parse_config("config/config.json")["download_iperf_wireshark"]
     print("Download iperf server, start~~")
     main_config = utils.parse_config("config/config.json")["download_iperf_wireshark"]
     selected_variant = main_config["variant"]
