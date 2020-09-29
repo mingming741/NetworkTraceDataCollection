@@ -7,7 +7,7 @@ import argparse
 from datetime import datetime, timezone
 
 import my_socket
-import util
+import utils
 
 def main():
     utils.init_dir()
@@ -81,6 +81,8 @@ def download_iperf_wireshark():
 
     server_ip = main_config["server_ip"]
     server_packet_sending_port = main_config["server_packet_sending_port"]
+    server_iperf_port = main_config["iperf_port"]
+    server_address_port = (server_ip, server_packet_sending_port)
 
     task_time = main_config["time_each_flow"]
     time_flow_interval = 5 # wait some time to keep stability
@@ -89,7 +91,7 @@ def download_iperf_wireshark():
 
     print("Server--> download_iperf_wireshark, Start~~")
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    retry_bind(server_socket, server_packet_sending_port)
+    my_socket.retry_bind(server_socket, server_address_port)
     server_socket.listen(10)
     while True:
         client_socket, client_address = server_socket.accept()

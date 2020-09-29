@@ -71,7 +71,7 @@ def download_iperf_wireshark():
     server_ip = main_config["server_ip"]
     server_packet_sending_port = main_config["server_packet_sending_port"]
     server_iperf_port = main_config["iperf_port"]
-    server_address_port = tuple(server_ip, server_packet_sending_port)
+    server_address_port = (server_ip, server_packet_sending_port)
 
     task_time = main_config["time_each_flow"]
     udp_sending_rate = main_config["udp_sending_rate"]

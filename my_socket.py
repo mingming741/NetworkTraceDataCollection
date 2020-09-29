@@ -24,7 +24,7 @@ def retry_bind(my_socket, my_socket_address_port, retry_timeout=300, stable_wait
             time.sleep(stable_wait_time)
             exit_flag = 1
         except Exception as e:
-            print("Exception happen when bind address: ".format(e))
+            print("Exception happen when bind address: {}".format(e))
             time.sleep(retry_timeout)
             print("Retry..")
 
@@ -38,7 +38,7 @@ def retry_connect(my_socket, server_address_port, retry_timeout=5, stable_wait_t
             time.sleep(stable_wait_time)
             exit_flag = 1
         except Exception as e:
-            print("Exception happen when connect to server: ".format(e))
+            print("Exception happen when connect to server: {}".format(e))
             time.sleep(retry_timeout)
             print("Retry..")
 
@@ -52,6 +52,6 @@ def retry_send(my_socket, message, retry_timeout=5, stable_wait_time=1):
             time.sleep(stable_wait_time)
             exit_flag = 1
         except Exception as e:
-            print("Exception happen send message: ".format(e))
+            print("Exception happen send message: {}".format(e))
             time.sleep(retry_timeout)
             print("Retry..")
