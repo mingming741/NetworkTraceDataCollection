@@ -1,7 +1,6 @@
 import json
 import os
 import time
-import getpass
 import copy
 import socket
 import random

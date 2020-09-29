@@ -2,14 +2,12 @@
 
 import socket
 import time
-import utils
 import os
-import shutil
-import threading
 import argparse
 from datetime import datetime, timezone
 
-main_config = utils.parse_config("config/config.json")
+import my_socket
+import util
 
 def main():
     utils.init_dir()
@@ -78,34 +76,34 @@ def upload_iperf_wireshark():
 def download_iperf_wireshark():
     print("Download iperf server, start~~")
     main_config = utils.parse_config("config/config.json")["download_iperf_wireshark"]
-    if main_config["variant"] in main_config["variants_list"] and main_config["variant"] != "udp":
-        os.system("sudo sysctl net.ipv4.tcp_congestion_control={}".format(main_config["variant"]))
+    selected_variant = main_config["variant"]
+    selected_variants_list = main_config["variants_list"]
+
+    server_ip = main_config["server_ip"]
+    server_packet_sending_port = main_config["server_packet_sending_port"]
+
+    task_time = main_config["time_each_flow"]
+    time_flow_interval = 5 # wait some time to keep stability
+    if selected_variant in selected_variants_list and selected_variant != "udp":
+        os.system("sudo sysctl net.ipv4.tcp_congestion_control={}".format(selected_variant))
+
+    print("Server--> download_iperf_wireshark, Start~~")
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    server_socket.bind(tuple(main_config["server_cmd_address"]))
+    retry_bind(server_socket, server_packet_sending_port)
     server_socket.listen(10)
     while True:
         client_socket, client_address = server_socket.accept()
         print("Recieve from client {}".format(client_address))
-        count = 0
-        message = ""
-        while True:
-            count = count + 1
-            data = client_socket.recv(1024).decode("utf-8")
-            message = message + data
-            if "##DOKI##" in data:
-                break
-        client_socket.close()
-        message = message.replace("##DOKI##", "")
-        if message == "Start":
+        message = doki_wait_receive_message(client_socket).replace("##DOKI##", "")
+        if message == "iperf_start":
             os.system("iperf3 -s -p 7777 &")
-            time.sleep(main_config["time_each_flow"] + 2 * main_config["time_flow_interval"])
+            time.sleep(task_time + 2 * time_flow_interval)
             os.system('killall iperf3')
-            print("Server One flow finished~")
         if message == "END":
-            print("Client Test done, exit")
+            print("Server--> download_iperf_wireshark, Done~~")
             server_socket.close()
             exit()
+        client_socket.close()
 
 
 

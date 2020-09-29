@@ -6,21 +6,34 @@ def parse_config(path):
         data = json.load(json_data_file)
     return data
 
+
+def make_public_dir(dir_path):
+    # if not exist, create,
+    # Always change to 777
+    if not os.path.exists(dir_path):
+        os.mkdir(dir_path)
+    os.system("sudo chmod -R 777 {}".format(dir_path))
+
+
+def remake_public_dir(dir_path):
+    if os.path.exists(dir_path):
+        os.system("sudo rm -rf {}".format(dir_path))
+    make_public_dir(dir_path)
+
+
 def init_dir():
-    if not os.path.exists("result"):
-        os.mkdir("result")
-        os.system("sudo chmod 777 result")
-    if not os.path.exists("trace"):
-        os.mkdir("trace")
-        os.system("sudo chmod 777 trace")
+    make_public_dir("result")
+    make_public_dir("trace")
+
 
 
 def dict_key_to_ordered_list(input_dict):
-        newlist = list()
-        for i in input_dict.keys():
-            newlist.append(i)
-        newlist.sort()
-        return newlist
+    newlist = list()
+    for i in input_dict.keys():
+        newlist.append(i)
+    newlist.sort()
+    return newlist
+
 
 
 def init_apache_dir():

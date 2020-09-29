@@ -30,4 +30,3 @@ measurement/crawled_data/*
 venv/*
 
 # Variable config
-config/config.json

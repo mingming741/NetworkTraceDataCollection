@@ -1,17 +1,15 @@
 #! /usr/bin/python3
 
 import socket
-import datetime
 import time
 import os
 import json
-import glob
 import shutil
-import requests
 import argparse
 from datetime import datetime, timezone
 
 import utils
+import my_socket
 
 
 def main():
@@ -25,6 +23,8 @@ def main():
         upload_iperf_wireshark()
     if args.function == "download_iperf_wireshark":
         download_iperf_wireshark()
+    if args.function == "download_socket":
+        download_socket()
 
 
 def upload_iperf_wireshark():
@@ -60,51 +60,60 @@ def upload_iperf_wireshark():
 
 def download_iperf_wireshark():
     main_config = utils.parse_config("config/config.json")["download_iperf_wireshark"]
-    print("Download iperf client, start~~")
-    if not os.path.exists(main_config["result_path"]):
-        os.mkdir(main_config["result_path"])
-    os.system("sudo chmod -R 777 {}".format(main_config["result_path"]))
-    if os.path.exists(os.path.join(main_config["result_path"], main_config["variant"])):
-        os.system("sudo rm -rf {}".format(os.path.join(main_config["result_path"], main_config["variant"])))
-    os.mkdir(os.path.join(main_config["result_path"], main_config["variant"]))
-    os.system("sudo chmod 777 {}".format(os.path.join(main_config["result_path"], main_config["variant"])))
+    selected_network = main_config["network"]
+    selected_direction = main_config["direction"]
+    selected_variant = main_config["variant"]
+    selected_variants_list = main_config["variants_list"]
+    pcap_result_path = os.path.join(main_config["result_path"], main_config["task_name"])
+    pcap_result_subpath_variant = os.path.join(pcap_result_path, selected_variant)
 
-    for i in range(0, int(main_config["total_run"])):
+    total_run = int(main_config["total_run"])
+    server_ip = main_config["server_ip"]
+    server_packet_sending_port = main_config["server_packet_sending_port"]
+    server_iperf_port = main_config["iperf_port"]
+    server_address_port = tuple(server_ip, server_packet_sending_port)
+
+    task_time = main_config["time_each_flow"]
+    udp_sending_rate = main_config["udp_sending_rate"]
+
+    utils.make_public_dir(pcap_result_path)
+    utils.remake_public_dir(pcap_result_subpath_variant)
+    print("Client--> download_iperf_wireshark, Start~~")
+
+    time_flow_interval = 5 # wait some time to keep stability
+
+    for i in range(0, total_run):
         client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        client_socket.connect(tuple(main_config["server_cmd_address"]))
-        this_cmd = "Start"
-        message = this_cmd + "##DOKI##"
-        client_socket.send(message.encode("utf-8"))
-        time.sleep(main_config["time_flow_interval"])
+        my_socket.retry_connect(client_socket, server_address_port)
+        my_socket.retry_send(client_socket, ("iperf_start" + "##DOKI##").encode("utf-8"))
+        time.sleep(time_flow_interval)
         client_socket.close()
 
-        #os.system("tcpdump -i any udp port " + str(config['host']['desktop']['port']) + " -w " + str(config["result_directory"]) + variant[j] + "/" + str(i) + ".pcap &")
         current_datetime = datetime.fromtimestamp(time.time())
-        output_pcap = os.path.join(main_config["result_path"], main_config["variant"], "{}.pcap".format(current_datetime.strftime("%Y_%m_%d_%H_%M")))
-        #print(output_pcap)
-        if main_config["variant"] == "udp":
-            os.system("tcpdump -i any udp port {} -w {} &".format(main_config["iperf_port"], output_pcap))
-            os.system("iperf3 -c {} -p {} -R --length 1472 -u -b {}m -t {} &".format(main_config["server_ip"], main_config["iperf_port"], main_config["udp_sending_rate"],main_config["time_each_flow"]))
-            time.sleep(main_config["time_each_flow"] + main_config["time_flow_interval"])
+        output_pcap = os.path.join(pcap_result_subpath_variant, "{}.pcap".format(current_datetime.strftime("%Y_%m_%d_%H_%M")))
+        if selected_variant == "udp":
+            os.system("tcpdump -i any udp port {} -w {} &".format(server_iperf_port, output_pcap))
+            os.system("iperf3 -c {} -p {} -R --length 1472 -u -b {}m -t {} &".format(server_ip, server_iperf_port, udp_sending_rate, task_time))
+            time.sleep(task_time + time_flow_interval)
             os.system('killall iperf3')
             os.system('killall tcpdump')
             os.system("python3 my_subprocess.py pcap2txt --mode udp --file-path {} &".format(output_pcap))
-        if main_config["variant"] != "udp" and main_config["variant"] in main_config["variants_list"]:
-            os.system("tcpdump -i any tcp src port {} -w {} &".format(main_config["iperf_port"], output_pcap))
-            os.system("iperf3 -c {} -p {} -R -t {} &".format(main_config["server_ip"], main_config["iperf_port"], main_config["time_each_flow"]))
-            time.sleep(main_config["time_each_flow"] + main_config["time_flow_interval"])
+        if selected_variant != "udp" and selected_variant in selected_variants_list:
+            os.system("tcpdump -i any tcp src port {} -w {} &".format(server_iperf_port, output_pcap))
+            os.system("iperf3 -c {} -p {} -R -t {} &".format(server_ip, server_iperf_port, task_time))
+            time.sleep(task_time + time_flow_interval)
             os.system('killall iperf3')
             os.system('killall tcpdump')
             os.system("python3 my_subprocess.py pcap2txt --mode tcp --file-path {} &".format(output_pcap))
-        time.sleep(main_config["time_flow_interval"])
+        print("Client--> download_iperf_wireshark {}, {}, {}, Done".format(selected_network, selected_direction, selected_variant))
+        time.sleep(time_flow_interval)
 
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    client_socket.connect(tuple(main_config["server_cmd_address"]))
-    this_cmd = "END"
-    message = this_cmd + "##DOKI##"
-    client_socket.send(message.encode("utf-8"))
+    my_socket.retry_connect(client_socket, server_address_port)
+    my_socket.retry_send(client_socket, ("iperf_end" + "##DOKI##").encode("utf-8"))
     client_socket.close()
-    print("All test done Successfully!!")
+    print("Client--> download_iperf_wireshark, All test Done~~")
+
 
 
 def download_socket():
