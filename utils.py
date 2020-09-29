@@ -1,5 +1,6 @@
 import json
 import os
+import pathlib
 
 def parse_config(path):
     with open(path) as json_data_file:
@@ -11,7 +12,7 @@ def make_public_dir(dir_path):
     # if not exist, create,
     # Always change to 777
     if not os.path.exists(dir_path):
-        os.mkdir(dir_path)
+        pathlib.Path(dir_path).mkdir(parents=True, exist_ok=True)
     os.system("sudo chmod -R 777 {}".format(dir_path))
 
 

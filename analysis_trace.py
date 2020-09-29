@@ -1,18 +1,18 @@
 
 import json
 import os
-import utils
 import time
 import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.pylab as pylab
 from datetime import datetime, timezone
 import argparse
-import pathlib
+
 import requests
 
-meta_config = utils.parse_config("config/test_meta_config.json")
-analysis_category = ["CIF", "VC", "NTC", "APPU", "IDX", "PLT"]
+import utils
+test_meta_config = utils.parse_config("config/test_meta_config.json")
+analysis_category = ["PLT"]
 
 if "PLT" in analysis_category:
     default_font_weight = "black"
@@ -68,40 +68,42 @@ def main():
             result_draw_iperf_wireshark(main_config)
 
 
-
 def result_generate_iperf_wireshark(main_config, post_to_server=False):
-    time_unit_trace = main_config["time_unit_trace"] # default is 1000, minimum unit is s, can also be ms
-    file_list = os.listdir(os.path.join(main_config["result_path"], main_config["variant"]))
+    trace_min_time_unit = test_meta_config["general_config"]["trace_min_time_unit"] # default is 1000, minimum unit is s, can also be ms
+    selected_network = main_config["network"]
+    selected_direction = main_config["direction"]
+    selected_variant = main_config["variant"]
+    trace_generated_path = os.path.join(main_config["trace_path"], main_config["direction"], main_config["variant"])
+    utils.make_public_dir(trace_generated_path)
+    pcap_result_subpath_variant = os.path.join(main_config["pcap_path"], main_config["task_name"], main_config["variant"])
+    file_list = os.listdir(pcap_result_subpath_variant)
     file_list.sort()
     assert len(file_list) != 0, "Empty Analysis directory"
     df_main = pd.DataFrame()
     print("Start read result files")
     for file in file_list:
         if file.endswith(".txt"):
-            input_path = os.path.join(main_config["result_path"],  main_config["variant"], file)
+            input_path = os.path.join(pcap_result_subpath_variant, file)
             print("File: {}".format(input_path))
             df_temp = pd.read_csv(input_path, names=["time", "Length"], header=None, sep="\t")
-            df_temp = pd.DataFrame(data = {"time": [int(x*1000/time_unit_trace) for x in df_temp["time"].values], "Bandwidth": [(x * 8 * 1000 /time_unit_trace) for x in df_temp["Length"].values]})
+            df_temp = pd.DataFrame(data = {"time": [int(x*1000/trace_min_time_unit) for x in df_temp["time"].values], "Bandwidth": [(x * 8 * 1000 /trace_min_time_unit) for x in df_temp["Length"].values]})
             df_temp = df_temp.groupby(["time"]).sum().reset_index() # Bandwidth in bps
             df_main = pd.concat( [df_main, df_temp], ignore_index=True)
     df_main = df_main.groupby(["time"]).sum().reset_index() # Bandwidth in bps
     print("Read Files done")
 
-    df_main = pd.DataFrame(data = {"time" : df_main["time"].values, "datetime": [datetime.fromtimestamp(int(x * time_unit_trace / 1000)).strftime("%Y_%m_%d_%H") for x in df_main["time"].values], "Bandwidth" : df_main["Bandwidth"].values})
-    pathlib.Path(os.path.join(main_config["result_generated_path"], main_config["variant"])).mkdir(parents=True, exist_ok=True)
+    df_main = pd.DataFrame(data = {"time" : df_main["time"].values, "datetime": [datetime.fromtimestamp(int(x * trace_min_time_unit / 1000)).strftime("%Y_%m_%d_%H") for x in df_main["time"].values], "Bandwidth" : df_main["Bandwidth"].values})
     for this_datetime in df_main["datetime"].unique():
-        this_file_name = "{}_{}_{}.txt".format(main_config["direction"], main_config["variant"], this_datetime)
-        this_file_path = os.path.join(main_config["result_generated_path"], main_config["variant"], this_file_name)
+        this_file_name = "{}_{}_{}_{}.txt".format(selected_network, selected_direction, selected_variant, this_datetime)
+        this_file_path = os.path.join(trace_generated_path, this_file_name)
         df_temp = df_main[df_main["datetime"] == this_datetime]
         df_temp.to_csv(this_file_path, index = False, header=False,columns=["time","Bandwidth"], sep="\t")
-        _, network, direction = main_config["result_generated_path"].split('/')
         if post_to_server == True:
-            post_file_to_server(this_file_path, network, direction, main_config["variant"])
-
+            post_file_to_server(this_file_path, selected_network, selected_direction, selected_variant)
     print("Generate trace done~~")
 
 
-def get_db_info(server_host=meta_config["general_config"]["web_interface_server_ip"]):
+def get_db_info(server_host=test_meta_config["general_config"]["web_interface_server_ip"]):
     server_url = 'http://{}/php/fields_value.php'.format(server_host)
     data = requests.get(server_url, dict(field='Network')).json()
     network_dict = {}
@@ -118,7 +120,7 @@ def get_db_info(server_host=meta_config["general_config"]["web_interface_server_
     return network_dict, variant_dict, direction_dict
 
 
-def post_file_to_server(file_path, network, direction, variant, server_host=meta_config["general_config"]["web_interface_server_ip"]):
+def post_file_to_server(file_path, network, direction, variant, server_host=test_meta_config["general_config"]["web_interface_server_ip"]):
     print("Post {}->{}->{}->{} to server".format(network, direction, variant, file_path))
     server_url = 'http://{}/php/handler.php?action=Upload_Record'.format(server_host)
     network_dict, variant_dict, direction_dict = get_db_info()
