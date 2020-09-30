@@ -15,6 +15,11 @@
     "direction":{
       "upload": 1,
       "download": 1
+    },
+    "trace_min_unit":{
+      "packet": -1,
+      "seconds": 1000,
+      "milliseconds": 1
     }
   },
   "test_machines":{
@@ -82,7 +87,7 @@
   },
   "general_config":{
     "web_interface_server_ip": "103.49.160.136",
-    "trace_min_time_unit": 1,
+    "trace_min_time_unit": "packet",
     "resume_time_hour": -1,
     "resume_check_peroid": 60
   }

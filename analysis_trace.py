@@ -69,7 +69,7 @@ def main():
 
 
 def result_generate_iperf_wireshark(main_config, post_to_server=False):
-    trace_min_time_unit = test_meta_config["general_config"]["trace_min_time_unit"] # default is 1000, minimum unit is s, can also be ms
+    trace_min_time_unit = get_trace_unit(test_meta_config)
     selected_network = main_config["network"]
     selected_direction = main_config["direction"]
     selected_variant = main_config["variant"]
@@ -85,19 +85,26 @@ def result_generate_iperf_wireshark(main_config, post_to_server=False):
         if file.endswith(".txt"):
             input_path = os.path.join(pcap_result_subpath_variant, file)
             print("File: {}".format(input_path))
-            df_temp = pd.read_csv(input_path, names=["time", "Length"], header=None, sep="\t")
-            df_temp = pd.DataFrame(data = {"time": [int(x*1000/trace_min_time_unit) for x in df_temp["time"].values], "Bandwidth": [(x * 8 * 1000 /trace_min_time_unit) for x in df_temp["Length"].values]})
-            df_temp = df_temp.groupby(["time"]).sum().reset_index() # Bandwidth in bps
-            df_main = pd.concat( [df_main, df_temp], ignore_index=True)
-    df_main = df_main.groupby(["time"]).sum().reset_index() # Bandwidth in bps
+            if trace_min_time_unit != -1:
+                df_temp = pd.read_csv(input_path, names=["time", "Length"], header=None, sep="\t")
+                df_temp = pd.DataFrame(data = {"time": [int(x*1000/trace_min_time_unit) for x in df_temp["time"].values], "Length": [(x * 8 * 1000 /trace_min_time_unit) for x in df_temp["Length"].values]})
+                df_temp = df_temp.groupby(["time"]).sum().reset_index()
+                df_main = pd.concat( [df_main, df_temp], ignore_index=True)
+            else:
+                df_temp = pd.read_csv(input_path, names=["time", "Length"], header=None, sep="\t")
+                df_temp = pd.DataFrame(data = {"time": [int(x*1000) for x in df_temp["time"].values], "Length": df_temp["Length"].values})
+                df_main = pd.concat( [df_main, df_temp], ignore_index=True)
+    if trace_min_time_unit != -1:
+        df_main = df_main.groupby(["time"]).sum().reset_index()
+        df_main = pd.DataFrame(data = {"time" : df_main["time"].values, "datetime": [datetime.fromtimestamp(int(x * trace_min_time_unit / 1000)).strftime("%Y_%m_%d_%H") for x in df_main["time"].values], "Length" : df_main["Length"].values})
+    else:
+        df_main = pd.DataFrame(data = {"time" : df_main["time"].values, "datetime": [datetime.fromtimestamp(int(x / 1000)).strftime("%Y_%m_%d_%H") for x in df_main["time"].values], "Length" : df_main["Length"].values})
     print("Read Files done")
-
-    df_main = pd.DataFrame(data = {"time" : df_main["time"].values, "datetime": [datetime.fromtimestamp(int(x * trace_min_time_unit / 1000)).strftime("%Y_%m_%d_%H") for x in df_main["time"].values], "Bandwidth" : df_main["Bandwidth"].values})
     for this_datetime in df_main["datetime"].unique():
         this_file_name = "{}_{}_{}_{}.txt".format(selected_network, selected_direction, selected_variant, this_datetime)
         this_file_path = os.path.join(trace_generated_path, this_file_name)
         df_temp = df_main[df_main["datetime"] == this_datetime]
-        df_temp.to_csv(this_file_path, index = False, header=False,columns=["time","Bandwidth"], sep="\t")
+        df_temp.to_csv(this_file_path, index = False, header=False,columns=["time","Length"], sep="\t")
         if post_to_server == True:
             post_file_to_server(this_file_path, selected_network, selected_direction, selected_variant)
     print("Generate trace done~~")
@@ -129,6 +136,14 @@ def post_file_to_server(file_path, network, direction, variant, server_host=test
     response = requests.post(server_url, files=files, data=parameters)
     print(response.json())
 
+
+def get_trace_unit(test_meta_config=test_meta_config):
+    valid_units_mapping = test_meta_config["vaild_config"]["trace_min_unit"]
+    trace_min_time_unit = test_meta_config["general_config"]["trace_min_time_unit"]
+    if trace_min_time_unit in valid_units_mapping:
+        return valid_units_mapping[trace_min_time_unit]
+    else:
+        raise Exception("Selected trace_min_time_unit in mete config is invalid")
 
 
 def result_draw_iperf_wireshark(main_config):
