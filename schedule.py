@@ -67,7 +67,7 @@ def scheduling_client(meta_config, schedule_profile_list, current_machine_group,
     time.sleep(10)
     print("All Experiment Done, Start to analysis the log")
     for main_config in schedule_profile_list:
-        if task_name == "download_iperf_wireshark":
+        if "download_iperf_wireshark" in main_config:
             with open(temp_config_file, 'w') as f:
                 json.dump(main_config, f, indent = 2)
             os.system("python3 analysis_trace.py download_iperf_wireshark --post=1 --config_path={}".format(temp_config_file))
@@ -104,7 +104,7 @@ def scheduling_server(meta_config, schedule_profile_list, current_machine_group,
 
     print("All Experiment Done, Start to analysis the log")
     for main_config in schedule_profile_list:
-        if task_name == "upload_iperf_wireshark":
+        if "upload_iperf_wireshark" in main_config:
             with open(temp_config_file, 'w') as f:
                 json.dump(main_config, f, indent = 2)
             os.system("python3 analysis_trace.py upload_iperf_wireshark --post=1 --config_path={}".format(temp_config_file))
