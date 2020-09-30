@@ -124,7 +124,7 @@ def get_schedule_profile(meta_config):
     if "upload_iperf_wireshark" in tasks_list:
         if meta_config["scheduling_config"]["upload_iperf_wireshark"]["enable"] == 1:
             for variant in variants_list:
-                example_config = copy.deepcopy(meta_config["scheduling_config"]["download_iperf_wireshark"])
+                example_config = copy.deepcopy(meta_config["scheduling_config"]["upload_iperf_wireshark"])
                 example_config["variant"] =  variant
                 example_config["server_ip"] =  server_ip
                 example_config["network"] =  client_network

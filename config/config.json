@@ -1,17 +1,17 @@
 {
   "download_iperf_wireshark": {
     "trace_path": "trace/",
-    "enable": 1,
-    "direction": "download",
-    "server_packet_sending_port": 2135,
-    "task_name": "download_iperf_wireshark",
-    "variant": "cubic",
-    "server_ip": "103.49.160.132",
-    "time_each_flow": 60,
-    "pcap_path": "result/",
-    "network": "CSL_4G",
     "udp_sending_rate": 20,
     "iperf_port": 7777,
-    "total_run": 1
+    "pcap_path": "result/",
+    "direction": "download",
+    "server_ip": "103.49.160.132",
+    "total_run": 1,
+    "enable": 1,
+    "time_each_flow": 60,
+    "server_packet_sending_port": 2126,
+    "variant": "cubic",
+    "network": "CSL_4G",
+    "task_name": "download_iperf_wireshark"
   }
 }
