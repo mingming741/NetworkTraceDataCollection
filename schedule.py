@@ -7,6 +7,7 @@ import random
 from datetime import datetime, timezone
 
 import utils
+import my_socket
 
 def main():
     meta_config = utils.parse_config("config/test_meta_config.json")
@@ -46,9 +47,9 @@ def scheduling_client(meta_config, schedule_profile_list, current_machine_group,
         with open("config/config.json", 'w') as f:
             json.dump(test_config, f, indent = 2)
         client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        utils.retry_connect(client_socket, server_address_port)
-        utils.retry_send(client_socket, (json.dumps(test_config) + "##DOKI##").encode("utf-8"))
-        message = utils.doki_wait_receive_message(client_socket)
+        my_socket.retry_connect(client_socket, server_address_port)
+        my_socket.retry_send(client_socket, (json.dumps(test_config) + "##DOKI##").encode("utf-8"))
+        message = my_socket.doki_wait_receive_message(client_socket)
         if message == "scheduling_start":
             print("SYN with server successfully, start to run the experiment..\n")
         else:
@@ -63,28 +64,28 @@ def scheduling_client(meta_config, schedule_profile_list, current_machine_group,
             print("Experiment Done, Wait for server upload the log")
         time.sleep(60)
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    utils.retry_connect(client_socket, server_address_port)
-    utils.retry_send(client_socket, ("scheduling_end" + "##DOKI##").encode("utf-8"))
+    my_socket.retry_connect(client_socket, server_address_port)
+    my_socket.retry_send(client_socket, ("scheduling_end" + "##DOKI##").encode("utf-8"))
 
 
 def scheduling_server(meta_config, schedule_profile_list, current_machine_group, communication_port):
     server_ip = meta_config["test_machines_group"]["server"][current_machine_group]
     server_address_port = (server_ip, communication_port)
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    utils.retry_bind(server_socket, server_address_port)
+    my_socket.retry_bind(server_socket, server_address_port)
     server_socket.listen(10)
     while True:
         print("-- Wait client message to start the experiment")
         client_socket, client_address = server_socket.accept()
         print("Recieve from client {}".format(client_address))
-        message = utils.doki_wait_receive_message(client_socket)
+        message = my_socket.doki_wait_receive_message(client_socket)
         if message == "scheduling_end":
             break
         else:
             test_config = json.loads(message)
             with open("config/config.json", 'w') as f:
                 json.dump(test_config, f, indent = 2)
-            utils.retry_send(client_socket, ("scheduling_start" + "##DOKI##").encode("utf-8"))
+            my_socket.retry_send(client_socket, ("scheduling_start" + "##DOKI##").encode("utf-8"))
             print("SYN with client successfully, save client config and start to run experiment..\n")
             main_config = utils.parse_config("config/config.json")
             for key in main_config:
@@ -93,98 +94,6 @@ def scheduling_server(meta_config, schedule_profile_list, current_machine_group,
             os.system("sudo python3 server.py {}".format(task_name))
     print("Experiment Done, start to analysis the log")
     server_socket.close()
-
-
-def scheduling_org(meta_config):
-    schedule_profile_list = get_schedule_profile(meta_config, utils.dict_key_to_ordered_list(meta_config["scheduling_config"]))
-    this_machine = socket.gethostname()
-    this_machine_profile = meta_config["test_machines"][this_machine]
-
-    while True:
-        current_datetime = datetime.now()
-        if (current_datetime.hour == meta_config["general_config"]["resume_time_hour"]) or meta_config["general_config"]["resume_time_hour"] == -1:
-            print("Entering scheduling, data collection start")
-
-            if this_machine_profile["role"] ==  "client":
-                time.sleep(meta_config["general_config"]["resume_check_peroid"] + 60)
-                peer_machine = this_machine_profile["peer_machine"]
-                peer_machine_profile = meta_config["test_machines"][peer_machine]
-                server_address_port = (peer_machine_profile["ip"], 1999)
-                for task in schedule_profile_list:
-                    test_config = {}
-                    test_config[task["name"]] = task["config"]
-                    print("-- Run Experiment: {}, {}, {}".format(task["config"]["network"], task["name"], task["config"]["variant"]))
-                    with open("config/config.json", 'w') as f:
-                        json.dump(test_config, f, indent = 2)
-                    client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                    utils.retry_connect(client_socket, server_address_port)
-                    utils.retry_send(client_socket, (json.dumps(test_config) + "##DOKI##").encode("utf-8"))
-                    message = utils.doki_wait_receive_message(client_socket)
-                    if message == "Done":
-                        print("SYN with server successfully, start to run the experiment..\n")
-                    else:
-                        print("Error!!")
-                    time.sleep(5)
-                    main_config = utils.parse_config("config/config.json")
-                    for key in main_config:
-                        task_name = key
-                    print("Experiment Start: {}, {}, {}".format(main_config[task_name]["network"], task_name, main_config[task_name]["variant"]))
-                    os.system("sudo python3 client.py {}".format(task_name))
-                    time.sleep(5)
-                client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                utils.retry_connect(client_socket, server_address_port)
-                utils.retry_send(client_socket, ("END" + "##DOKI##").encode("utf-8"))
-                print("Experiment Done, start to analysis the log")
-                time.sleep(5)
-                for task in schedule_profile_list:
-                    test_config = {}
-                    test_config[task["name"]] = task["config"]
-                    if task["name"] == "download_iperf_wireshark":
-                        with open("config/config.json", 'w') as f:
-                            json.dump(test_config, f, indent = 2)
-                        time.sleep(3)
-                        os.system("python3 analysis_trace.py download_iperf_wireshark --post=1")
-                        time.sleep(3)
-
-            if this_machine_profile["role"] == "server":
-                time.sleep(meta_config["general_config"]["resume_check_peroid"] + 30)
-                schedule_profile_list_from_client = []
-                server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                utils.retry_bind(server_socket, (this_machine_profile["ip"], 1999))
-                server_socket.listen(10)
-                while True:
-                    print("-- Wait client message to start the experiment")
-                    client_socket, client_address = server_socket.accept()
-                    print("Recieve from client {}".format(client_address))
-                    message = utils.doki_wait_receive_message(client_socket)
-                    if message == "END":
-                        break
-                    else:
-                        test_config = json.loads(message)
-                        schedule_profile_list_from_client.append(message)
-                        with open("config/config.json", 'w') as f:
-                            json.dump(test_config, f, indent = 2)
-                        utils.retry_send(client_socket, ("Done" + "##DOKI##").encode("utf-8"))
-                        print("SYN with client successfully, save client config and start to run experiment..\n")
-                        main_config = utils.parse_config("config/config.json")
-                        for key in main_config:
-                            task_name = key
-                        print("Experiment Start: {}, {}, {}".format(main_config[task_name]["network"], task_name, main_config[task_name]["variant"]))
-                        os.system("sudo python3 server.py {}".format(task_name))
-                print("Experiment Done, start to analysis the log")
-                server_socket.close()
-                for test_config in schedule_profile_list_from_client:
-                    if "upload_iperf_wireshark" in test_config:
-                        with open("config/config.json", 'w') as f:
-                            json.dump(json.loads(test_config), f, indent = 2)
-                        time.sleep(3)
-                        os.system("python3 analysis_trace.py upload_iperf_wireshark --post=1")
-                        time.sleep(3)
-
-            print("All test done Successfully~~")
-        else:
-            print("Scheduling will start at {} o'clock, Now is {} o'clock~~".format(meta_config["general_config"]["resume_time_hour"], current_datetime.hour))
-            time.sleep(meta_config["general_config"]["resume_check_peroid"])
 
 
 def get_schedule_profile(meta_config):
