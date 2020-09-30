@@ -26,6 +26,7 @@ def scheduling(meta_config):
         if (current_datetime.hour == meta_config["general_config"]["resume_time_hour"]) or meta_config["general_config"]["resume_time_hour"] == -1:
             print("Time to entering scheduling, data collection start")
             if role ==  "client":
+                time.sleep(10) # wait for server start
                 scheduling_client(meta_config, schedule_profile_list, current_machine_group, scheduling_port_zero)
                 scheduling_port_zero = scheduling_port_zero + 1
             if role == "server":
@@ -38,8 +39,7 @@ def scheduling(meta_config):
 
 
 def scheduling_client(meta_config, schedule_profile_list, current_machine_group, communication_port):
-    time.sleep(meta_config["general_config"]["resume_check_peroid"] + 30) # wait for server start
-    server_ip = meta_config["current_machine_group"]["server"][current_machine_group]
+    server_ip = meta_config["test_machines_group"]["server"][current_machine_group]
     server_address_port = (server_ip, communication_port)
     for test_config in schedule_profile_list:
         print("-- Run Experiment: {}, {}, {}".format(test_config["network"], test_config["task_name"], test_config["variant"]))
@@ -67,9 +67,8 @@ def scheduling_client(meta_config, schedule_profile_list, current_machine_group,
     utils.retry_send(client_socket, ("scheduling_end" + "##DOKI##").encode("utf-8"))
 
 
-def scheduling_server(meta_config, schedule_profile_list, communication_port):
-    time.sleep(meta_config["general_config"]["resume_check_peroid"])
-    server_ip = meta_config["current_machine_group"]["server"][current_machine_group]
+def scheduling_server(meta_config, schedule_profile_list, current_machine_group, communication_port):
+    server_ip = meta_config["test_machines_group"]["server"][current_machine_group]
     server_address_port = (server_ip, communication_port)
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     utils.retry_bind(server_socket, server_address_port)
