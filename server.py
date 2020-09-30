@@ -13,6 +13,7 @@ def main():
     utils.init_dir()
     parser = argparse.ArgumentParser(description='For different background job')
     parser.add_argument('function', type=str, help='the job')
+    parser.add_argument('--config_path', type=str, help='path of config file')
     args = parser.parse_args()
 
     #udp_socket()

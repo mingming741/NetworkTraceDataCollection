@@ -57,9 +57,13 @@ def main():
     parser.add_argument('function', type=str, help='the job')
     parser.add_argument('--post', type=int, help='whether post to server')
     parser.add_argument('--display', type=int, help='whether draw graph')
+
     args = parser.parse_args()
     if args.function in ["download_iperf_wireshark", "upload_iperf_wireshark"]:
-        main_config = utils.parse_config("config/config.json")[args.function]
+        if args.config_path:
+            main_config = utils.parse_config(args.config_path)[args.function]
+        else:
+            main_config = utils.parse_config("config/config.json")[args.function]
         if args.post == 1:
             result_generate_iperf_wireshark(main_config, post_to_server=True)
         else:
