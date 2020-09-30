@@ -42,6 +42,7 @@ def upload_iperf_wireshark(main_config = None):
     server_ip = main_config["server_ip"]
     server_packet_sending_port = main_config["server_packet_sending_port"]
     server_iperf_port = main_config["iperf_port"]
+    iperf_logging_interval = main_config["iperf_logging_interval"]
     server_address_port = (server_ip, server_packet_sending_port)
 
     task_time = main_config["time_each_flow"]
@@ -62,7 +63,7 @@ def upload_iperf_wireshark(main_config = None):
         message = my_socket.doki_wait_receive_message(client_socket).replace("##DOKI##", "")
         if message == "upload_iperf_start":
             client_socket.close()
-            os.system("iperf3 -s -p 7777 &")
+            os.system("iperf3 -s -p {} -i {} &".format(server_iperf_port, iperf_logging_interval))
             current_datetime = datetime.fromtimestamp(time.time())
             output_pcap = os.path.join(pcap_result_subpath_variant, "{}.pcap".format(current_datetime.strftime("%Y_%m_%d_%H_%M")))
             if selected_variant == "udp":
@@ -94,6 +95,7 @@ def download_iperf_wireshark(main_config = None):
     server_ip = main_config["server_ip"]
     server_packet_sending_port = main_config["server_packet_sending_port"]
     server_iperf_port = main_config["iperf_port"]
+    iperf_logging_interval = main_config["iperf_logging_interval"]
     server_address_port = (server_ip, server_packet_sending_port)
 
     task_time = main_config["time_each_flow"]
@@ -111,7 +113,7 @@ def download_iperf_wireshark(main_config = None):
         message = my_socket.doki_wait_receive_message(client_socket).replace("##DOKI##", "")
         if message == "download_iperf_start":
             client_socket.close()
-            os.system("iperf3 -s -p 7777 &")
+            os.system("iperf3 -s -p {} -i {} &".format(server_iperf_port, iperf_logging_interval))
             time.sleep(task_time + 2 * time_flow_interval)
             os.system('killall iperf3')
         if message == "download_iperf_end":

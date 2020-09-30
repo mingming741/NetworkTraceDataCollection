@@ -46,6 +46,7 @@ def upload_iperf_wireshark(main_config=None):
     server_ip = main_config["server_ip"]
     server_packet_sending_port = main_config["server_packet_sending_port"]
     server_iperf_port = main_config["iperf_port"]
+    iperf_logging_interval = main_config["iperf_logging_interval"]
     server_address_port = (server_ip, server_packet_sending_port)
 
     task_time = main_config["time_each_flow"]
@@ -61,7 +62,7 @@ def upload_iperf_wireshark(main_config=None):
         time.sleep(time_flow_interval)
         client_socket.close()
         if selected_variant == "udp":
-            os.system("iperf3 -c {} -p {} --length 1472 -u -b {}m -t {} &".format(server_ip, server_iperf_port, udp_sending_rate, task_time))
+            os.system("iperf3 -c {} -p {} --length 1472 -u -b {}m -t {} -i {} &".format(server_ip, server_iperf_port, udp_sending_rate, task_time, iperf_logging_interval))
             time.sleep(task_time + time_flow_interval)
             os.system('killall iperf3')
         if selected_variant != "udp":
@@ -93,6 +94,7 @@ def download_iperf_wireshark(main_config=None):
     server_ip = main_config["server_ip"]
     server_packet_sending_port = main_config["server_packet_sending_port"]
     server_iperf_port = main_config["iperf_port"]
+    iperf_logging_interval = main_config["iperf_logging_interval"]
     server_address_port = (server_ip, server_packet_sending_port)
 
     task_time = main_config["time_each_flow"]
@@ -114,7 +116,7 @@ def download_iperf_wireshark(main_config=None):
         output_pcap = os.path.join(pcap_result_subpath_variant, "{}.pcap".format(current_datetime.strftime("%Y_%m_%d_%H_%M")))
         if selected_variant == "udp":
             os.system("tcpdump -i any udp port {} -w {} &".format(server_iperf_port, output_pcap))
-            os.system("iperf3 -c {} -p {} -R --length 1472 -u -b {}m -t {} &".format(server_ip, server_iperf_port, udp_sending_rate, task_time))
+            os.system("iperf3 -c {} -p {} -R --length 1472 -u -b {}m -t {} -i {} &".format(server_ip, server_iperf_port, udp_sending_rate, task_time, iperf_logging_interval))
             time.sleep(task_time + time_flow_interval)
             os.system('killall iperf3')
             os.system('killall tcpdump')

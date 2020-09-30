@@ -58,16 +58,20 @@ def scheduling_client(meta_config, schedule_profile_list, current_machine_group,
             print("Error!!")
         time.sleep(5)
         os.system("sudo python3 client.py {} --config_path={}".format(task_name, temp_config_file))
+        print("-- Experiment: {}, {}, {} Done".format(main_config[task_name]["network"], task_name, main_config[task_name]["variant"]))
         time.sleep(10)
-        if task_name == "download_iperf_wireshark":
-            print("Experiment Done, Client analyze and upload log")
-            os.system("python3 analysis_trace.py download_iperf_wireshark --post=1 --config_path={}".format(temp_config_file))
-        elif task_name == "upload_iperf_wireshark":
-            print("Experiment Done, Wait for server upload the log")
-        time.sleep(20)
+
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     my_socket.retry_connect(client_socket, server_address_port)
     my_socket.retry_send(client_socket, ("scheduling_end" + "##DOKI##").encode("utf-8"))
+    time.sleep(10)
+    print("All Experiment Done, Start to analysis the log")
+    for main_config in schedule_profile_list:
+        if task_name == "download_iperf_wireshark":
+            with open(temp_config_file, 'w') as f:
+                json.dump(main_config, f, indent = 2)
+            os.system("python3 analysis_trace.py download_iperf_wireshark --post=1 --config_path={}".format(temp_config_file))
+            time.sleep(10)
 
 
 def scheduling_server(meta_config, schedule_profile_list, current_machine_group, communication_port):
@@ -77,6 +81,7 @@ def scheduling_server(meta_config, schedule_profile_list, current_machine_group,
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     my_socket.retry_bind(server_socket, server_address_port)
     server_socket.listen(10)
+    schedule_profile_list = []
     while True:
         print("-- Wait client message to start the experiment")
         client_socket, client_address = server_socket.accept()
@@ -86,6 +91,7 @@ def scheduling_server(meta_config, schedule_profile_list, current_machine_group,
             break
         else:
             main_config = json.loads(message)
+            schedule_profile_list.append(main_config)
             for key in main_config:
                 task_name = key
             with open(temp_config_file, 'w') as f:
@@ -94,11 +100,15 @@ def scheduling_server(meta_config, schedule_profile_list, current_machine_group,
             print("SYN with client successfully, save client config and start to run experiment..\n")
             print("Experiment Start: {}, {}, {}".format(main_config[task_name]["network"], task_name, main_config[task_name]["variant"]))
             os.system("sudo python3 server.py {} --config_path={}".format(task_name, temp_config_file))
+            print("-- Experiment: {}, {}, {} Done".format(main_config[task_name]["network"], task_name, main_config[task_name]["variant"]))
+
+    print("All Experiment Done, Start to analysis the log")
+    for main_config in schedule_profile_list:
+        if task_name == "upload_iperf_wireshark":
+            with open(temp_config_file, 'w') as f:
+                json.dump(main_config, f, indent = 2)
+            os.system("python3 analysis_trace.py upload_iperf_wireshark --post=1 --config_path={}".format(temp_config_file))
             time.sleep(10)
-            if task_name == "upload_iperf_wireshark":
-                print("Experiment Done, Server analyze and upload log")
-                os.system("python3 analysis_trace.py upload_iperf_wireshark --post=1 --config_path={}".format(temp_config_file))
-    print("Experiment Done, start to analysis the log")
     server_socket.close()
 
 

@@ -2,7 +2,7 @@
   "general_config":{
     "web_interface_server_ip": "103.49.160.136",
     "temp_config_file": "config/config_temp.json",
-    "trace_min_time_unit": "packet",
+    "trace_min_time_unit": "milliseconds",
     "resume_time_hour": -1,
     "resume_check_peroid": 60,
     "server_client_packet_sending_port_range": [2000, 2250],
@@ -16,9 +16,10 @@
       "pcap_path": "result/",
       "direction": "download",
       "iperf_port": 7777,
+      "iperf_logging_interval": 60,
       "udp_sending_rate": 20,
       "total_run": 1,
-      "time_each_flow": 3600,
+      "time_each_flow": 60,
 
       "network": "",
       "variant": "",
@@ -32,9 +33,10 @@
       "pcap_path": "result/",
       "direction": "upload",
       "iperf_port": 7777,
+      "iperf_logging_interval": 60,
       "udp_sending_rate": 20,
       "total_run": 1,
-      "time_each_flow": 3600,
+      "time_each_flow": 60,
 
       "network": "",
       "variant": "",
