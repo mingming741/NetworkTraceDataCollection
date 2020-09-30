@@ -19,7 +19,7 @@
       "iperf_logging_interval": 60,
       "udp_sending_rate": 20,
       "total_run": 1,
-      "time_each_flow": 60,
+      "time_each_flow": 3600,
 
       "network": "",
       "variant": "",
@@ -36,7 +36,7 @@
       "iperf_logging_interval": 60,
       "udp_sending_rate": 20,
       "total_run": 1,
-      "time_each_flow": 60,
+      "time_each_flow": 3600,
 
       "network": "",
       "variant": "",
@@ -46,9 +46,9 @@
   },
   "vaild_config":{
     "variants_list":{
-      "bbr": 0,
+      "bbr": 1,
       "cubic": 1,
-      "udp": 0,
+      "udp": 1,
       "westwood": 0
     },
     "trace_min_unit":{
