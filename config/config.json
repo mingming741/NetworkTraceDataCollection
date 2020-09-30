@@ -1,41 +1,17 @@
 {
   "download_iperf_wireshark": {
-    "task_name": "download_iperf_wireshark",
     "trace_path": "trace/",
-    "pcap_path": "result/",
-    "network": "3HK_4G",
+    "enable": 1,
     "direction": "download",
+    "server_packet_sending_port": 2135,
+    "task_name": "download_iperf_wireshark",
     "variant": "cubic",
     "server_ip": "103.49.160.132",
-    "server_packet_sending_port": 2001,
-    "iperf_port": 7777,
-    "udp_sending_rate": 20,
-    "total_run": 1,
-    "time_each_flow": 60
-  },
-  "upload_iperf_wireshark":{
-    "task_name": "upload_iperf_wireshark",
-    "trace_path": "trace/",
+    "time_each_flow": 60,
     "pcap_path": "result/",
-    "network": "3HK_4G",
-    "direction": "upload",
-    "variant": "cubic",
-    "server_ip": "103.49.160.132",
-    "server_packet_sending_port": 2001,
+    "network": "CSL_4G",
+    "udp_sending_rate": 20,
     "iperf_port": 7777,
-    "udp_sending_rate": 60,
-    "total_run": 1,
-    "time_each_flow": 60
-  },
-  "download_socket": {
-    "result_path": "result/download_socket/",
-    "process_total_time": -1,
-    "connection_total_time": 3600,
-    "server_address": ["103.49.160.131", 7777],
-    "throughput_calculation_interval": 1,
-    "client_timeout_value": 5,
-    "server_timeout_value": 5,
-    "server_connection_log_interval": 1000000,
-    "test_config_file": "result/udp_test.json"
+    "total_run": 1
   }
 }

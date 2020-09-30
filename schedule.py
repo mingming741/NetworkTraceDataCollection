@@ -37,7 +37,7 @@ def scheduling(meta_config):
 
 
 def scheduling_client(meta_config, schedule_profile_list, current_machine_group, communication_port):
-    server_ip = meta_config["test_machines_group"]["server"][current_machine_group]
+    server_ip = meta_config["test_machines_group"]["server"][current_machine_group]["ip"]
     server_address_port = (server_ip, communication_port)
     for main_config in schedule_profile_list:
         for key in main_config:
@@ -61,7 +61,7 @@ def scheduling_client(meta_config, schedule_profile_list, current_machine_group,
             os.system("python3 analysis_trace.py download_iperf_wireshark --post=1")
         elif task_name == "upload_iperf_wireshark":
             print("Experiment Done, Wait for server upload the log")
-        time.sleep(60)
+        time.sleep(20)
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     my_socket.retry_connect(client_socket, server_address_port)
     my_socket.retry_send(client_socket, ("scheduling_end" + "##DOKI##").encode("utf-8"))
@@ -70,7 +70,6 @@ def scheduling_client(meta_config, schedule_profile_list, current_machine_group,
 def scheduling_server(meta_config, schedule_profile_list, current_machine_group, communication_port):
     server_ip = meta_config["test_machines_group"]["server"][current_machine_group]["ip"]
     server_address_port = (server_ip, communication_port)
-    print(server_address_port)
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     my_socket.retry_bind(server_socket, server_address_port)
     server_socket.listen(10)
@@ -91,6 +90,10 @@ def scheduling_server(meta_config, schedule_profile_list, current_machine_group,
             print("SYN with client successfully, save client config and start to run experiment..\n")
             print("Experiment Start: {}, {}, {}".format(main_config[task_name]["network"], task_name, main_config[task_name]["variant"]))
             os.system("sudo python3 server.py {}".format(task_name))
+            time.sleep(10)
+            if task_name == "upload_iperf_wireshark":
+                print("Experiment Done, Server analyze and upload log")
+                os.system("python3 analysis_trace.py upload_iperf_wireshark --post=1")
     print("Experiment Done, start to analysis the log")
     server_socket.close()
 
