@@ -57,6 +57,7 @@ def main():
     parser.add_argument('function', type=str, help='the job')
     parser.add_argument('--post', type=int, help='whether post to server')
     parser.add_argument('--display', type=int, help='whether draw graph')
+    parser.add_argument('--config_path', type=str, help='path of config file')
 
     args = parser.parse_args()
     if args.function in ["download_iperf_wireshark", "upload_iperf_wireshark"]:
