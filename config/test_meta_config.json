@@ -5,7 +5,7 @@
     "resume_time_hour": -1,
     "resume_check_peroid": 60,
     "server_client_packet_sending_port_range": [2000, 2250],
-    "scheduling_port_range": [2500, 2750]
+    "scheduling_port_zero": 2500
   },
   "scheduling_config":{
     "download_iperf_wireshark":{
