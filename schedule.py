@@ -71,6 +71,7 @@ def scheduling_client(meta_config, schedule_profile_list, current_machine_group,
 
 
 def scheduling_server(meta_config, schedule_profile_list, current_machine_group, communication_port):
+    temp_config_file = meta_config["general_config"]["temp_config_file"]
     server_ip = meta_config["test_machines_group"]["server"][current_machine_group]["ip"]
     server_address_port = (server_ip, communication_port)
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -87,7 +88,7 @@ def scheduling_server(meta_config, schedule_profile_list, current_machine_group,
             main_config = json.loads(message)
             for key in main_config:
                 task_name = key
-            with open("config/config.json", 'w') as f:
+            with open(temp_config_file, 'w') as f:
                 json.dump(main_config, f, indent = 2)
             my_socket.retry_send(client_socket, ("scheduling_start" + "##DOKI##").encode("utf-8"))
             print("SYN with client successfully, save client config and start to run experiment..\n")

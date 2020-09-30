@@ -89,7 +89,6 @@ def download_iperf_wireshark(main_config = None):
         main_config = utils.parse_config("config/config.json")
     main_config = main_config["download_iperf_wireshark"]
     print("Download iperf server, start~~")
-    main_config = utils.parse_config("config/config.json")["download_iperf_wireshark"]
     selected_variant = main_config["variant"]
 
     server_ip = main_config["server_ip"]

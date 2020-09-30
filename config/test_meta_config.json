@@ -44,8 +44,8 @@
   },
   "vaild_config":{
     "variants_list":{
-      "bbr": 0,
-      "cubic": 1,
+      "bbr": 1,
+      "cubic": 0,
       "udp": 0,
       "westwood": 0
     },
