@@ -1,6 +1,7 @@
 import json
 import os
 import pathlib
+import time
 
 def parse_config(path):
     with open(path) as json_data_file:
@@ -35,6 +36,10 @@ def dict_key_to_ordered_list(input_dict):
     newlist.sort()
     return newlist
 
+
+def fail_and_wait(fail_reason, timeout = 60):
+    print(fail_reason)
+    time.sleep(timeout)
 
 
 def init_apache_dir():

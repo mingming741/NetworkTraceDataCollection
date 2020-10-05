@@ -1,12 +1,16 @@
 import time
 import socket
+import select
 
 
-def doki_wait_receive_message(my_socket):
+def doki_wait_receive_message(my_socket, timeout=120):
     message = ""
+    mysocket.setblocking(0)
     try:
         while True:
-            data = my_socket.recv(1024).decode("utf-8")
+            ready = select.select([mysocket], [], [], timeout)
+            if ready[0]:
+                data = my_socket.recv(1024).decode("utf-8")
             message = message + data
             if "##DOKI##" in data:
                 break
@@ -42,6 +46,7 @@ def retry_connect(my_socket, server_address_port, retry_timeout=5, stable_wait_t
         try:
             my_socket.connect(server_address_port)
             time.sleep(stable_wait_time)
+            print("Connect to {} success".format())
             return True
         except Exception as e:
             print("Exception happen when connect to server: {}".format(e))

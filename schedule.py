@@ -52,17 +52,17 @@ def scheduling_client(meta_config, schedule_profile_list, current_machine_group,
             json.dump(main_config, f, indent = 2)
         client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         if not my_socket.retry_connect(client_socket, server_address_port):
-            time.sleep(60)
+            utils.fail_and_wait("Connect Fail, redo secheduling", 60)
             continue
         if not my_socket.retry_send(client_socket, (json.dumps(main_config) + "##DOKI##").encode("utf-8")):
-            time.sleep(60)
+            utils.fail_and_wait("Send Fail, redo secheduling", 60)
             continue
         message = my_socket.doki_wait_receive_message(client_socket)
         if message == "scheduling_start":
             print("SYN with server successfully, start to run the experiment..\n")
         else:
             print("Error with message: {}".format(message))
-            time.sleep(60)
+            utils.fail_and_wait("Receive Fail, redo secheduling", 60)
             continue
         time.sleep(5)
         os.system("sudo python3 client.py {} --config_path={}".format(task_name, temp_config_file))
