@@ -42,24 +42,33 @@ def scheduling_client(meta_config, schedule_profile_list, current_machine_group,
     temp_config_file = meta_config["general_config"]["temp_config_file"]
     server_ip = meta_config["test_machines_group"]["server"][current_machine_group]["ip"]
     server_address_port = (server_ip, communication_port)
-    for main_config in schedule_profile_list:
+    index = 0
+    while index < len(schedule_profile_list):
+        main_config = schedule_profile_list[index]
         for key in main_config:
             task_name = key
         print("-- Run Experiment: {}, {}, {}".format(main_config[task_name]["network"], task_name, main_config[task_name]["variant"]))
         with open(temp_config_file, 'w') as f:
             json.dump(main_config, f, indent = 2)
         client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        my_socket.retry_connect(client_socket, server_address_port)
-        my_socket.retry_send(client_socket, (json.dumps(main_config) + "##DOKI##").encode("utf-8"))
+        if not my_socket.retry_connect(client_socket, server_address_port):
+            time.sleep(60)
+            continue
+        if not my_socket.retry_send(client_socket, (json.dumps(main_config) + "##DOKI##").encode("utf-8")):
+            time.sleep(60)
+            continue
         message = my_socket.doki_wait_receive_message(client_socket)
         if message == "scheduling_start":
             print("SYN with server successfully, start to run the experiment..\n")
         else:
-            print("Error!!")
+            print("Error with message: {}".format(message))
+            time.sleep(60)
+            continue
         time.sleep(5)
         os.system("sudo python3 client.py {} --config_path={}".format(task_name, temp_config_file))
         print("-- Experiment: {}, {}, {} Done".format(main_config[task_name]["network"], task_name, main_config[task_name]["variant"]))
         time.sleep(10)
+        index =  index + 1
 
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     my_socket.retry_connect(client_socket, server_address_port)
@@ -89,6 +98,7 @@ def scheduling_server(meta_config, schedule_profile_list, current_machine_group,
         message = my_socket.doki_wait_receive_message(client_socket)
         if message == None:
             print("Recieve client message Error!")
+            continue
         if message == "scheduling_end":
             break
         else:
@@ -98,7 +108,8 @@ def scheduling_server(meta_config, schedule_profile_list, current_machine_group,
                 task_name = key
             with open(temp_config_file, 'w') as f:
                 json.dump(main_config, f, indent = 2)
-            my_socket.retry_send(client_socket, ("scheduling_start" + "##DOKI##").encode("utf-8"))
+            if not my_socket.retry_send(client_socket, ("scheduling_start" + "##DOKI##").encode("utf-8")):
+                continue
             print("SYN with client successfully, save client config and start to run experiment..\n")
             print("Experiment Start: {}, {}, {}".format(main_config[task_name]["network"], task_name, main_config[task_name]["variant"]))
             os.system("sudo python3 server.py {} --config_path={}".format(task_name, temp_config_file))
