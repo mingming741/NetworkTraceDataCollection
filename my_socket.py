@@ -46,7 +46,7 @@ def retry_connect(my_socket, server_address_port, retry_timeout=5, stable_wait_t
         try:
             my_socket.connect(server_address_port)
             time.sleep(stable_wait_time)
-            print("Connect to {} success".format())
+            print("Connect to {} success".format(server_address_port))
             return True
         except Exception as e:
             print("Exception happen when connect to server: {}".format(e))
