@@ -2,11 +2,19 @@ import json
 import os
 import pathlib
 import time
+import logging
 
 def parse_config(path):
     with open(path) as json_data_file:
         data = json.load(json_data_file)
     return data
+
+
+def parse_logging_level(logging_level_string):
+    if logging_level_string == "debug":
+        return logging.DEBUG
+    elif logging_level_string == "info":
+        return logging.INFO
 
 
 def make_public_dir(dir_path):

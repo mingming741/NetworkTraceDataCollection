@@ -4,10 +4,17 @@ import socket
 import time
 import os
 import argparse
+import logging
 from datetime import datetime, timezone
 
 import my_socket
 import utils
+
+
+test_meta_config = utils.parse_config("config/test_meta_config.json")
+logging.basicConfig(level=utils.parse_logging_level(test_meta_config["general_config"]["logging_level"]))
+logger = logging.getLogger(__name__)
+
 
 def main():
     utils.init_dir()
@@ -51,7 +58,7 @@ def upload_iperf_wireshark(main_config = None):
     utils.make_public_dir(pcap_result_path)
     utils.remake_public_dir(pcap_result_subpath_variant)
     time_flow_interval = 5 # wait some time to keep stability
-    print("Server--> upload_iperf_wireshark, Start~~")
+    logger.info("Server--> upload_iperf_wireshark, Start~~")
 
 
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -59,7 +66,7 @@ def upload_iperf_wireshark(main_config = None):
     server_socket.listen(10)
     while True:
         client_socket, client_address = server_socket.accept()
-        print("Recieve from client {}".format(client_address))
+        logger.debug("Recieve from client {}".format(client_address))
         message = my_socket.doki_wait_receive_message(client_socket).replace("##DOKI##", "")
         if message == "upload_iperf_start":
             client_socket.close()
@@ -77,10 +84,10 @@ def upload_iperf_wireshark(main_config = None):
                 os.system('killall tcpdump')
                 os.system("python3 my_subprocess.py pcap2txt --mode tcp --file-path {} &".format(output_pcap))
             os.system('killall iperf3')
-            print("Server One flow finished~")
+            logger.debug("Server One flow finished~")
         if message == "upload_iperf_end":
             client_socket.close()
-            print("Server--> upload_iperf_wireshark, All test Done~~")
+            logger.info("Server--> upload_iperf_wireshark, All test Done~~")
             exit()
 
 
@@ -89,7 +96,6 @@ def download_iperf_wireshark(main_config = None):
     if main_config == None:
         main_config = utils.parse_config("config/config.json")
     main_config = main_config["download_iperf_wireshark"]
-    print("Download iperf server, start~~")
     selected_variant = main_config["variant"]
 
     server_ip = main_config["server_ip"]
@@ -103,13 +109,13 @@ def download_iperf_wireshark(main_config = None):
     if selected_variant != "udp":
         os.system("sudo sysctl net.ipv4.tcp_congestion_control={}".format(selected_variant))
 
-    print("Server--> download_iperf_wireshark, Start~~")
+    logger.info("Server--> download_iperf_wireshark, Start~~")
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     my_socket.retry_bind(server_socket, server_address_port)
     server_socket.listen(10)
     while True:
         client_socket, client_address = server_socket.accept()
-        print("Recieve from client {}".format(client_address))
+        logger.debug("Recieve from client {}".format(client_address))
         message = my_socket.doki_wait_receive_message(client_socket).replace("##DOKI##", "")
         if message == "download_iperf_start":
             client_socket.close()
@@ -118,13 +124,13 @@ def download_iperf_wireshark(main_config = None):
             os.system('killall iperf3')
         if message == "download_iperf_end":
             client_socket.close()
-            print("Server--> download_iperf_wireshark, Done~~")
+            logger.info("Server--> download_iperf_wireshark, Done~~")
             server_socket.close()
             exit()
 
 
 
-
+"""
 def download_socket():
     main_config = utils.parse_config("config/config.json")["download_socket"]
     server_address = tuple(main_config["server_address"])
@@ -179,7 +185,7 @@ def download_socket():
             print("Connection [{}], No Client connected".format(connection_index))
         connection_index = connection_index + 1
     server_socket.close()
-
+"""
 
 
 

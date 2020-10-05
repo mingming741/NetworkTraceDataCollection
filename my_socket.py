@@ -1,7 +1,12 @@
 import time
 import socket
 import select
+import logging
 
+
+meta_config = utils.parse_config("config/test_meta_config.json")
+logging.basicConfig(level=utils.parse_logging_level(meta_config["general_config"]["logging_level"]))
+logger = logging.getLogger(__name__)
 
 def doki_wait_receive_message(my_socket, timeout=120):
     message = ""
@@ -17,8 +22,8 @@ def doki_wait_receive_message(my_socket, timeout=120):
         message = message.replace("##DOKI##", "")
         return message
     except Exception as e:
-        print("Exception happen when receive message {}".format(e))
-        print("message is: {}".format(message))
+        logger.warning("Exception happen when receive message {}".format(e))
+        logger.debug("message is: {}".format(message))
         return None
 
 
@@ -31,12 +36,12 @@ def retry_bind(my_socket, my_socket_address_port, retry_timeout=300, stable_wait
             time.sleep(stable_wait_time)
             return True
         except Exception as e:
-            print("Exception happen when bind address: {}".format(e))
+            logger.warning("Exception happen when bind address: {}".format(e))
             time.sleep(retry_timeout)
-            print("Retry..")
+            logger.debug("Retry..")
             exit_flag = exit_flag + 1
     if exit_flag == max_try:
-        print("Bind {} times but still fail!".format(max_try))
+        logger.warning("Bind {} times but still fail!".format(max_try))
         return False
 
 def retry_connect(my_socket, server_address_port, retry_timeout=5, stable_wait_time=1, max_try=30):
@@ -45,15 +50,15 @@ def retry_connect(my_socket, server_address_port, retry_timeout=5, stable_wait_t
         try:
             my_socket.connect(server_address_port)
             time.sleep(stable_wait_time)
-            print("Connect to {} success".format(server_address_port))
+            logger.debug("Connect to {} success".format(server_address_port))
             return True
         except Exception as e:
-            print("Exception happen when connect to server: {}".format(e))
+            logger.warning("Exception happen when connect to server: {}".format(e))
             time.sleep(retry_timeout)
-            print("Retry..")
+            logger.debug("Retry..")
             exit_flag = exit_flag + 1
     if exit_flag == max_try:
-        print("Connect {} times but still fail!".format(max_try))
+        logger.warning("Connect {} times but still fail!".format(max_try))
         return False
 
 
@@ -63,13 +68,13 @@ def retry_send(my_socket, message, retry_timeout=5, stable_wait_time=1, max_try=
         try:
             my_socket.send(message)
             time.sleep(stable_wait_time)
-            print("Send message {}, success".format(message))
+            logger.debug("Send message {}, success".format(message))
             return True
         except Exception as e:
-            print("Exception happen send message: {}".format(e))
+            logger.warning("Exception happen send message: {}".format(e))
             time.sleep(retry_timeout)
-            print("Retry..")
+            logger.debug("Retry..")
             exit_flag = exit_flag + 1
     if exit_flag == max_try:
-        print("Connect {} times but still fail!".format(max_try))
+        logger.warning("Connect {} times but still fail!".format(max_try))
         return False
