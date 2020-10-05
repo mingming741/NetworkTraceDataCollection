@@ -5,10 +5,10 @@ import select
 
 def doki_wait_receive_message(my_socket, timeout=120):
     message = ""
-    mysocket.setblocking(0)
+    my_socket.setblocking(0)
     try:
         while True:
-            ready = select.select([mysocket], [], [], timeout)
+            ready = select.select([my_socket], [], [], timeout)
             if ready[0]:
                 data = my_socket.recv(1024).decode("utf-8")
             message = message + data
