@@ -40,7 +40,7 @@ def retry_bind(my_socket, my_socket_address_port, retry_timeout=300, stable_wait
         return False
 
 def retry_connect(my_socket, server_address_port, retry_timeout=5, stable_wait_time=1, max_try=30):
-    #print("Connect to {}".format(server_address_port))
+    print("Connect to {}".format(server_address_port))
     exit_flag = 0
     while exit_flag < max_try:
         try:
@@ -58,7 +58,7 @@ def retry_connect(my_socket, server_address_port, retry_timeout=5, stable_wait_t
         return False
 
 def retry_send(my_socket, message, retry_timeout=5, stable_wait_time=1, max_try=30):
-    #print("Send message {}".format(message))
+    print("Send message {}".format(message))
     exit_flag = 0
     while not exit_flag < max_try:
         try:
