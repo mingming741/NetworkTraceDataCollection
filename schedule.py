@@ -87,6 +87,8 @@ def scheduling_server(meta_config, schedule_profile_list, current_machine_group,
         client_socket, client_address = server_socket.accept()
         print("Recieve from client {}".format(client_address))
         message = my_socket.doki_wait_receive_message(client_socket)
+        if message == None:
+            print("Recieve client message Error!")
         if message == "scheduling_end":
             break
         else:

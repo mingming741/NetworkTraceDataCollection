@@ -3,15 +3,20 @@ import socket
 
 
 def doki_wait_receive_message(my_socket):
-    print("Receive Peer message")
     message = ""
-    while True:
-        data = my_socket.recv(1024).decode("utf-8")
-        message = message + data
-        if "##DOKI##" in data:
-            break
-    message = message.replace("##DOKI##", "")
-    return message
+    try:
+        while True:
+            data = my_socket.recv(1024).decode("utf-8")
+            message = message + data
+            if "##DOKI##" in data:
+                break
+        message = message.replace("##DOKI##", "")
+        return message
+    except Exception as e:
+        print("Exception happen when receive message {}".format(e))
+        print("message is: {}".format(message))
+        return None
+
 
 def retry_bind(my_socket, my_socket_address_port, retry_timeout=300, stable_wait_time=1):
     exit_flag = 0
