@@ -23,7 +23,7 @@
 
 # Data
 data/*
-result/*
+log/*
 trace/*
 src_python/result/*
 measurement/crawled_data/*
