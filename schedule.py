@@ -67,7 +67,7 @@ def scheduling_client(meta_config, schedule_profile_list, current_machine_group,
             continue
         message = my_socket.doki_wait_receive_message(client_socket)
         if message == "scheduling_start":
-            logger.debug("{}--> SYN with server successfully, start to run the experiment..\n".format(current_script))
+            logger.debug("{}--> SYN with server successfully, start to run the experiment..".format(current_script))
         else:
             logger.error("{}--> Receive error,  with message: {} \n redo secheduling".format(current_script, message))
             time.sleep(60)
@@ -76,12 +76,13 @@ def scheduling_client(meta_config, schedule_profile_list, current_machine_group,
         logger.info("{}--> Experiment: {}, {}, {} Done".format(current_script, main_config[task_name]["network"], task_name, main_config[task_name]["variant"]))
         time.sleep(10)
         index =  index + 1
+        print("\n")
 
+    logger.info("{}--> All Experiment Done, Start to analysis the log".format(current_script))
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     my_socket.retry_connect(client_socket, server_address_port)
     my_socket.retry_send(client_socket, ("scheduling_end" + "##DOKI##").encode("utf-8"))
     time.sleep(10)
-    logger.info("{}--> All Experiment Done, Start to analysis the log".format(current_script))
     for main_config in schedule_profile_list:
         if "download_iperf_wireshark" in main_config:
             with open(temp_config_file, 'w') as f:
@@ -121,6 +122,7 @@ def scheduling_server(meta_config, schedule_profile_list, current_machine_group,
             logger.info("{}--> Experiment Start: {}, {}, {}".format(current_script, main_config[task_name]["network"], task_name, main_config[task_name]["variant"]))
             os.system("sudo python3 server.py {} --config_path={}".format(task_name, temp_config_file))
             logger.info("{}--> Experiment: {}, {}, {} Done".format(current_script, main_config[task_name]["network"], task_name, main_config[task_name]["variant"]))
+        print("\n")
 
     logger.info("{}--> All Experiment Done, Start to analysis the log".format(current_script))
     for main_config in schedule_profile_list:
