@@ -45,7 +45,6 @@ def upload_iperf_wireshark(main_config = None):
     selected_variant = main_config["variant"]
     pcap_result_path = os.path.join(main_config["pcap_path"], main_config["task_name"])
     pcap_result_subpath_variant = os.path.join(pcap_result_path, selected_variant)
-    iperf_logging_path = os.path.join(main_config["iperf_logging_file_path"])
 
     total_run = int(main_config["total_run"])
     server_ip = main_config["server_ip"]
@@ -59,7 +58,6 @@ def upload_iperf_wireshark(main_config = None):
 
     utils.make_public_dir(pcap_result_path)
     utils.remake_public_dir(pcap_result_subpath_variant)
-    utils.make_public_dir(iperf_logging_path)
     time_flow_interval = 5 # wait some time to keep stability
     logger.info("Server--> upload_iperf_wireshark, Start~~")
 
@@ -75,8 +73,7 @@ def upload_iperf_wireshark(main_config = None):
             client_socket.close()
             current_datetime = datetime.fromtimestamp(time.time())
             output_pcap = os.path.join(pcap_result_subpath_variant, "{}.pcap".format(current_datetime.strftime("%Y_%m_%d_%H_%M")))
-            output_iperf_log = os.path.join(iperf_logging_path, "{}_{}_{}_{}.log".format(selected_network, selected_direction ,selected_variant, current_datetime.strftime("%Y_%m_%d_%H_%M")))
-            os.system("iperf3 -s -p {} -i {} | tee {} 2> /dev/null &".format(server_iperf_port, iperf_logging_interval, output_iperf_log))
+            os.system("iperf3 -s -p {} -i {} 2> /dev/null &".format(server_iperf_port, iperf_logging_interval))
             if selected_variant == "udp":
                 os.system("tcpdump -i any udp port {} -w {} > /dev/null 2>&1 &".format(server_iperf_port, output_pcap))
                 time.sleep(task_time + 2 * time_flow_interval)
@@ -110,11 +107,9 @@ def download_iperf_wireshark(main_config = None):
     server_address_port = (server_ip, server_packet_sending_port)
     pcap_result_path = os.path.join(main_config["pcap_path"], main_config["task_name"])
     pcap_result_subpath_variant = os.path.join(pcap_result_path, selected_variant)
-    iperf_logging_path = os.path.join(main_config["iperf_logging_file_path"])
 
     task_time = main_config["time_each_flow"]
     time_flow_interval = 5 # wait some time to keep stability
-    utils.make_public_dir(iperf_logging_path)
     if selected_variant != "udp":
         os.system("sudo sysctl net.ipv4.tcp_congestion_control={}".format(selected_variant))
 
@@ -129,8 +124,7 @@ def download_iperf_wireshark(main_config = None):
         if message == "download_iperf_start":
             client_socket.close()
             current_datetime = datetime.fromtimestamp(time.time())
-            output_iperf_log = os.path.join(iperf_logging_path, "{}_{}_{}_{}.log".format(selected_network, selected_direction ,selected_variant, current_datetime.strftime("%Y_%m_%d_%H_%M")))
-            os.system("iperf3 -s -p {} -i {} | tee {} 2> /dev/null &".format(server_iperf_port, iperf_logging_interval, output_iperf_log))
+            os.system("iperf3 -s -p {} -i {} 2> /dev/null &".format(server_iperf_port, iperf_logging_interval))
             time.sleep(task_time + 2 * time_flow_interval)
             os.system('killall iperf3 > /dev/null 2>&1')
         if message == "download_iperf_end":

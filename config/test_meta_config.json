@@ -18,10 +18,9 @@
       "direction": "download",
       "iperf_port": 7777,
       "iperf_logging_interval": 60,
-      "iperf_logging_file_path": "log/iperf_log/",
       "udp_sending_rate": 20,
-      "total_run": 2,
-      "time_each_flow": 3600,
+      "total_run": 1,
+      "time_each_flow": 60,
 
       "network": "",
       "variant": "",
@@ -36,10 +35,9 @@
       "direction": "upload",
       "iperf_port": 7777,
       "iperf_logging_interval": 60,
-      "iperf_logging_file_path": "log/iperf_log/",
       "udp_sending_rate": 20,
-      "total_run": 2,
-      "time_each_flow": 3620,
+      "total_run": 1,
+      "time_each_flow": 60,
 
       "network": "",
       "variant": "",
@@ -49,7 +47,7 @@
   },
   "vaild_config":{
     "variants_list":{
-      "bbr": 1,
+      "bbr": 0,
       "cubic": 1,
       "udp": 1,
       "westwood": 0
