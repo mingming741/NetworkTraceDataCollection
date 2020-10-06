@@ -14,6 +14,7 @@ import my_socket
 meta_config = utils.parse_config("config/test_meta_config.json")
 logging.basicConfig(level=utils.parse_logging_level(meta_config["general_config"]["logging_level"]))
 logger = logging.getLogger(__name__)
+current_script = os.path.basename(__file__)
 
 
 def main():
@@ -21,14 +22,14 @@ def main():
 
 def scheduling(meta_config):
     role, current_machine_group = find_machine_role(meta_config)
-    logger.info("This machine is the {} of group {}".format(role, current_machine_group))
+    logger.info("{}--> This machine is the {} of group {}".format(current_script, role, current_machine_group))
     schedule_profile_list = get_schedule_profile(meta_config)
     scheduling_port_zero = meta_config["general_config"]["scheduling_port_zero"]
     while True:
         current_datetime = datetime.now()
         if (current_datetime.hour == meta_config["general_config"]["resume_time_hour"]) or meta_config["general_config"]["resume_time_hour"] == -1:
             print("\n------------------------------------")
-            logger.info("Time to entering scheduling, data collection start")
+            logger.info("{}--> Time to entering scheduling, data collection start".format(current_script))
             if role ==  "client":
                 time.sleep(10) # wait for server start
                 scheduling_client(meta_config, schedule_profile_list, current_machine_group, scheduling_port_zero)
@@ -36,10 +37,10 @@ def scheduling(meta_config):
             if role == "server":
                 scheduling_server(meta_config, schedule_profile_list, current_machine_group, scheduling_port_zero)
                 scheduling_port_zero = scheduling_port_zero + 1
-            logger.info("All test done Successfully~~")
+            logger.info("{}--> All test done Successfully~~".format(current_script))
             print("------------------------------------\n")
         else:
-            logger.info("Scheduling will start at {} o'clock, Now is {} o'clock~~".format(meta_config["general_config"]["resume_time_hour"], current_datetime.hour))
+            logger.info("{}--> Scheduling will start at {} o'clock, Now is {} o'clock~~".format(current_script, meta_config["general_config"]["resume_time_hour"], current_datetime.hour))
             time.sleep(meta_config["general_config"]["resume_check_peroid"])
 
 
@@ -52,27 +53,27 @@ def scheduling_client(meta_config, schedule_profile_list, current_machine_group,
         main_config = schedule_profile_list[index]
         for key in main_config:
             task_name = key
-        logger.info("-- Run Experiment: {}, {}, {}".format(main_config[task_name]["network"], task_name, main_config[task_name]["variant"]))
+        logger.info("{}--> Run Experiment: {}, {}, {}".format(current_script, main_config[task_name]["network"], task_name, main_config[task_name]["variant"]))
         with open(temp_config_file, 'w') as f:
             json.dump(main_config, f, indent = 2)
         client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         if not my_socket.retry_connect(client_socket, server_address_port):
-            logger.error("Connect Fail, redo secheduling")
+            logger.error("{}--> Connect Fail, redo secheduling".format(current_script))
             time.sleep(60)
             continue
         if not my_socket.retry_send(client_socket, (json.dumps(main_config) + "##DOKI##").encode("utf-8")):
-            logger.error("Send Fail, redo secheduling")
+            logger.error("{}--> Send Fail, redo secheduling".format(current_script))
             time.sleep(60)
             continue
         message = my_socket.doki_wait_receive_message(client_socket)
         if message == "scheduling_start":
-            logger.debug("SYN with server successfully, start to run the experiment..\n")
+            logger.debug("{}--> SYN with server successfully, start to run the experiment..\n".format(current_script))
         else:
-            logger.error("Receive error,  with message: {} \n redo secheduling".format(message))
+            logger.error("{}--> Receive error,  with message: {} \n redo secheduling".format(current_script, message))
             time.sleep(60)
         time.sleep(5)
         os.system("sudo python3 client.py {} --config_path={}".format(task_name, temp_config_file))
-        logger.info("-- Experiment: {}, {}, {} Done".format(main_config[task_name]["network"], task_name, main_config[task_name]["variant"]))
+        logger.info("{}--> Experiment: {}, {}, {} Done".format(current_script, main_config[task_name]["network"], task_name, main_config[task_name]["variant"]))
         time.sleep(10)
         index =  index + 1
 
@@ -80,7 +81,7 @@ def scheduling_client(meta_config, schedule_profile_list, current_machine_group,
     my_socket.retry_connect(client_socket, server_address_port)
     my_socket.retry_send(client_socket, ("scheduling_end" + "##DOKI##").encode("utf-8"))
     time.sleep(10)
-    logger.info("All Experiment Done, Start to analysis the log")
+    logger.info("{}--> All Experiment Done, Start to analysis the log".format(current_script))
     for main_config in schedule_profile_list:
         if "download_iperf_wireshark" in main_config:
             with open(temp_config_file, 'w') as f:
@@ -98,12 +99,12 @@ def scheduling_server(meta_config, schedule_profile_list, current_machine_group,
     server_socket.listen(10)
     schedule_profile_list = []
     while True:
-        logger.info("-- Wait client message to start the experiment")
+        logger.info("{}--> Wait client message to start the experiment".format(current_script))
         client_socket, client_address = server_socket.accept()
-        logger.debug("Recieve from client {}".format(client_address))
+        logger.debug("{}--> Recieve from client {}".format(current_script, client_address))
         message = my_socket.doki_wait_receive_message(client_socket)
         if message == None:
-            logger.error("Recieve client message Error! Redo scheduling")
+            logger.error("{}--> Recieve client message Error! Redo scheduling".format(current_script))
             continue
         if message == "scheduling_end":
             break
@@ -116,12 +117,12 @@ def scheduling_server(meta_config, schedule_profile_list, current_machine_group,
                 json.dump(main_config, f, indent = 2)
             if not my_socket.retry_send(client_socket, ("scheduling_start" + "##DOKI##").encode("utf-8")):
                 continue
-            logger.debug("SYN with client successfully, save client config and start to run experiment..\n")
-            logger.info("Experiment Start: {}, {}, {}".format(main_config[task_name]["network"], task_name, main_config[task_name]["variant"]))
+            logger.debug("{}--> SYN with client successfully, save client config and start to run experiment..".format(current_script))
+            logger.info("{}--> Experiment Start: {}, {}, {}".format(current_script, main_config[task_name]["network"], task_name, main_config[task_name]["variant"]))
             os.system("sudo python3 server.py {} --config_path={}".format(task_name, temp_config_file))
-            logger.info("-- Experiment: {}, {}, {} Done".format(main_config[task_name]["network"], task_name, main_config[task_name]["variant"]))
+            logger.info("{}--> Experiment: {}, {}, {} Done".format(current_script, main_config[task_name]["network"], task_name, main_config[task_name]["variant"]))
 
-    logger.info("All Experiment Done, Start to analysis the log")
+    logger.info("{}--> All Experiment Done, Start to analysis the log".format(current_script))
     for main_config in schedule_profile_list:
         if "upload_iperf_wireshark" in main_config:
             with open(temp_config_file, 'w') as f:

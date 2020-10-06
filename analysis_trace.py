@@ -15,6 +15,7 @@ import utils
 test_meta_config = utils.parse_config("config/test_meta_config.json")
 logging.basicConfig(level=utils.parse_logging_level(test_meta_config["general_config"]["logging_level"]))
 logger = logging.getLogger(__name__)
+current_script = os.path.basename(__file__)
 analysis_category = ["PLT"]
 
 if "PLT" in analysis_category:

@@ -15,6 +15,7 @@ import my_socket
 test_meta_config = utils.parse_config("config/test_meta_config.json")
 logging.basicConfig(level=utils.parse_logging_level(test_meta_config["general_config"]["logging_level"]))
 logger = logging.getLogger(__name__)
+current_script = os.path.basename(__file__)
 
 
 def main():
@@ -60,7 +61,7 @@ def upload_iperf_wireshark(main_config=None):
 
     utils.make_public_dir(iperf_logging_path)
 
-    logger.info("Client--> upload_iperf_wireshark, Start~~")
+    logger.info("{}--> upload_iperf_wireshark, Start~~".format(current_script))
     for i in range(0, total_run):
         client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         my_socket.retry_connect(client_socket, server_address_port)
@@ -78,14 +79,14 @@ def upload_iperf_wireshark(main_config=None):
             os.system("iperf3 -c {} -p {} -t {} -i {} > {} &".format(server_ip, server_iperf_port, task_time, iperf_logging_interval, output_iperf_log))
             time.sleep(task_time + time_flow_interval)
             os.system('killall iperf3 > /dev/null 2>&1')
-        logger.info("Client--> download_iperf_wireshark {}, {}, {}, Done".format(selected_network, selected_direction, selected_variant))
+        logger.info("{}--> download_iperf_wireshark {}, {}, {}, Done".format(current_script, selected_network, selected_direction, selected_variant))
         time.sleep(time_flow_interval)
 
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     my_socket.retry_connect(client_socket, server_address_port)
     my_socket.retry_send(client_socket, ("upload_iperf_end" + "##DOKI##").encode("utf-8"))
     client_socket.close()
-    logger.info("Client--> upload_iperf_wireshark, All test Done~~")
+    logger.info("{}--> upload_iperf_wireshark, All test Done~~".format(current_script))
 
 
 def download_iperf_wireshark(main_config=None):
@@ -113,7 +114,7 @@ def download_iperf_wireshark(main_config=None):
     utils.make_public_dir(iperf_logging_path)
     utils.make_public_dir(pcap_result_path)
     utils.remake_public_dir(pcap_result_subpath_variant)
-    logger.info("Client--> download_iperf_wireshark, Start~~")
+    logger.info("{}--> download_iperf_wireshark, Start~~".format(current_script))
 
     for i in range(0, total_run):
         client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -139,14 +140,14 @@ def download_iperf_wireshark(main_config=None):
             os.system('killall iperf3 > /dev/null 2>&1')
             os.system('killall tcpdump > /dev/null 2>&1')
             os.system("python3 my_subprocess.py pcap2txt --mode tcp --file-path {} &".format(output_pcap))
-        logger.info("Client--> download_iperf_wireshark {}, {}, {}, Done".format(selected_network, selected_direction, selected_variant))
+        logger.info("{}--> download_iperf_wireshark {}, {}, {}, Done".format(current_script, selected_network, selected_direction, selected_variant))
         time.sleep(time_flow_interval)
 
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     my_socket.retry_connect(client_socket, server_address_port)
     my_socket.retry_send(client_socket, ("download_iperf_end" + "##DOKI##").encode("utf-8"))
     client_socket.close()
-    logger.info("Client--> download_iperf_wireshark, All test Done~~")
+    logger.info("{}--> download_iperf_wireshark, All test Done~~".format(current_script))
 
 
 """
