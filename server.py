@@ -75,18 +75,18 @@ def upload_iperf_wireshark(main_config = None):
             current_datetime = datetime.fromtimestamp(time.time())
             output_pcap = os.path.join(pcap_result_subpath_variant, "{}.pcap".format(current_datetime.strftime("%Y_%m_%d_%H_%M")))
             output_iperf_log = os.path.join(iperf_logging_path, "{}_{}_{}_{}.log".format(selected_network, selected_direction ,selected_variant, current_datetime.strftime("%Y_%m_%d_%H_%M")))
-            os.system("iperf3 -s -p {} -i {} > {} &".format(server_iperf_port, iperf_logging_interval, output_iperf_log))
+            os.system("iperf3 -s -p {} -i {} 2>> {} &".format(server_iperf_port, iperf_logging_interval, output_iperf_log))
             if selected_variant == "udp":
                 os.system("tcpdump -i any udp port {} -w {} > /dev/null &".format(server_iperf_port, output_pcap))
                 time.sleep(task_time + 2 * time_flow_interval)
-                os.system('killall tcpdump > /dev/null')
+                os.system('killall tcpdump 2> /dev/null')
                 os.system("python3 my_subprocess.py pcap2txt --mode udp --file-path {} &".format(output_pcap))
             if selected_variant != "udp":
                 os.system("tcpdump -i any tcp dst port {} -w {} > /dev/null &".format(server_iperf_port, output_pcap))
                 time.sleep(task_time + 2 * time_flow_interval)
                 os.system('killall tcpdump > /dev/null')
                 os.system("python3 my_subprocess.py pcap2txt --mode tcp --file-path {} &".format(output_pcap))
-            os.system('killall iperf3 > /dev/null')
+            os.system('killall iperf3 2> /dev/null')
             logger.debug("Server One flow finished~")
         if message == "upload_iperf_end":
             client_socket.close()
@@ -129,9 +129,9 @@ def download_iperf_wireshark(main_config = None):
             client_socket.close()
             current_datetime = datetime.fromtimestamp(time.time())
             output_iperf_log = os.path.join(iperf_logging_path, "{}_{}_{}_{}.log".format(selected_network, selected_direction ,selected_variant, current_datetime.strftime("%Y_%m_%d_%H_%M")))
-            os.system("iperf3 -s -p {} -i {} > {} &".format(server_iperf_port, iperf_logging_interval, output_iperf_log))
+            os.system("iperf3 -s -p {} -i {} 2>> {} &".format(server_iperf_port, iperf_logging_interval, output_iperf_log))
             time.sleep(task_time + 2 * time_flow_interval)
-            os.system('killall iperf3 > /dev/null')
+            os.system('killall iperf3 2> /dev/null')
         if message == "download_iperf_end":
             client_socket.close()
             logger.info("Server--> download_iperf_wireshark, Done~~")
