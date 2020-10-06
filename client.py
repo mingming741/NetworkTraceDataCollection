@@ -67,6 +67,7 @@ def upload_iperf_wireshark(main_config=None):
         my_socket.retry_send(client_socket, ("upload_iperf_start" + "##DOKI##").encode("utf-8"))
         time.sleep(time_flow_interval)
         client_socket.close()
+        current_datetime = datetime.fromtimestamp(time.time())
         output_iperf_log = os.path.join(iperf_logging_path, "{}_{}_{}_{}.log".format(selected_network, selected_direction ,selected_variant, current_datetime.strftime("%Y_%m_%d_%H_%M")))
         if selected_variant == "udp":
             os.system("iperf3 -c {} -p {} --length 1472 -u -b {}m -t {} -i {} > {} 2> /dev/null &".format(server_ip, server_iperf_port, udp_sending_rate, task_time, iperf_logging_interval, output_iperf_log))
