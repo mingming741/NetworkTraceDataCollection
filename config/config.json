@@ -2,7 +2,7 @@
   "download_iperf_wireshark": {
     "task_name": "download_iperf_wireshark",
     "trace_path": "trace/",
-    "pcap_path": "result/",
+    "pcap_path": "log/pcap_result/",
     "iperf_logging_file_path": "log/iperf_log/",
     "network": "CSL_4G",
     "direction": "download",
@@ -18,7 +18,7 @@
   "upload_iperf_wireshark":{
     "task_name": "upload_iperf_wireshark",
     "trace_path": "trace/",
-    "pcap_path": "result/",
+    "pcap_path": "log/pcap_result/",
     "iperf_logging_file_path": "log/iperf_log/",
     "network": "CSL_4G",
     "direction": "upload",

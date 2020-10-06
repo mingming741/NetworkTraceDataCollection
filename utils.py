@@ -32,7 +32,7 @@ def remake_public_dir(dir_path):
 
 
 def init_dir():
-    make_public_dir("result")
+    make_public_dir("log")
     make_public_dir("trace")
 
 

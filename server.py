@@ -58,6 +58,7 @@ def upload_iperf_wireshark(main_config = None):
 
     utils.make_public_dir(pcap_result_path)
     utils.remake_public_dir(pcap_result_subpath_variant)
+    utils.make_public_dir(iperf_logging_path)
     time_flow_interval = 5 # wait some time to keep stability
     logger.info("Server--> upload_iperf_wireshark, Start~~")
 
@@ -112,6 +113,7 @@ def download_iperf_wireshark(main_config = None):
 
     task_time = main_config["time_each_flow"]
     time_flow_interval = 5 # wait some time to keep stability
+    utils.make_public_dir(iperf_logging_path)
     if selected_variant != "udp":
         os.system("sudo sysctl net.ipv4.tcp_congestion_control={}".format(selected_variant))
 
