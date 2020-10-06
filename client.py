@@ -71,12 +71,12 @@ def upload_iperf_wireshark(main_config=None):
         current_datetime = datetime.fromtimestamp(time.time())
         output_iperf_log = os.path.join(iperf_logging_path, "{}_{}_{}_{}.log".format(selected_network, selected_direction ,selected_variant, current_datetime.strftime("%Y_%m_%d_%H_%M")))
         if selected_variant == "udp":
-            os.system("iperf3 -c {} -p {} --length 1472 -u -b {}m -t {} -i {} >> {} 2> /dev/null &".format(server_ip, server_iperf_port, udp_sending_rate, task_time, iperf_logging_interval, output_iperf_log))
+            os.system("iperf3 -c {} -p {} --length 1472 -u -b {}m -t {} -i {} | tee {} 2> /dev/null &".format(server_ip, server_iperf_port, udp_sending_rate, task_time, iperf_logging_interval, output_iperf_log))
             time.sleep(task_time + time_flow_interval)
             os.system('killall iperf3 > /dev/null 2>&1')
         if selected_variant != "udp":
             os.system("sudo sysctl net.ipv4.tcp_congestion_control={}".format(selected_variant))
-            os.system("iperf3 -c {} -p {} -t {} -i {} >> {} &".format(server_ip, server_iperf_port, task_time, iperf_logging_interval, output_iperf_log))
+            os.system("iperf3 -c {} -p {} -t {} -i {} | tee {} &".format(server_ip, server_iperf_port, task_time, iperf_logging_interval, output_iperf_log))
             time.sleep(task_time + time_flow_interval)
             os.system('killall iperf3 > /dev/null 2>&1')
         logger.info("{}--> download_iperf_wireshark {}, {}, {}, Done".format(current_script, selected_network, selected_direction, selected_variant))
@@ -128,14 +128,14 @@ def download_iperf_wireshark(main_config=None):
         output_iperf_log = os.path.join(iperf_logging_path, "{}_{}_{}_{}.log".format(selected_network, selected_direction ,selected_variant, current_datetime.strftime("%Y_%m_%d_%H_%M")))
         if selected_variant == "udp":
             os.system("tcpdump -i any udp port {} -w {} > /dev/null 2>&1 &".format(server_iperf_port, output_pcap))
-            os.system("iperf3 -c {} -p {} -R --length 1472 -u -b {}m -t {} -i {} >> {} 2> /dev/null &".format(server_ip, server_iperf_port, udp_sending_rate, task_time, iperf_logging_interval, output_iperf_log))
+            os.system("iperf3 -c {} -p {} -R --length 1472 -u -b {}m -t {} -i {} | tee {} 2> /dev/null &".format(server_ip, server_iperf_port, udp_sending_rate, task_time, iperf_logging_interval, output_iperf_log))
             time.sleep(task_time + time_flow_interval)
             os.system('killall iperf3 > /dev/null 2>&1')
             os.system('killall tcpdump > /dev/null 2>&1')
             os.system("python3 my_subprocess.py pcap2txt --mode udp --file-path {} &".format(output_pcap))
         if selected_variant != "udp":
             os.system("tcpdump -i any tcp src port {} -w {} > /dev/null 2>&1 &".format(server_iperf_port, output_pcap))
-            os.system("iperf3 -c {} -p {} -R -t {} -i {} >> {} &".format(server_ip, server_iperf_port, task_time, iperf_logging_interval, output_iperf_log))
+            os.system("iperf3 -c {} -p {} -R -t {} -i {} | tee {} &".format(server_ip, server_iperf_port, task_time, iperf_logging_interval, output_iperf_log))
             time.sleep(task_time + time_flow_interval)
             os.system('killall iperf3 > /dev/null 2>&1')
             os.system('killall tcpdump > /dev/null 2>&1')
