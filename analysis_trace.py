@@ -115,7 +115,7 @@ def result_generate_iperf_wireshark(main_config, post_to_server=False):
         df_temp.to_csv(this_file_path, index = False, header=False,columns=["time","Length"], sep="\t")
         if post_to_server == True:
             post_file_to_server(this_file_path, selected_network, selected_direction, selected_variant)
-    logger.trace("Generate trace done~~")
+    logger.info("Generate trace done~~")
 
 
 def get_db_info(server_host=test_meta_config["general_config"]["web_interface_server_ip"]):
