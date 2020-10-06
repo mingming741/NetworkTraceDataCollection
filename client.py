@@ -76,7 +76,7 @@ def upload_iperf_wireshark(main_config=None):
             os.system("iperf3 -c {} -p {} -t {} -i {} &".format(server_ip, server_iperf_port, task_time, iperf_logging_interval))
             time.sleep(task_time + time_flow_interval)
             os.system('killall iperf3 > /dev/null 2>&1')
-        logger.info("{}--> download_iperf_wireshark {}, {}, {}, Done".format(current_script, selected_network, selected_direction, selected_variant))
+        logger.info("{}--> {}, {}, {}, Done".format(current_script, selected_network, selected_direction, selected_variant))
         time.sleep(time_flow_interval)
 
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -134,7 +134,7 @@ def download_iperf_wireshark(main_config=None):
             os.system('killall iperf3 > /dev/null 2>&1')
             os.system('killall tcpdump > /dev/null 2>&1')
             os.system("python3 my_subprocess.py pcap2txt --mode tcp --file-path {} &".format(output_pcap))
-        logger.info("{}--> download_iperf_wireshark {}, {}, {}, Done".format(current_script, selected_network, selected_direction, selected_variant))
+        logger.info("{}--> {}, {}, {}, Done".format(current_script, selected_network, selected_direction, selected_variant))
         time.sleep(time_flow_interval)
 
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
