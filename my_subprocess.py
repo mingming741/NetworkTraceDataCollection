@@ -3,6 +3,7 @@
 
 import os
 import argparse
+import myweb
 
 def main():
     parser = argparse.ArgumentParser(description='For different background job')
@@ -19,7 +20,8 @@ def main():
     if args.mission == "pcap2txt":
         if args.mode == 'tcp':
             if os.path.exists(args.file_path):
-                txt_dir = args.file_path[0:-4] + 'txt'
+                file_path, file_name = os.path.split(args.file_path)
+                txt_dir = os.path.join(file_path, "{}_{}_{}_{}txt".format(args.network, args.direction, args.variant, file_name[0:-4]))
                 os.system("tshark -r " + args.file_path + " -T fields -e frame.time_epoch -e frame.cap_len > " + txt_dir)
                 os.system("rm " + args.file_path)
                 if args.post == 1:
@@ -27,12 +29,13 @@ def main():
 
         if args.mode == 'udp':
             if os.path.exists(args.file_path):
-                txt_dir = args.file_path[0:-4] + 'txt'
+                file_path, file_name = os.path.split(args.file_path)
+                txt_dir = os.path.join(file_path, "{}_{}_{}_{}txt".format(args.network, args.direction, args.variant, file_name[0:-4]))
                 #os.system("tshark -r " + args.file_path + " -T fields -e frame.time_relative -e frame.cap_len > " + txt_dir)
                 os.system("tshark -r " + args.file_path + " -T fields -e frame.time_epoch -e frame.cap_len > " + txt_dir)
                 os.system("rm " + args.file_path)
                 if args.post == 1:
-                    myweb.post_file_to_server(txt_dir, args.network, args.direction, args.variant)
+                    myweb.post_file_to_server(txt_dir, args.network, args.direction, args.variant, trace_source = 1)
 
     # generate a large file for wget testing
     if args.mission == "generate_large_file":

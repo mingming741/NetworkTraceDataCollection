@@ -37,11 +37,11 @@ def get_db_info(server_host=test_meta_config["general_config"]["web_interface_se
     return network_dict, variant_dict, direction_dict
 
 
-def post_file_to_server(file_path, network, direction, variant, server_host=test_meta_config["general_config"]["web_interface_server_ip"]):
+def post_file_to_server(file_path, network, direction, variant, trace_source = 0, server_host=test_meta_config["general_config"]["web_interface_server_ip"]):
     logger.info("Post {}->{}->{}->{} to server".format(network, direction, variant, file_path))
     server_url = 'http://{}/php/handler.php?action=Upload_Record'.format(server_host)
     network_dict, variant_dict, direction_dict = get_db_info()
-    parameters = {"Network_ID": network_dict[network], "Variant_ID": variant_dict[variant], "Direction_ID": direction_dict[direction]}
+    parameters = {"Network_ID": network_dict[network], "Variant_ID": variant_dict[variant], "Direction_ID": direction_dict[direction], "Trace_Source": trace_source}
     files = {'file': open(file_path,'rb')}
     response = requests.post(server_url, files=files, data=parameters)
     logger.debug(response.json())
