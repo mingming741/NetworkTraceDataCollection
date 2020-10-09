@@ -4,6 +4,7 @@ import pathlib
 import time
 import logging
 
+
 def parse_config(path):
     with open(path) as json_data_file:
         data = json.load(json_data_file)
@@ -52,3 +53,40 @@ def fail_and_wait(fail_reason, timeout = 60):
 
 def init_apache_dir():
     pass
+
+
+
+
+
+
+class DokiTimer:
+    def __init__(self, expired_time, repeat=False):
+        self._start_time = None
+        self._expired_time = expired_time
+        self._repeat = repeat
+
+
+    def start(self):
+        self._start_time = time.perf_counter()
+
+
+    def is_expire(self):
+        current_time = time.perf_counter()
+        if (current_time - self._start_time) >=  self._expired_time:
+            if self._repeat == True:
+                self._start_time = current_time
+            return True
+        else:
+            return False
+
+
+
+
+
+
+
+
+
+
+class TimerError(Exception):
+    """A custom exception used to report errors in use of Timer class"""
