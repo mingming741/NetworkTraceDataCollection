@@ -141,31 +141,15 @@ def download_iperf_wireshark(main_config = None):
                 server_socket.close()
                 exit()
 
-
     if exec_mode == "continue":
-        client_message_queue = Queue()
-        my_socket.retry_bind(server_socket, server_address_port)
-        server_socket.listen(10)
-        while True:
-            client_socket, client_address = server_socket.accept()
-            logger.debug("{}--> Recieve from client {}".format(current_script, client_address))
-            if "client_thread" not in locals():
-                client_thread = threading.Thread(target=Threading_download_iperf_wireshark_mode_continue, args=(client_socket, client_address, server_iperf_port, iperf_logging_interval), daemon=True)
-                client_thread.start()
-            else:
-                if not client_thread.is_alive():
-                    client_thread = threading.Thread(target=Threading_download_iperf_wireshark_mode_continue, args=(client_socket, client_address, server_iperf_port, iperf_logging_interval), daemon=True)
-                    client_thread.start()
-
-
-def Threading_download_iperf_wireshark_mode_continue(client_socket, client_address, server_iperf_port, iperf_logging_interval):
-    logger.debug("{}--> Thread {} Start.".format(current_script, inspect.stack()[0][3]))
-    while True:
-        #os.system("iperf3 -s -p {} -i {} 2> /dev/null".format(server_iperf_port, iperf_logging_interval))
-        os.system("iperf3 -s -p {} -i {}".format(server_iperf_port, iperf_logging_interval))
-        logger.warning("Server iperf exit, resuming..")
         os.system('killall iperf3 > /dev/null 2>&1')
-        time.sleep(1)
+        while True:
+            logger.debug("{}_{}--> Start iperf server".format(current_script, inspect.currentframe().f_lineno))
+            #os.system("iperf3 -s -p {} -i {} 2> /dev/null".format(server_iperf_port, iperf_logging_interval))
+            os.system("iperf3 -s -p {} -i {}".format(server_iperf_port, iperf_logging_interval))
+            logger.warning("Server iperf exit, resuming..")
+            os.system('killall iperf3 > /dev/null 2>&1')
+            time.sleep(1)
 
 
 

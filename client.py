@@ -63,7 +63,7 @@ def upload_iperf_wireshark(main_config=None):
     time_flow_interval = 5 # wait some time to keep stability
 
 
-    logger.info("{}--> upload_iperf_wireshark, Start~~".format(current_script))
+    logger.info("{}_{}--> upload_iperf_wireshark, Start~~".format(current_script, inspect.currentframe().f_lineno))
     for i in range(0, total_run):
         client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         my_socket.retry_connect(client_socket, server_address_port)
@@ -80,14 +80,14 @@ def upload_iperf_wireshark(main_config=None):
             os.system("iperf3 -c {} -p {} -t {} -i {} &".format(server_ip, server_iperf_port, task_time, iperf_logging_interval))
             time.sleep(task_time + time_flow_interval)
             os.system('killall iperf3 > /dev/null 2>&1')
-        logger.info("{}--> {}, {}, {}, Done".format(current_script, selected_network, selected_direction, selected_variant))
+        logger.info("{}_{}--> {}, {}, {}, Done".format(current_script, inspect.currentframe().f_lineno,  selected_network, selected_direction, selected_variant))
         time.sleep(time_flow_interval)
 
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     my_socket.retry_connect(client_socket, server_address_port)
     my_socket.retry_send(client_socket, ("upload_iperf_end" + "##DOKI##").encode("utf-8"))
     client_socket.close()
-    logger.info("{}--> upload_iperf_wireshark, All test Done~~".format(current_script))
+    logger.info("{}_{}--> upload_iperf_wireshark, All test Done~~".format(current_script, inspect.currentframe().f_lineno))
 
 
 def download_iperf_wireshark(main_config=None):
@@ -100,6 +100,7 @@ def download_iperf_wireshark(main_config=None):
     exec_mode = main_config["mode"]
     pcap_result_path = os.path.join(main_config["pcap_path"], main_config["task_name"])
     pcap_result_subpath_variant = os.path.join(pcap_result_path, selected_variant)
+    pcap_result_subpath_experiment = os.path.join(pcap_result_subpath_variant, main_config["experiment_id"])
 
     total_run = int(main_config["total_run"])
     server_ip = main_config["server_ip"]
@@ -113,8 +114,9 @@ def download_iperf_wireshark(main_config=None):
     time_flow_interval = 5 # wait some time to keep stability
 
     utils.make_public_dir(pcap_result_path)
-    utils.remake_public_dir(pcap_result_subpath_variant)
-    logger.info("{}--> download_iperf_wireshark, Start~~, Model: {}".format(current_script, exec_mode))
+    utils.make_public_dir(pcap_result_subpath_variant)
+    utils.remake_public_dir(pcap_result_subpath_experiment)
+    logger.info("{}_{}--> download_iperf_wireshark, Start~~, Model: {}".format(current_script, inspect.currentframe().f_lineno,  exec_mode))
 
     if exec_mode == "scheduling":
         for i in range(0, total_run):
@@ -124,7 +126,7 @@ def download_iperf_wireshark(main_config=None):
             time.sleep(time_flow_interval)
             client_socket.close()
             current_datetime = datetime.fromtimestamp(time.time())
-            output_pcap = os.path.join(pcap_result_subpath_variant, "{}.pcap".format(current_datetime.strftime("%Y_%m_%d_%H_%M")))
+            output_pcap = os.path.join(pcap_result_subpath_experiment, "{}.pcap".format(current_datetime.strftime("%Y_%m_%d_%H_%M")))
             if selected_variant == "udp":
                 os.system("tcpdump -i any udp port {} -w {} > /dev/null 2>&1 &".format(server_iperf_port, output_pcap))
                 os.system("iperf3 -c {} -p {} -R --length 1472 -u -b {}m -t {} -i {} 2> /dev/null &".format(server_ip, server_iperf_port, udp_sending_rate, task_time, iperf_logging_interval))
@@ -139,30 +141,32 @@ def download_iperf_wireshark(main_config=None):
                 os.system('killall iperf3 > /dev/null 2>&1')
                 os.system('killall tcpdump > /dev/null 2>&1')
                 os.system("python3 my_subprocess.py pcap2txt --mode tcp --file-path {} &".format(output_pcap))
-            logger.info("{}--> {}, {}, {}, Done".format(current_script, selected_network, selected_direction, selected_variant))
+            logger.info("{}_{}--> {}, {}, {}, Done".format(current_script, inspect.currentframe().f_lineno,  selected_network, selected_direction, selected_variant))
             time.sleep(time_flow_interval)
 
         client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         my_socket.retry_connect(client_socket, server_address_port)
         my_socket.retry_send(client_socket, ("download_iperf_end" + "##DOKI##").encode("utf-8"))
         client_socket.close()
-        logger.info("{}--> download_iperf_wireshark, All test Done~~".format(current_script))
+        logger.info("{}_{}--> download_iperf_wireshark, All test Done~~".format(current_script, inspect.currentframe().f_lineno))
 
     if exec_mode == "continue":
+        os.system('killall iperf3 > /dev/null 2>&1')
         total_task_time =  86400 # 1 year in seconds
         client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         my_socket.retry_connect(client_socket, server_address_port)
         client_socket.close()
         while True:
-            logger.debug("{}--> iperf3 client start running".format(current_script))
             if "client_thread" not in locals():
-                client_thread = threading.Thread(target=Threading_tcpdump_capture_cycle, args=(task_time, pcap_result_subpath_variant, server_iperf_port, selected_variant), daemon=True)
+                logger.debug("{}_{}--> New Threading Start".format(current_script, inspect.currentframe().f_lineno))
+                client_thread = threading.Thread(target=Threading_tcpdump_capture_cycle, args=(task_time, pcap_result_subpath_experiment, server_iperf_port, selected_variant), daemon=True)
                 client_thread.start()
             else:
-                if not client_thread.is_alive():
-                    client_thread = threading.Thread(target=Threading_tcpdump_capture_cycle, args=(task_time, pcap_result_subpath_variant, server_iperf_port, selected_variant), daemon=True)
+                if client_thread.is_alive():
+                    logger.debug("{}_{}--> Resume Previous Thread".format(current_script, inspect.currentframe().f_lineno))
+                    client_thread = threading.Thread(target=Threading_tcpdump_capture_cycle, args=(task_time, pcap_result_subpath_experiment, server_iperf_port, selected_variant), daemon=True)
                     client_thread.start()
-            logger.debug("{}--> {} trying to start iperf".format(current_script, inspect.stack()[0][3]))
+            logger.debug("{}_{}--> {} trying to start iperf".format(current_script, inspect.currentframe().f_lineno,  inspect.stack()[0][3]))
 
             if selected_variant == "udp":
                 if log_level == logging.DEBUG:
@@ -170,30 +174,34 @@ def download_iperf_wireshark(main_config=None):
                 else:
                     os.system("iperf3 -c {} -p {} -R --length 1472 -u -b {}m -t {} -i {} 2> /dev/null".format(server_ip, server_iperf_port, udp_sending_rate, total_task_time, iperf_logging_interval))
             if selected_variant != "udp":
-                os.system("iperf3 -c {} -p {} -R -t {} -i {} &".format(server_ip, server_iperf_port, task_time, iperf_logging_interval))
+                os.system("iperf3 -c {} -p {} -R -t {} -i {} &".format(server_ip, server_iperf_port, total_task_time, iperf_logging_interval))
             logger.info("client iperf exit, resuming..")
             os.system('killall iperf3 > /dev/null 2>&1')
 
 
 def Threading_tcpdump_capture_cycle(task_time, pcap_result_subpath_variant, server_iperf_port, selected_variant):
-    logger.debug("{}--> Thread {} Start".format(current_script, inspect.stack()[0][3]))
+    logger.debug("{}_{}--> Thread {} Start".format(current_script, inspect.currentframe().f_lineno,  inspect.stack()[0][3]))
     doki_timer = utils.DokiTimer(expired_time=task_time, repeat=True)
     output_pcap = os.path.join(pcap_result_subpath_variant, "{}.pcap".format(datetime.fromtimestamp(time.time()).strftime("%Y_%m_%d_%H_%M")))
     if selected_variant == "udp":
+        logger.debug("{}_{}--> Output pcap to {}".format(current_script, inspect.currentframe().f_lineno,  output_pcap))
         os.system("tcpdump -i any udp port {} -w {} > /dev/null 2>&1 &".format(server_iperf_port, output_pcap))
         while True:
             if doki_timer.is_expire():
                 os.system('killall tcpdump > /dev/null 2>&1')
-                os.system("python3 my_subprocess.py pcap2txt --mode udp --file-path {} &".format(output_pcap))
+                os.system("python3 my_subprocess.py pcap2txt --mode udp --file-path {} --post 1 --network {} --direction {} --variant {} &".format(output_pcap, selected_network, selected_direction, selected_variant))
                 output_pcap = os.path.join(pcap_result_subpath_variant, "{}.pcap".format(datetime.fromtimestamp(time.time()).strftime("%Y_%m_%d_%H_%M")))
+                logger.debug("Output pcap to {}".format(output_pcap))
                 os.system("tcpdump -i any udp port {} -w {} > /dev/null 2>&1 &".format(server_iperf_port, output_pcap))
     if selected_variant != "udp":
+        logger.debug("Output pcap to {}".format(output_pcap))
         os.system("tcpdump -i any tcp src port {} -w {} > /dev/null 2>&1 &".format(server_iperf_port, output_pcap))
         while True:
             if doki_timer.is_expire():
                 os.system('killall tcpdump > /dev/null 2>&1')
-                os.system("python3 my_subprocess.py pcap2txt --mode tcp --file-path {} &".format(output_pcap))
+                os.system("python3 my_subprocess.py pcap2txt --mode tcp --file-path {} --post 1 --network {} --direction {} --variant {} &".format(output_pcap, selected_network, selected_direction, selected_variant))
                 output_pcap = os.path.join(pcap_result_subpath_variant, "{}.pcap".format(datetime.fromtimestamp(time.time()).strftime("%Y_%m_%d_%H_%M")))
+                logger.debug("Output pcap to {}".format(output_pcap))
                 os.system("tcpdump -i any tcp src port {} -w {} > /dev/null 2>&1 &".format(server_iperf_port, output_pcap))
 
 
