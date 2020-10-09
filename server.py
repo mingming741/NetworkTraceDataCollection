@@ -149,8 +149,13 @@ def download_iperf_wireshark(main_config = None):
         while True:
             client_socket, client_address = server_socket.accept()
             logger.debug("{}--> Recieve from client {}".format(current_script, client_address))
-            client_thread = threading.Thread(target=Threading_download_iperf_wireshark_mode_continue, args=(client_socket, client_address, server_iperf_port, iperf_logging_interval), daemon=True)
-            client_thread.start()
+            if "client_thread" not in locals():
+                client_thread = threading.Thread(target=Threading_download_iperf_wireshark_mode_continue, args=(client_socket, client_address, server_iperf_port, iperf_logging_interval), daemon=True)
+                client_thread.start()
+            else:
+                if not client_thread.is_alive():
+                    client_thread = threading.Thread(target=Threading_download_iperf_wireshark_mode_continue, args=(client_socket, client_address, server_iperf_port, iperf_logging_interval), daemon=True)
+                    client_thread.start()
 
 
 def Threading_download_iperf_wireshark_mode_continue(client_socket, client_address, server_iperf_port, iperf_logging_interval):
