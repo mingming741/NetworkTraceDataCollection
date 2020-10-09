@@ -154,7 +154,8 @@ def download_iperf_wireshark(main_config = None):
 def Threading_download_iperf_wireshark_mode_continue(client_socket, client_address, server_iperf_port, iperf_logging_interval):
     logger.debug("{}--> Thread {} Start.".format(current_script, inspect.stack()[0][3]))
     while True:
-        os.system("iperf3 -s -p {} -i {} 2> /dev/null".format(server_iperf_port, iperf_logging_interval))
+        #os.system("iperf3 -s -p {} -i {} 2> /dev/null".format(server_iperf_port, iperf_logging_interval))
+        os.system("iperf3 -s -p {} -i {}".format(server_iperf_port, iperf_logging_interval))
         logger.warning("Server iperf exit, resuming..")
         time.sleep(1)
 

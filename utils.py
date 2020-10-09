@@ -61,13 +61,9 @@ def init_apache_dir():
 
 class DokiTimer:
     def __init__(self, expired_time, repeat=False):
-        self._start_time = None
+        self._start_time = time.perf_counter()
         self._expired_time = expired_time
         self._repeat = repeat
-
-
-    def start(self):
-        self._start_time = time.perf_counter()
 
 
     def is_expire(self):

@@ -154,14 +154,14 @@ def download_iperf_wireshark(main_config=None):
         while True:
             if selected_variant == "udp":
                 logger.debug("{}--> iperf3 client start running".format(current_script))
-                os.system("iperf3 -c {} -p {} -R --length 1472 -u -b {}m -t {} -i {} 2> /dev/null &".format(server_ip, server_iperf_port, udp_sending_rate, total_task_time, iperf_logging_interval))
                 if "client_thread" not in locals():
-                    client_thread = threading.Thread(target=Threading_tcpdump_capture_cycle, args=(task_time, pcap_result_subpath_variant), daemon=True)
+                    client_thread = threading.Thread(target=Threading_tcpdump_capture_cycle, args=(task_time, pcap_result_subpath_variant, server_iperf_port), daemon=True)
                     client_thread.start()
                 else:
                     if not client_thread.is_alive():
-                        client_thread = threading.Thread(target=Threading_tcpdump_capture_cycle, args=(task_time, pcap_result_subpath_variant), daemon=True)
+                        client_thread = threading.Thread(target=Threading_tcpdump_capture_cycle, args=(task_time, pcap_result_subpath_variant, server_iperf_port), daemon=True)
                         client_thread.start()
+                os.system("iperf3 -c {} -p {} -R --length 1472 -u -b {}m -t {} -i {} 2> /dev/null".format(server_ip, server_iperf_port, udp_sending_rate, total_task_time, iperf_logging_interval))
 
 
             if selected_variant != "udp":
@@ -175,7 +175,7 @@ def download_iperf_wireshark(main_config=None):
 
 
 def Threading_tcpdump_capture_cycle(task_time, pcap_result_subpath_variant, server_iperf_port):
-    doki_timer = util.DokiTimer(expired_time=task_time, repeat=True)
+    doki_timer = utils.DokiTimer(expired_time=task_time, repeat=True)
     output_pcap = os.path.join(pcap_result_subpath_variant, "{}.pcap".format(datetime.fromtimestamp(time.time()).strftime("%Y_%m_%d_%H_%M")))
     os.system("tcpdump -i any udp port {} -w {} > /dev/null 2>&1 &".format(server_iperf_port, output_pcap))
     while True:
