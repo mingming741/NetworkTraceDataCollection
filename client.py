@@ -112,7 +112,7 @@ def download_iperf_wireshark(main_config=None):
 
     utils.make_public_dir(pcap_result_path)
     utils.remake_public_dir(pcap_result_subpath_variant)
-    logger.info("{}--> download_iperf_wireshark, Start~~".format(current_script))
+    logger.info("{}--> download_iperf_wireshark, Start~~, Model: {}".format(current_script, exec_mode))
 
     if exec_mode == "scheduling":
         for i in range(0, total_run):
@@ -174,7 +174,7 @@ def download_iperf_wireshark(main_config=None):
 
 
 
-def Threading_tcpdump_capture_cycle(task_time, pcap_result_subpath_variant):
+def Threading_tcpdump_capture_cycle(task_time, pcap_result_subpath_variant, server_iperf_port):
     doki_timer = util.DokiTimer(expired_time=task_time, repeat=True)
     output_pcap = os.path.join(pcap_result_subpath_variant, "{}.pcap".format(datetime.fromtimestamp(time.time()).strftime("%Y_%m_%d_%H_%M")))
     os.system("tcpdump -i any udp port {} -w {} > /dev/null 2>&1 &".format(server_iperf_port, output_pcap))

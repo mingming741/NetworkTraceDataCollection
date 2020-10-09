@@ -117,7 +117,7 @@ def download_iperf_wireshark(main_config = None):
     if selected_variant != "udp":
         os.system("sudo sysctl net.ipv4.tcp_congestion_control={}".format(selected_variant))
 
-    logger.info("Server--> download_iperf_wireshark, Start~~")
+    logger.info("{}--> download_iperf_wireshark, Start~~, Model: {}".format(current_script, exec_mode))
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
     if exec_mode == "scheduling":
@@ -147,11 +147,11 @@ def download_iperf_wireshark(main_config = None):
         while True:
             client_socket, client_address = server_socket.accept()
             logger.debug("{}--> Recieve from client {}".format(current_script, client_address))
-            client_thread = threading.Thread(target=Threading_download_iperf_wireshark_mode_continue, args=(client_socket, client_address), daemon=True)
+            client_thread = threading.Thread(target=Threading_download_iperf_wireshark_mode_continue, args=(client_socket, client_address, server_iperf_port, iperf_logging_interval), daemon=True)
             client_thread.start()
 
 
-def Threading_download_iperf_wireshark_mode_continue(client_socket, client_address):
+def Threading_download_iperf_wireshark_mode_continue(client_socket, client_address, server_iperf_port, iperf_logging_interval):
     logger.debug("{}--> Thread {} Start.".format(current_script, inspect.stack()[0][3]))
     while True:
         os.system("iperf3 -s -p {} -i {} 2> /dev/null".format(server_iperf_port, iperf_logging_interval))

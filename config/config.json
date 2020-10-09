@@ -1,12 +1,12 @@
 {
   "download_iperf_wireshark": {
     "task_name": "download_iperf_wireshark",
-    "mode": "continue", 
+    "mode": "continue",
     "trace_path": "trace/",
     "pcap_path": "log/pcap_result/",
     "network": "CSL_4G",
     "direction": "download",
-    "variant": "cubic",
+    "variant": "udp",
     "server_ip": "103.49.160.132",
     "server_packet_sending_port": 2001,
     "iperf_port": 7777,
