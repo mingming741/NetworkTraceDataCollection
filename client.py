@@ -8,6 +8,7 @@ import shutil
 import argparse
 import logging
 import threading
+import inspect
 from threading import Timer
 from datetime import datetime, timezone
 
@@ -15,7 +16,8 @@ import utils
 import my_socket
 
 test_meta_config = utils.parse_config("config/test_meta_config.json")
-logging.basicConfig(level=utils.parse_logging_level(test_meta_config["general_config"]["logging_level"]))
+log_level = utils.parse_logging_level(test_meta_config["general_config"]["logging_level"])
+logging.basicConfig(level=log_level)
 logger = logging.getLogger(__name__)
 current_script = os.path.basename(__file__)
 
@@ -111,7 +113,7 @@ def download_iperf_wireshark(main_config=None):
     time_flow_interval = 5 # wait some time to keep stability
 
     utils.make_public_dir(pcap_result_path)
-    utils.remake_public_dir(pcap_result_subpath_variant)
+    utils.remake_public_dir(pcap_result_subpath_variant)log_level
     logger.info("{}--> download_iperf_wireshark, Start~~, Model: {}".format(current_script, exec_mode))
 
     if exec_mode == "scheduling":
@@ -147,7 +149,7 @@ def download_iperf_wireshark(main_config=None):
         logger.info("{}--> download_iperf_wireshark, All test Done~~".format(current_script))
 
     if exec_mode == "continue":
-        total_task_time =  31536000 # 1 year in seconds
+        total_task_time =  86400 # 1 year in seconds
         client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         my_socket.retry_connect(client_socket, server_address_port)
         client_socket.close()
@@ -161,7 +163,14 @@ def download_iperf_wireshark(main_config=None):
                     if not client_thread.is_alive():
                         client_thread = threading.Thread(target=Threading_tcpdump_capture_cycle, args=(task_time, pcap_result_subpath_variant, server_iperf_port), daemon=True)
                         client_thread.start()
-                os.system("iperf3 -c {} -p {} -R --length 1472 -u -b {}m -t {} -i {} 2> /dev/null".format(server_ip, server_iperf_port, udp_sending_rate, total_task_time, iperf_logging_interval))
+                logger.debug("{}--> {} trying to start iperf".format(current_script, inspect.stack()[0][3]))
+
+                if log_level == logging.DEBUG
+                    os.system("iperf3 -c {} -p {} -R --length 1472 -u -b {}m -t {} -i {}".format(server_ip, server_iperf_port, udp_sending_rate, total_task_time, iperf_logging_interval))
+                else:
+                    os.system("iperf3 -c {} -p {} -R --length 1472 -u -b {}m -t {} -i {} 2> /dev/null".format(server_ip, server_iperf_port, udp_sending_rate, total_task_time, iperf_logging_interval))
+                logger.info("client iperf exit, resuming..")
+                os.system('killall iperf3 > /dev/null 2>&1')
 
 
             if selected_variant != "udp":
@@ -175,6 +184,7 @@ def download_iperf_wireshark(main_config=None):
 
 
 def Threading_tcpdump_capture_cycle(task_time, pcap_result_subpath_variant, server_iperf_port):
+    logger.debug("{}--> Thread {} Start".format(current_script, inspect.stack()[0][3]))
     doki_timer = utils.DokiTimer(expired_time=task_time, repeat=True)
     output_pcap = os.path.join(pcap_result_subpath_variant, "{}.pcap".format(datetime.fromtimestamp(time.time()).strftime("%Y_%m_%d_%H_%M")))
     os.system("tcpdump -i any udp port {} -w {} > /dev/null 2>&1 &".format(server_iperf_port, output_pcap))

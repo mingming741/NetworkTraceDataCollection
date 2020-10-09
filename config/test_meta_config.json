@@ -4,7 +4,7 @@
     "web_interface_server_ip": "103.49.160.136",
     "temp_config_file": "config/config_temp.json",
     "trace_min_time_unit": "milliseconds",
-    "logging_level": "info",
+    "logging_level": "debug",
     "resume_time_hour": -1,
     "resume_check_peroid": 60,
     "server_client_packet_sending_port_range": [2000, 2250],
@@ -31,7 +31,7 @@
     },
     "upload_iperf_wireshark":{
       "enable": 1,
-      "mode": "scheduling", 
+      "mode": "scheduling",
       "task_name": "upload_iperf_wireshark",
       "trace_path": "trace/",
       "pcap_path": "log/pcap_result/",
