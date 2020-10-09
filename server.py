@@ -142,14 +142,17 @@ def download_iperf_wireshark(main_config = None):
                 exit()
 
     if exec_mode == "continue":
+        os.system("sudo kill $(sudo lsof -t -i:{})".format(server_iperf_port))
         os.system('killall iperf3 > /dev/null 2>&1')
         while True:
             logger.debug("{}_{}--> Start iperf server".format(current_script, inspect.currentframe().f_lineno))
             #os.system("iperf3 -s -p {} -i {} 2> /dev/null".format(server_iperf_port, iperf_logging_interval))
             os.system("iperf3 -s -p {} -i {}".format(server_iperf_port, iperf_logging_interval))
             logger.warning("Server iperf exit, resuming..")
+            time.sleep(5)
+            os.system("sudo kill $(sudo lsof -t -i:{})".format(server_iperf_port))
             os.system('killall iperf3 > /dev/null 2>&1')
-            time.sleep(1)
+            time.sleep(5)
 
 
 

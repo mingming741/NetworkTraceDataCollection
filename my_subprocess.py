@@ -10,9 +10,9 @@ def main():
     parser.add_argument('--file-path', type=str, help='for some file path')
     parser.add_argument('--mode', type=str, help='mode for mission')
     parser.add_argument('--post', type=int, help='whether post to server')
-    parser.add_argument('--network', type=int, help='network')
-    parser.add_argument('--direction', type=int, help='direction')
-    parser.add_argument('--variant', type=int, help='variant')
+    parser.add_argument('--network', type=str, help='network')
+    parser.add_argument('--direction', type=str, help='direction')
+    parser.add_argument('--variant', type=str, help='variant')
 
     # translate pcap file to txt, using non-blocking multi processing
     args = parser.parse_args()
