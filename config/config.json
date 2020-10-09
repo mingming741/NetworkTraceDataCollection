@@ -1,6 +1,7 @@
 {
   "download_iperf_wireshark": {
     "task_name": "download_iperf_wireshark",
+    "mode": "continue", 
     "trace_path": "trace/",
     "pcap_path": "log/pcap_result/",
     "network": "CSL_4G",

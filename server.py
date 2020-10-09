@@ -5,7 +5,9 @@ import time
 import os
 import argparse
 import logging
+import threading
 from datetime import datetime, timezone
+from queue import Queue
 
 import my_socket
 import utils
@@ -97,6 +99,7 @@ def download_iperf_wireshark(main_config = None):
     if main_config == None:
         main_config = utils.parse_config("config/config.json")
     main_config = main_config["download_iperf_wireshark"]
+    exec_mode = main_config["mode"]
     selected_network = main_config["network"]
     selected_direction = main_config["direction"]
     selected_variant = main_config["variant"]
@@ -115,23 +118,49 @@ def download_iperf_wireshark(main_config = None):
 
     logger.info("Server--> download_iperf_wireshark, Start~~")
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    my_socket.retry_bind(server_socket, server_address_port)
-    server_socket.listen(10)
-    while True:
-        client_socket, client_address = server_socket.accept()
-        logger.debug("Recieve from client {}".format(client_address))
-        message = my_socket.doki_wait_receive_message(client_socket).replace("##DOKI##", "")
-        if message == "download_iperf_start":
-            client_socket.close()
-            current_datetime = datetime.fromtimestamp(time.time())
-            os.system("iperf3 -s -p {} -i {} 2> /dev/null &".format(server_iperf_port, iperf_logging_interval))
-            time.sleep(task_time + 2 * time_flow_interval)
-            os.system('killall iperf3 > /dev/null 2>&1')
-        if message == "download_iperf_end":
-            client_socket.close()
-            logger.info("Server--> download_iperf_wireshark, Done~~")
-            server_socket.close()
-            exit()
+
+    if exec_mode == "scheduling":
+        my_socket.retry_bind(server_socket, server_address_port)
+        server_socket.listen(10)
+        while True:
+            client_socket, client_address = server_socket.accept()
+            logger.debug("Recieve from client {}".format(client_address))
+            message = my_socket.doki_wait_receive_message(client_socket).replace("##DOKI##", "")
+            if message == "download_iperf_start":
+                client_socket.close()
+                current_datetime = datetime.fromtimestamp(time.time())
+                os.system("iperf3 -s -p {} -i {} 2> /dev/null &".format(server_iperf_port, iperf_logging_interval))
+                time.sleep(task_time + 2 * time_flow_interval)
+                os.system('killall iperf3 > /dev/null 2>&1')
+            if message == "download_iperf_end":
+                client_socket.close()
+                logger.info("Server--> download_iperf_wireshark, Done~~")
+                server_socket.close()
+                exit()
+
+
+    if exec_mode == "continue":
+        client_message_queue = Queue()
+        my_socket.retry_bind(server_socket, server_address_port)
+        server_socket.listen(10)
+        while True:
+            client_socket, client_address = server_socket.accept()
+            logger.debug("Recieve from client {}".format(client_address))
+            client_thread = threading.Thread(target=Threading_download_iperf_wireshark_mode_continue, args=(client_socket, client_address), daemon=True)
+            client_thread.start()
+
+
+
+
+def Threading_download_iperf_wireshark_mode_continue(client_socket, client_address):
+    logger.debug("")
+    message = my_socket.doki_wait_receive_message(client_socket).replace("##DOKI##", "")
+    if message == "download_iperf_start":
+        client_socket.close()
+        while True:
+            os.system("iperf3 -s -p {} -i {} 2> /dev/null".format(server_iperf_port, iperf_logging_interval))
+            logger.warning("Server iperf exit, resuming..")
+            time.sleep(1)
 
 
 
