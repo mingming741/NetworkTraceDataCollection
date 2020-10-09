@@ -153,9 +153,6 @@ def download_iperf_wireshark(main_config=None):
     if exec_mode == "continue":
         os.system('killall iperf3 > /dev/null 2>&1')
         total_task_time =  86400 # 1 year in seconds
-        client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        my_socket.retry_connect(client_socket, server_address_port)
-        client_socket.close()
         while True:
             if "client_thread" not in locals():
                 logger.debug("{}_{}--> New Threading Start".format(current_script, inspect.currentframe().f_lineno))
