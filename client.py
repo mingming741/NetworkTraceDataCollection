@@ -166,10 +166,8 @@ def download_iperf_wireshark(main_config=None):
             logger.debug("{}_{}--> {} trying to start iperf".format(current_script, inspect.currentframe().f_lineno,  inspect.stack()[0][3]))
 
             if selected_variant == "udp":
-                if log_level == logging.DEBUG:
-                    os.system("iperf3 -c {} -p {} -R --length 1472 -u -b {}m -t {} -i {}".format(server_ip, server_iperf_port, udp_sending_rate, total_task_time, iperf_logging_interval))
-                else:
-                    os.system("iperf3 -c {} -p {} -R --length 1472 -u -b {}m -t {} -i {} 2> /dev/null".format(server_ip, server_iperf_port, udp_sending_rate, total_task_time, iperf_logging_interval))
+                #os.system("iperf3 -c {} -p {} -R --length 1472 -u -b {}m -t {} -i {}".format(server_ip, server_iperf_port, udp_sending_rate, total_task_time, iperf_logging_interval))
+                os.system("iperf3 -c {} -p {} -R --length 1472 -u -b {}m -t {} -i {} 2> /dev/null".format(server_ip, server_iperf_port, udp_sending_rate, total_task_time, iperf_logging_interval))
             if selected_variant != "udp":
                 os.system("iperf3 -c {} -p {} -R -t {} -i {} &".format(server_ip, server_iperf_port, total_task_time, iperf_logging_interval))
             logger.info("client iperf exit, resuming..")
