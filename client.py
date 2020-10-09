@@ -98,12 +98,12 @@ def download_iperf_wireshark(main_config=None):
     selected_direction = main_config["direction"]
     selected_variant = main_config["variant"]
     experiment_id =  main_config["experiment_id"]
-    if experiment_id == "-1":
-        experiment_id = utils.generate_random_string(length=10)
+    if experiment_id == "-1" or experiment_id == -1:
+        experiment_id = "{}_{}".format(datetime.fromtimestamp(time.time()).strftime("%Y_%m_%d_%H"),utils.generate_random_string(length=10))
     exec_mode = main_config["mode"]
     pcap_result_path = os.path.join(main_config["pcap_path"], main_config["task_name"])
     pcap_result_subpath_variant = os.path.join(pcap_result_path, selected_variant)
-    pcap_result_subpath_experiment = os.path.join(pcap_result_subpath_variant, main_config["experiment_id"])
+    pcap_result_subpath_experiment = os.path.join(pcap_result_subpath_variant, experiment_id)
 
     total_run = int(main_config["total_run"])
     server_ip = main_config["server_ip"]

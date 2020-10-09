@@ -14,7 +14,7 @@
     "iperf_logging_interval": 1,
     "udp_sending_rate": 20,
     "total_run": 1,
-    "time_each_flow": 60
+    "time_each_flow": 3600
   },
   "upload_iperf_wireshark":{
     "task_name": "upload_iperf_wireshark",
