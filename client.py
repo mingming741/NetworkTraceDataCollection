@@ -162,7 +162,7 @@ def download_iperf_wireshark(main_config=None):
                 client_thread = threading.Thread(target=Threading_tcpdump_capture_cycle, args=(task_time, pcap_result_subpath_experiment, server_iperf_port, selected_network, selected_direction, selected_variant), daemon=True)
                 client_thread.start()
             else:
-                if client_thread.is_alive():
+                if not client_thread.is_alive():
                     logger.debug("{}_{}--> Resume Previous Thread".format(current_script, inspect.currentframe().f_lineno))
                     client_thread = threading.Thread(target=Threading_tcpdump_capture_cycle, args=(task_time, pcap_result_subpath_experiment, server_iperf_port, selected_network, selected_direction, selected_variant), daemon=True)
                     client_thread.start()
