@@ -46,9 +46,13 @@ def upload_iperf_wireshark(main_config = None):
     if main_config == None:
         main_config = utils.parse_config("config/config.json")
     main_config = main_config["upload_iperf_wireshark"]
+    exec_mode = main_config["mode"]
     selected_network = main_config["network"]
     selected_direction = main_config["direction"]
     selected_variant = main_config["variant"]
+    experiment_id =  main_config["experiment_id"]
+    if experiment_id == "-1" or experiment_id == -1:
+        experiment_id = "{}_{}".format(datetime.fromtimestamp(time.time()).strftime("%Y_%m_%d_%H"),utils.generate_random_string(length=10))
     pcap_result_path = os.path.join(main_config["pcap_path"], main_config["task_name"])
     pcap_result_subpath_variant = os.path.join(pcap_result_path, selected_variant)
     pcap_result_subpath_experiment = os.path.join(pcap_result_subpath_variant, experiment_id)
@@ -106,12 +110,12 @@ def upload_iperf_wireshark(main_config = None):
         while True:
             if "server_thread" not in locals():
                 logger.debug("{}_{}--> New Threading Start".format(current_script, inspect.currentframe().f_lineno))
-                server_thread = threading.Thread(target=Threading_tcpdump_capture_cycle, args=(task_time, pcap_result_subpath_experiment, server_iperf_port, selected_network, selected_direction, selected_variant), daemon=True)
+                server_thread = threading.Thread(target=my_threading.Threading_tcpdump_capture_cycle, args=(task_time, pcap_result_subpath_experiment, server_iperf_port, selected_network, selected_direction, selected_variant), daemon=True)
                 server_thread.start()
             else:
                 if not server_thread.is_alive():
                     logger.debug("{}_{}--> Resume Previous Thread".format(current_script, inspect.currentframe().f_lineno))
-                    server_thread = threading.Thread(target=Threading_tcpdump_capture_cycle, args=(task_time, pcap_result_subpath_experiment, server_iperf_port, selected_network, selected_direction, selected_variant), daemon=True)
+                    server_thread = threading.Thread(target=my_threading.Threading_tcpdump_capture_cycle, args=(task_time, pcap_result_subpath_experiment, server_iperf_port, selected_network, selected_direction, selected_variant), daemon=True)
                     server_thread.start()
             logger.debug("{}_{}--> Start iperf server".format(current_script, inspect.currentframe().f_lineno))
             os.system("iperf3 -s -p {} -i {}".format(server_iperf_port, iperf_logging_interval))
