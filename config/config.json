@@ -27,11 +27,11 @@
     "experiment_id": "-1",
     "server_ip": "103.49.160.132",
     "server_packet_sending_port": 2001,
-    "iperf_port": 7777,
-    "iperf_logging_interval": 1,
-    "udp_sending_rate": 60,
+    "iperf_port": 7781,
+    "iperf_logging_interval": 60,
+    "udp_sending_rate": 20,
     "total_run": 1,
-    "time_each_flow": 60
+    "time_each_flow": 3600
   },
   "download_socket": {
     "result_path": "result/download_socket/",
