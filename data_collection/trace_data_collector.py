@@ -1,39 +1,32 @@
 import socket
-import time
-import os
-import json
-import shutil
-import argparse
-import logging
-import threading
-import my_threading
-import inspect
-from threading import Timer
-from datetime import datetime, timezone
-
 
 import utils
-import my_socket
 
 
 class TraceDataCollector(object):
-    def __init__(self, init_config, role=None):
-        self.config = init_config
+    def __init__(self, host_machine_config, role=None):
+        self.host_machine_config = host_machine_config
+        self.hostname = socket.gethostname()
+        self.config = self.host_machine_config[self.hostname]
         if role in ["client", "server", None]:
             self.role = role
         else:
             raise Exception("Need to define a role for a trace collector")
 
+    def print_attribute(self):
+        for item in self.__dict__:
+            if "config" not in item:
+                print("{} : {}".format(item, self.__dict__[item]))
 
 
 class TraceDataCollectionClient(TraceDataCollector):
-    def __init__(self, init_config, role="client"):
-        super(TraceDataCollectionClient, self).__init__(init_config, role)
-        self.hostname = self.config["hostname"]
-        self.ip = self.config["ip"]
+    def __init__(self, host_machine_config, role="client"):
+        super(TraceDataCollectionClient, self).__init__(host_machine_config, role)
+        self.SIM = self.config["SIM"]
         self.ip_dual = self.config["ip_dual"]
-        self.hostname_peer = self.config["hostname_peer"]
-        self.ip_peer = self.config["ip_peer"]
+        self.peer_hostname = self.config["peer_hostname"]
+        self.peer_config = self.host_machine_config[self.peer_hostname]
+        self.server_ip = self.peer_config["ip"]
 
     def iperf_tcpdump_download(self):
         pass
@@ -45,13 +38,12 @@ class TraceDataCollectionClient(TraceDataCollector):
 
 
 class TraceDataCollectionServer(TraceDataCollector):
-    def __init__(self, init_config, role="client"):
-        super(TraceDataCollectionClient, self).__init__(init_config, role)
-        self.hostname = self.config["hostname"]
+    def __init__(self, init_config, role="server"):
+        super(TraceDataCollectionServer, self).__init__(init_config, role)
         self.ip = self.config["ip"]
-        self.ip_dual = self.config["ip_dual"]
-        self.hostname_peer = self.config["hostname_peer"]
-        self.ip_peer = self.config["ip_peer"]
+        self.peer_hostname = self.config["peer_hostname"]
+        self.peer_config = self.host_machine_config[self.peer_hostname]
+        self.client_SIM = self.peer_config["SIM"]
 
     def iperf_tcpdump_download(self):
         pass
