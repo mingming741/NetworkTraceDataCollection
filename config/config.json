@@ -32,16 +32,5 @@
     "udp_sending_rate": 20,
     "total_run": 1,
     "time_each_flow": 3600
-  },
-  "download_socket": {
-    "result_path": "result/download_socket/",
-    "process_total_time": -1,
-    "connection_total_time": 3600,
-    "server_address": ["103.49.160.131", 7777],
-    "throughput_calculation_interval": 1,
-    "client_timeout_value": 5,
-    "server_timeout_value": 5,
-    "server_connection_log_interval": 1000000,
-    "test_config_file": "result/udp_test.json"
   }
 }

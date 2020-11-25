@@ -63,7 +63,6 @@ def generate_random_string(length):
     return result_str
 
 
-
 class DokiTimer:
     def __init__(self, expired_time, repeat=False):
         self._start_time = time.perf_counter()

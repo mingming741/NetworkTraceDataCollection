@@ -23,6 +23,8 @@ logger = logging.getLogger(__name__)
 current_script = os.path.basename(__file__)
 
 
+
+
 def main():
     utils.init_dir()
     parser = argparse.ArgumentParser(description='For different background job')
