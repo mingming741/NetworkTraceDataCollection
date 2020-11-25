@@ -3,6 +3,7 @@ import subprocess
 import os
 import time
 import logging
+from datetime import datetime
 
 import utils
 
@@ -41,29 +42,40 @@ class TraceDataCollectionClient(TraceDataCollector):
         direction = "download"
         variant = test_config["variant"]
         experiment_id = test_config["experiment_id"]
-        pcap_result_path = os.path.join(test_config["pcap_path"], "".format(test_config["task_name"], variant, experiment_id))
+        pcap_result_path = os.path.join(test_config["pcap_path"], "{}_{}_{}".format(test_config["task_name"], variant, experiment_id))
 
         iperf_logging_interval = test_config["iperf_logging_interval"]
         udp_sending_rate = test_config["udp_sending_rate"]
         task_time = test_config["task_time"]
         iperf_port = test_config["iperf_port"]
 
+        utils.remake_public_dir(pcap_result_path)
+        experiment_start_time = datetime.fromtimestamp(time.time()).strftime("%Y_%m_%d_%H_%M_%S")
+        output_pcap = os.path.join(pcap_result_path, "{}.pcap".format(experiment_start_time))
 
-        #os.system("tcpdump -i any tcp src port {} -w {} > /dev/null 2>&1 &".format(server_iperf_port, output_pcap))
-        try:
-            while True:
+        os.system("tcpdump -i any tcp -s 96 src port {} -w {} > /dev/null 2>&1 &".format(iperf_port, output_pcap))
+
+        client_timer = utils.DokiTimer(expired_time=task_time)
+        while not client_timer.is_expire():
+            try:
                 P_iperf_client = subprocess.Popen("exec iperf3 -c {} -p {} -R -t {} -i {}".format(self.server_ip, iperf_port, task_time, iperf_logging_interval) , shell=True)
                 P_iperf_client.wait(task_time)
                 if P_iperf_client.poll() == 0:
                     logger.debug(P_iperf_client.communicate()[1])
                     break
                 else:
-                    logger.warning("Error to connect with iperf3 server, retry...")
-                    time.sleep(1)
-        except subprocess.TimeoutExpired as timeout:
-            if P_iperf_server.poll() == None:
-                self.logger.info("Time up, Let iperf End")
-                P_iperf_server.terminate()
+                    self.logger.warning("Error to connect with iperf3 server, retry...")
+                    time.sleep(5)
+            except subprocess.TimeoutExpired as timeout:
+                if P_iperf_client.poll() == None:
+                    self.logger.info("Time up, Let iperf End")
+                    P_iperf_client.terminate()
+                    break
+            except Exception as e:
+                if P_iperf_client.poll() == 0:
+                    self.logger.error("Exception happen, Let Server End")
+                    P_iperf_client.terminate()
+                    break
 
     def iperf_tcp_dump_upload(self, test_config):
         pass
