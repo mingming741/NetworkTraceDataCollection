@@ -2,7 +2,7 @@
   "iperf_tcpdump_download": {
     "task_name": "iperf_tcpdump_download",
     "trace_path": "trace/",
-    "pcap_path": "log/pcap_result/",
+    "pcap_path": "log/iperf_tcpdump_result/",
     "direction": "download",
     "variant": "cubic",
     "experiment_id": "-1",
@@ -10,6 +10,6 @@
     "iperf_port": 7780,
     "iperf_logging_interval": 1,
     "udp_sending_rate": 20,
-    "task_time": 60
+    "task_time": 10
   }
 }
