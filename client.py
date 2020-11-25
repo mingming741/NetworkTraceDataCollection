@@ -64,7 +64,6 @@ def upload_iperf_wireshark(main_config=None):
     udp_sending_rate = main_config["udp_sending_rate"]
     time_flow_interval = 5 # wait some time to keep stability
 
-
     logger.info("{}_{}--> upload_iperf_wireshark, Start~~".format(current_script, inspect.currentframe().f_lineno))
 
     if exec_mode == "scheduling":
@@ -103,6 +102,7 @@ def upload_iperf_wireshark(main_config=None):
                 #os.system("iperf3 -c {} -p {} -R --length 1472 -u -b {}m -t {} -i {}".format(server_ip, server_iperf_port, udp_sending_rate, total_task_time, iperf_logging_interval))
                 os.system("iperf3 -c {} -p {} -R --length 1472 -u -b {}m -t {} -i {} 2> /dev/null".format(server_ip, server_iperf_port, udp_sending_rate, total_task_time, iperf_logging_interval))
             if selected_variant != "udp":
+                os.system("sudo sysctl net.ipv4.tcp_congestion_control={}".format(selected_variant))
                 os.system("iperf3 -c {} -p {} -R -t {} -i {}".format(server_ip, server_iperf_port, total_task_time, iperf_logging_interval))
             logger.info("client iperf exit, resuming..")
             os.system('killall iperf3 > /dev/null 2>&1')
@@ -157,6 +157,7 @@ def download_iperf_wireshark(main_config=None):
                 os.system('killall tcpdump > /dev/null 2>&1')
                 os.system("python3 my_subprocess.py pcap2txt --mode udp --file-path {} &".format(output_pcap))
             if selected_variant != "udp":
+                os.system("sudo sysctl net.ipv4.tcp_congestion_control={}".format(selected_variant))
                 os.system("tcpdump -i any tcp src port {} -w {} > /dev/null 2>&1 &".format(server_iperf_port, output_pcap))
                 os.system("iperf3 -c {} -p {} -R -t {} -i {} &".format(server_ip, server_iperf_port, task_time, iperf_logging_interval))
                 time.sleep(task_time + time_flow_interval)
@@ -191,6 +192,7 @@ def download_iperf_wireshark(main_config=None):
                 #os.system("iperf3 -c {} -p {} -R --length 1472 -u -b {}m -t {} -i {}".format(server_ip, server_iperf_port, udp_sending_rate, total_task_time, iperf_logging_interval))
                 os.system("iperf3 -c {} -p {} -R --length 1472 -u -b {}m -t {} -i {} 2> /dev/null".format(server_ip, server_iperf_port, udp_sending_rate, total_task_time, iperf_logging_interval))
             if selected_variant != "udp":
+                os.system("sudo sysctl net.ipv4.tcp_congestion_control={}".format(selected_variant))
                 os.system("iperf3 -c {} -p {} -R -t {} -i {}".format(server_ip, server_iperf_port, total_task_time, iperf_logging_interval))
             logger.info("client iperf exit, resuming..")
             os.system('killall iperf3 > /dev/null 2>&1')
