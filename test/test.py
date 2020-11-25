@@ -16,6 +16,9 @@ def main():
 
     data_collector.print_attribute()
 
+    test_config = utils.parse_config("config/test_config_all.json")["iperf_tcpdump_download"]
+    data_collector.iperf_tcpdump_download(test_config)
+
 
 
 if __name__ == '__main__':

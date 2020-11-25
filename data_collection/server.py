@@ -130,8 +130,6 @@ def upload_iperf_wireshark(main_config = None):
             time.sleep(5)
 
 
-
-
 def download_iperf_wireshark(main_config = None):
     if main_config == None:
         main_config = utils.parse_config("config/config.json")
