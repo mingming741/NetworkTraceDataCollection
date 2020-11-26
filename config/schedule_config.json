@@ -1,6 +1,6 @@
 {
   "scheduling_server_port": 2000,
-  "time_wait_peer_operation": 20,
+  "time_wait_peer_operation": 120,
   "scheduling_general_config":{
     "trace_path": "trace/",
     "pcap_path": "log/iperf_tcpdump_result/",

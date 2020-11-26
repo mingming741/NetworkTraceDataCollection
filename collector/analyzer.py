@@ -84,7 +84,7 @@ class TraceDataAnalyzer(object):
                 time_scale = "millisecond"
                 time_scale_unit = pre_config_timescale[time_scale]
         df_result = pd.DataFrame(data={"time" : [int(x/time_scale_unit) for x in df_result["time"].values], "packet_size" : df_result["packet_size"].values}).groupby("time").sum().reset_index()
-        df_throughput = pd.DataFrame(data={"time" : df_result["time"].values, "throughput" : [int(x/(1000000*time_scale_unit)) for x in df_result["packet_size"].values]}) # throughput in Mbps
+        df_throughput = pd.DataFrame(data={"time" : df_result["time"].values, "throughput" : [round(x/(1000000*time_scale_unit), 3) for x in df_result["packet_size"].values]}) # throughput in Mbps
         x_plot = df_throughput["time"].values
         count_list = df_throughput["throughput"].values
         fig, axs = plt.subplots(nrows = 1, ncols = 1, **figure_config["single"])
@@ -130,7 +130,12 @@ class TraceDataAnalyzer(object):
         parameters = {"Network_ID": network_dict[network], "Variant_ID": variant_dict[variant], "Direction_ID": direction_dict[direction], "Start_Time": Start_Time,"Task_Time": Task_Time,"Task_Name": Task_Name}
         files = {'file': open(file_path,'rb'), 'graph': open(graph_path,'rb')}
         response = requests.post(server_url, files=files, data=parameters)
-        self.logger.debug(response.json())
+        try:
+            response_json = response.json()
+            self.logger.debug(response_json)
+        except Exception as e:
+            print(e)
+
 
 
 
