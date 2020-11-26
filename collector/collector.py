@@ -160,8 +160,8 @@ class TraceDataCollectionClient(TraceDataCollector):
 
 
 class TraceDataCollectionServer(TraceDataCollector):
-    def __init__(self, init_config, role="server"):
-        super(TraceDataCollectionServer, self).__init__(init_config, role)
+    def __init__(self, host_machine_config, role="server"):
+        super(TraceDataCollectionServer, self).__init__(host_machine_config, role)
         self.server_ip = self.config["server_ip"]
         self.peer_hostname = self.config["peer_hostname"]
         self.peer_config = self.host_machine_config[self.peer_hostname]
