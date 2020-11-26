@@ -93,7 +93,7 @@ class TraceDataSchedulerClient(TraceDataScheduler):
                     self.data_analyzer.draw_graph(data_collection_result["pcap_result_path"])
                     self.data_analyzer.post_file_to_server(data_collection_result["pcap_result_path"])
                 else: # wait somethings for server to do operation
-                    time.sleep()
+                    time.sleep(self.time_wait_peer_operation)
                 break
 
         client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
