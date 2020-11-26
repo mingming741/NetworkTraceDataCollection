@@ -39,7 +39,10 @@ class TraceDataScheduler(object):
         self.scheduling_general_config = self.schedule_config["scheduling_general_config"]
         self.test_config_list = self.generate_test_config_list()
         self.scheduling_server_port = self.schedule_config["scheduling_server_port"]
-        self.data_collector = collector.TraceDataCollectionClient(host_machine_config=self.host_machine_config)
+        if self.role == "client":
+            self.data_collector = collector.TraceDataCollectionClient(host_machine_config=self.host_machine_config)
+        else:
+            self.data_collector = collector.TraceDataCollectionServer(host_machine_config=self.host_machine_config)
         self.data_analyzer = analyzer.TraceDataAnalyzer(web_server_config=self.web_server_config)
         self.time_wait_peer_operation = self.schedule_config["time_wait_peer_operation"] # in seconds
 
