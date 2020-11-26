@@ -4,7 +4,7 @@
     "trace_path": "trace/",
     "pcap_path": "log/iperf_tcpdump_result/",
     "direction": "download",
-    "variant": "cubic",
+    "variant": "udp",
     "experiment_id": "-1",
     "server_packet_sending_port": 2000,
     "iperf_port": 7780,

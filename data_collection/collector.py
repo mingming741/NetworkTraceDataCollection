@@ -3,6 +3,7 @@ import subprocess
 import os
 import time
 import logging
+import json
 from datetime import datetime
 
 import utils
@@ -26,12 +27,9 @@ class TraceDataCollector(object):
                 self.logger.info("{} : {}".format(item, self.__dict__[item]))
 
 
-    def pcap_to_txt(self, file_full_path):
+    def pcap_to_txt(self, file_full_path, output_file_name):
         if os.path.exists(file_full_path):
-            file_path, file_name = os.path.split(file_full_path)
-            txt_dir = os.path.join(file_path, "{}txt".format(file_name[0:-4]))
-            self.logger.info("Output trace data:{} to {}".format(file_full_path, txt_dir))
-            os.system("tshark -r " + file_full_path + " -T fields -e frame.time_epoch -e frame.len > " + txt_dir)
+            os.system("tshark -r " + file_full_path + " -T fields -e frame.time_epoch -e frame.len > " + output_file_name)
             os.system("rm " + file_full_path)
         else:
             self.logger.error("Output trace data:{} to {}".format(file_full_path, txt_dir))
@@ -64,26 +62,26 @@ class TraceDataCollectionClient(TraceDataCollector):
         experiment_start_time = datetime.fromtimestamp(time.time()).strftime("%Y_%m_%d_%H_%M_%S")
         output_pcap = os.path.join(pcap_result_path, "{}_{}_{}_{}.pcap".format(network, direction, variant, experiment_start_time))
 
-        os.system("tcpdump -i any tcp -s 96 src port {} -w {} > /dev/null 2>&1 &".format(iperf_port, output_pcap))
+        if variant != "udp":
+            os.system("tcpdump -i any tcp -s 96 src port {} -w {} > /dev/null 2>&1 &".format(iperf_port, output_pcap))
+        else:
+            os.system("tcpdump -i any udp -s 96 port {} -w {} > /dev/null 2>&1 &".format(iperf_port, output_pcap))
         client_timer = utils.DokiTimer(expired_time=task_time)
         while not client_timer.is_expire():
             try:
-                P_iperf_client = subprocess.Popen("exec iperf3 -c {} -p {} -R -t {} -i {}".format(self.server_ip, iperf_port, task_time, iperf_logging_interval) , shell=True)
-                P_iperf_client.wait(task_time)
-                if P_iperf_client.poll() == 0:
-                    logger.debug(P_iperf_client.communicate()[1])
-                    break
+                if "retry_start_time" not in locals():
+                    retry_start_time = time.time()
+                if variant != "udp":
+                    P_iperf_client = subprocess.Popen("exec iperf3 -c {} -p {} -R -t {} -i {}".format(self.server_ip, iperf_port, task_time, iperf_logging_interval) , shell=True)
                 else:
-                    if "retry_start_time" not in locals():
-                        retry_start_time = time.time()
-                        self.logger.warning("Error to connect with iperf3 server, retry...")
-                        time.sleep(1)
-                    else:
-                        if retry_start_time - time.time() <= 3: # assume no experiment is running, retry
-                            self.logger.warning("Error to connect with iperf3 server, retry...")
-                            time.sleep(1)
-                        else:
-                            break
+                    P_iperf_client = subprocess.Popen("exec iperf3 -c {} -p {} -R --length 1472 -u -b {}m -t {} -i {}".format(self.server_ip, iperf_port, udp_sending_rate, task_time, iperf_logging_interval) , shell=True)
+                P_iperf_client.wait(task_time)
+                if time.time() - retry_start_time <= 5: # assume no experiment is running, retry
+                    retry_start_time = time.time()
+                    self.logger.warning("Error to connect with iperf3 server, retry...")
+                    time.sleep(1)
+                else:
+                    break
             except subprocess.TimeoutExpired as timeout:
                 if P_iperf_client.poll() == None:
                     self.logger.info("Time up, Let iperf End")
@@ -95,7 +93,12 @@ class TraceDataCollectionClient(TraceDataCollector):
                     P_iperf_client.terminate()
                     break
         self.logger.info("Trace Send Done, start to analyze")
-        self.pcap_to_txt(output_pcap)
+        output_txt_file_name = "{}txt".format(output_pcap[0:-4])
+        trace_log = {"task_name": task_name, "network": network, "direction": direction, "variant": variant, "start_time": experiment_start_time, "task_time": task_time, "trace_file_name": output_txt_file_name}
+        with open(os.path.join(pcap_result_path ,"experiment_result.json"), "w") as f:
+            json.dump(trace_log, f)
+        self.pcap_to_txt(output_pcap, output_txt_file_name)
+        return {"pcap_result_path": pcap_result_path, "status": 0}
 
 
     def iperf_tcp_dump_upload(self, test_config):
@@ -129,6 +132,8 @@ class TraceDataCollectionServer(TraceDataCollector):
             if P_iperf_server.poll() == 0:
                 self.logger.error("Exception happen, Let Server End")
                 P_iperf_server.terminate()
+
+        return {"status" : 0}
 
     def iperf_tcp_dump_upload(self, test_config):
         pass
