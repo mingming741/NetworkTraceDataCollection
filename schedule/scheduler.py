@@ -35,6 +35,9 @@ class TraceDataScheduler(object):
         self.scheduling_general_config = self.schedule_config["scheduling_general_config"]
         self.test_config_list = self.generate_test_config_list()
         self.scheduling_server_port = self.schedule_config["scheduling_server_port"]
+        self.data_collector = collector.TraceDataCollectionClient(self.host_machine_config)
+        self.data_analyzer.TraceDataAnalyzer(self.web_server_config)
+        self.time_wait_peer_operation = schedule_config["time_wait_peer_operation"] # in seconds
         if role in ["client", "server", None]:
             self.role = role
         else:
@@ -51,6 +54,7 @@ class TraceDataScheduler(object):
         test_config_list = []
         for test_config in self.scheduling_list:
             new_config = utils.merge_config(test_config, self.scheduling_general_config)
+            new_config["experiment_id"] = datetime.fromtimestamp(time.time()).strftime("%Y_%m_%d_%H_%M_%S")
             test_config_list.append(new_config)
         return test_config_list
 
@@ -79,8 +83,13 @@ class TraceDataSchedulerClient(TraceDataScheduler):
                     logger.error("Connect Send Message, retry")
                     time.sleep(60)
                     continue
-                data_collector = collector.TraceDataCollectionClient(self.host_machine_config)
-                data_collector.data_collection(test_config)
+
+                data_collection_result = self.data_collector.data_collection(test_config)
+                if "pcap_result_path" in data_collection_result:
+                    self.data_analyzer.draw_graph(data_collection_result["pcap_result_path"])
+                    self.data_analyzer.post_file_to_server(data_collection_result["pcap_result_path"])
+                else: # wait somethings for server to do operation
+                    time.sleep()
                 break
 
         client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -120,8 +129,10 @@ class TraceDataSchedulerServer(TraceDataScheduler):
                         break
                     if message_json["operation"] == "test":
                         test_config =  message_json["test_config"]
-                        data_collector = collector.TraceDataCollectionServer(self.host_machine_config)
-                        data_collector.data_collection(test_config)
+                        data_collection_result = self.data_collector.data_collection(test_config)
+                        if "pcap_result_path" in data_collection_result:
+                            self.data_analyzer.draw_graph(data_collection_result["pcap_result_path"])
+                            self.data_analyzer.post_file_to_server(data_collection_result["pcap_result_path"])
                 except Exception as e:
                     self.logger.error("Cannot decode client message! Redo scheduling")
                     client_socket.close()
