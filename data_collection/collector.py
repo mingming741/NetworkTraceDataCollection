@@ -74,8 +74,16 @@ class TraceDataCollectionClient(TraceDataCollector):
                     logger.debug(P_iperf_client.communicate()[1])
                     break
                 else:
-                    self.logger.warning("Error to connect with iperf3 server, retry...")
-                    time.sleep(5)
+                    if "retry_start_time" not in locals():
+                        retry_start_time = time.time()
+                        self.logger.warning("Error to connect with iperf3 server, retry...")
+                        time.sleep(1)
+                    else:
+                        if retry_start_time - time.time() <= 3: # assume no experiment is running, retry
+                            self.logger.warning("Error to connect with iperf3 server, retry...")
+                            time.sleep(1)
+                        else:
+                            break
             except subprocess.TimeoutExpired as timeout:
                 if P_iperf_client.poll() == None:
                     self.logger.info("Time up, Let iperf End")
