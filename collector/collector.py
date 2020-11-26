@@ -105,7 +105,7 @@ class TraceDataCollectionClient(TraceDataCollector):
         output_txt_file_name = "{}txt".format(output_pcap[0:-4])
         output_graph_file_name = "{}png".format(output_pcap[0:-4])
         trace_log = {"task_name": task_name, "network": network, "direction": direction, "variant": variant, "start_time": experiment_start_time,
-            "task_time": task_time, "trace_file_name": output_txt_file_name, "udp_sending_rate": udp_sending_rate, "graph_path": output_graph_file_name
+            "task_time": task_time, "trace_file_name": output_txt_file_name, "graph_path": output_graph_file_name
         }
         with open(os.path.join(pcap_result_path ,"experiment_result.json"), "w") as f:
             json.dump(trace_log, f)
@@ -225,7 +225,7 @@ class TraceDataCollectionServer(TraceDataCollector):
         output_txt_file_name = "{}txt".format(output_pcap[0:-4])
         output_graph_file_name = "{}png".format(output_pcap[0:-4])
         trace_log = {"task_name": task_name, "network": network, "direction": direction, "variant": variant, "start_time": experiment_start_time,
-            "task_time": task_time, "trace_file_name": output_txt_file_name, "udp_sending_rate": udp_sending_rate, "graph_path": output_graph_file_name
+            "task_time": task_time, "trace_file_name": output_txt_file_name, "graph_path": output_graph_file_name
         }
         with open(os.path.join(pcap_result_path ,"experiment_result.json"), "w") as f:
             json.dump(trace_log, f)
