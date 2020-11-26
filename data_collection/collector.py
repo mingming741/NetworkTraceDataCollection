@@ -30,7 +30,7 @@ class TraceDataCollector(object):
     def pcap_to_txt(self, file_full_path, output_file_name):
         if os.path.exists(file_full_path):
             os.system("tshark -r " + file_full_path + " -T fields -e frame.time_epoch -e frame.len > " + output_file_name)
-            #os.system("rm " + file_full_path)
+            os.system("rm " + file_full_path)
         else:
             self.logger.error("Output trace data:{} to {}".format(file_full_path, output_file_name))
 
