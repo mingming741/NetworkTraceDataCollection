@@ -40,9 +40,9 @@ class TraceDataCollector(object):
 
     def data_collection(self, test_config):
         if test_config["direction"] == "download":
-            self.iperf_tcpdump_download(test_config)
+            return self.iperf_tcpdump_download(test_config)
         if test_config["direction"] == "upload":
-            self.iperf_tcpdump_upload(test_config)
+            return self.iperf_tcpdump_upload(test_config)
 
 
 class TraceDataCollectionClient(TraceDataCollector):
