@@ -4,10 +4,11 @@ import os
 import time
 import logging
 import json
-import my_socket
 from datetime import datetime
 
+import context
 import utils
+from schedule import my_socket
 
 
 
@@ -41,7 +42,7 @@ class TraceDataScheduler(object):
 
     def print_attribute(self):
         for item in self.__dict__:
-            if "config" not in item:
+            if "config" not in item and "list" not in item:
                 self.logger.debug("{} : {}".format(item, self.__dict__[item]))
 
 

@@ -6,8 +6,7 @@ import utils
 import os
 
 
-meta_config = utils.parse_config("config/test_meta_config.json")
-logging.basicConfig(level=utils.parse_logging_level(meta_config["general_config"]["logging_level"]))
+logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 current_script = os.path.basename(__file__)
 
@@ -66,7 +65,8 @@ def retry_bind(my_socket, my_socket_address_port, retry_timeout=300, stable_wait
         logger.warning("{}--> Bind {} times but still fail!".format(current_script, max_try))
         return False
 
-def retry_connect(my_socket, server_address_port, retry_timeout=5, stable_wait_time=1, max_try=30):
+
+def retry_connect(my_socket, server_address_port, retry_timeout=10, stable_wait_time=1, max_try=10):
     exit_flag = 0
     while exit_flag < max_try:
         try:
