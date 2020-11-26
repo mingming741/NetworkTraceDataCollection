@@ -38,6 +38,12 @@ class TraceDataCollector(object):
             self.logger.error("Output trace data:{} to {}".format(file_full_path, output_file_name))
 
 
+    def data_collection(self, test_config):
+        if test_config["direction"] == "download":
+            self.iperf_tcpdump_download(test_config)
+        if test_config["direction"] == "upload":
+            self.iperf_tcpdump_upload(test_config)
+
 
 class TraceDataCollectionClient(TraceDataCollector):
     def __init__(self, host_machine_config=None, role="client"):

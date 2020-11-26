@@ -1,4 +1,5 @@
 {
+  "scheduling_server_port": 2000,
   "scheduling_general_config":{
     "trace_path": "trace/",
     "pcap_path": "log/iperf_tcpdump_result/",
