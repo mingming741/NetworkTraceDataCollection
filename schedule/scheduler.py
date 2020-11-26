@@ -17,6 +17,10 @@ class TraceDataScheduler(object):
     def __init__(self, schedule_config=None, web_server_config=None, host_machine_config=None, role=None):
         logging.basicConfig(level=logging.DEBUG, format='%(levelname)-1s [%(filename)s:%(lineno)d] %(message)s', datefmt='%Y-%m-%d:%H:%M:%S')
         self.logger = logging.getLogger(__name__)
+        if role in ["client", "server", None]:
+            self.role = role
+        else:
+            raise Exception("Need to define a role for a trace collector")
         if web_server_config != None:
             self.web_server_config = web_server_config
         else:
@@ -35,13 +39,10 @@ class TraceDataScheduler(object):
         self.scheduling_general_config = self.schedule_config["scheduling_general_config"]
         self.test_config_list = self.generate_test_config_list()
         self.scheduling_server_port = self.schedule_config["scheduling_server_port"]
-        self.data_collector = collector.TraceDataCollectionClient(self.host_machine_config)
-        self.data_analyzer.TraceDataAnalyzer(self.web_server_config)
-        self.time_wait_peer_operation = schedule_config["time_wait_peer_operation"] # in seconds
-        if role in ["client", "server", None]:
-            self.role = role
-        else:
-            raise Exception("Need to define a role for a trace collector")
+        self.data_collector = collector.TraceDataCollectionClient(host_machine_config=self.host_machine_config)
+        self.data_analyzer = analyzer.TraceDataAnalyzer(web_server_config=self.web_server_config)
+        self.time_wait_peer_operation = self.schedule_config["time_wait_peer_operation"] # in seconds
+
 
 
     def print_attribute(self):
@@ -62,7 +63,7 @@ class TraceDataScheduler(object):
 
 class TraceDataSchedulerClient(TraceDataScheduler):
     def __init__(self, schedule_config=None, web_server_config=None, host_machine_config=None, role="client"):
-        super(TraceDataSchedulerClient, self).__init__(schedule_config, role)
+        super(TraceDataSchedulerClient, self).__init__(schedule_config, web_server_config, host_machine_config, role)
         self.peer_hostname = self.config["peer_hostname"]
         self.peer_config = self.host_machine_config[self.peer_hostname]
         self.server_ip = self.peer_config["server_ip"]
@@ -74,7 +75,7 @@ class TraceDataSchedulerClient(TraceDataScheduler):
 
             while True:
                 client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                if not my_socket.retry_connect(client_socket, (self.server_ip, self.scheduling_server_port)):
+                if not my_socket.retry_connect(client_socket, (self.server_ip, self.scheduling_server_port),max_try=30):
                     logger.error("Connect To server Fail, retry")
                     time.sleep(60)
                     continue
@@ -105,7 +106,7 @@ class TraceDataSchedulerClient(TraceDataScheduler):
 
 class TraceDataSchedulerServer(TraceDataScheduler):
     def __init__(self, schedule_config=None, web_server_config=None, host_machine_config=None, role="server"):
-        super(TraceDataSchedulerServer, self).__init__(schedule_config, role)
+        super(TraceDataSchedulerServer, self).__init__(schedule_config, web_server_config, host_machine_config, role)
         self.server_ip = self.config["server_ip"]
 
 
