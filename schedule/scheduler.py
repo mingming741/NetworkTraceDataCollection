@@ -8,6 +8,7 @@ from datetime import datetime
 
 import context
 import utils
+from collector import collector, analyzer
 from schedule import my_socket
 
 
@@ -86,7 +87,7 @@ class TraceDataSchedulerClient(TraceDataScheduler):
 class TraceDataSchedulerServer(TraceDataScheduler):
     def __init__(self, schedule_config=None, web_server_config=None, host_machine_config=None, role="server"):
         super(TraceDataSchedulerServer, self).__init__(schedule_config, role)
-        self.server_ip = self.peer_config["server_ip"]
+        self.server_ip = self.config["server_ip"]
 
 
     def scheduling(self):
