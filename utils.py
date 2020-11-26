@@ -13,6 +13,12 @@ def parse_config(path):
     return data
 
 
+def merge_config(new_config, old_config):
+    config = copy.deepcopy(old_config)
+    if new_config is not None:
+        config.update(new_config)
+    return config
+
 def parse_logging_level(logging_level_string):
     if logging_level_string == "debug":
         return logging.DEBUG

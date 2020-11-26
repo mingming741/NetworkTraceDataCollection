@@ -51,10 +51,13 @@ if "PLT" in ["PLT"]:
 
 
 class TraceDataAnalyzer(object):
-    def __init__(self, web_server_config):
+    def __init__(self, web_server_config=None):
         logging.basicConfig(level=logging.DEBUG, format='%(levelname)-1s [%(filename)s:%(lineno)d] %(message)s', datefmt='%Y-%m-%d:%H:%M:%S')
         self.logger = logging.getLogger(__name__)
-        self.web_server_config = web_server_config
+        if web_server_config != None:
+            self.web_server_config = web_server_config
+        else:
+            self.web_server_config = utils.parse_config("config/web_server_config.json")
         self.web_server_ip = self.web_server_config["web_interface_server_ip"]
         self.web_interface_dir = self.web_server_config["web_interface_dir"]
 

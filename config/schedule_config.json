@@ -1,0 +1,58 @@
+{
+  "scheduling_general_config":{
+    "trace_path": "trace/",
+    "pcap_path": "log/iperf_tcpdump_result/",
+    "iperf_port": 7777,
+    "iperf_logging_interval": 1
+  }
+  "scheduling_list" : [
+    {
+      "task_name": "iperf_tcpdump_download",
+      "direction": "download",
+      "variant": "bbr",
+      "experiment_id": "",
+      "task_time": 20
+    },
+    {
+      "task_name": "iperf_tcpdump_download",
+      "direction": "download",
+      "variant": "cubic",
+      "experiment_id": "",
+      "iperf_port": 7777,
+      "iperf_logging_interval": 1,
+      "task_time": 20
+    },
+    {
+      "task_name": "iperf_tcpdump_download",
+      "direction": "download",
+      "variant": "udp",
+      "experiment_id": "",
+      "iperf_port": 7777,
+      "iperf_logging_interval": 1,
+      "udp_sending_rate": 20,
+      "task_time": 20
+    },
+    {
+      "task_name": "iperf_tcpdump_upload",
+      "direction": "upload",
+      "variant": "bbr",
+      "experiment_id": "",
+      "task_time": 20
+    },
+    {
+      "task_name": "iperf_tcpdump_upload",
+      "direction": "upload",
+      "variant": "cubic",
+      "experiment_id": "",
+      "task_time": 20
+    },
+    {
+      "task_name": "iperf_tcpdump_upload",
+      "direction": "upload",
+      "variant": "udp",
+      "experiment_id": "",
+      "udp_sending_rate": 20,
+      "task_time": 20
+    }
+  ]
+}

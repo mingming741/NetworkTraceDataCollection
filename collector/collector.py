@@ -10,8 +10,11 @@ import utils
 
 
 class TraceDataCollector(object):
-    def __init__(self, host_machine_config, role=None):
-        self.host_machine_config = host_machine_config
+    def __init__(self, host_machine_config=None, role=None):
+        if host_machine_config != None:
+            self.host_machine_config = host_machine_config
+        else:
+            self.host_machine_config = utils.parse_config("config/host_machine_config.json")
         self.hostname = socket.gethostname()
         self.config = self.host_machine_config[self.hostname]
         logging.basicConfig(level=logging.DEBUG, format='%(levelname)-1s [%(filename)s:%(lineno)d] %(message)s', datefmt='%Y-%m-%d:%H:%M:%S')
@@ -37,7 +40,7 @@ class TraceDataCollector(object):
 
 
 class TraceDataCollectionClient(TraceDataCollector):
-    def __init__(self, host_machine_config, role="client"):
+    def __init__(self, host_machine_config=None, role="client"):
         super(TraceDataCollectionClient, self).__init__(host_machine_config, role)
         self.SIM = self.config["SIM"]
         self.client_ip_dual = self.config["client_ip_dual"]
@@ -54,7 +57,6 @@ class TraceDataCollectionClient(TraceDataCollector):
         pcap_result_path = os.path.join(test_config["pcap_path"], "{}_{}_{}_{}".format(network, direction, variant, experiment_id))
 
         iperf_logging_interval = test_config["iperf_logging_interval"]
-        udp_sending_rate = test_config["udp_sending_rate"]
         task_time = test_config["task_time"]
         iperf_port = test_config["iperf_port"]
 
@@ -65,6 +67,7 @@ class TraceDataCollectionClient(TraceDataCollector):
         if variant != "udp":
             os.system("tcpdump -i any tcp -s 96 src port {} -w {} > /dev/null 2>&1 &".format(iperf_port, output_pcap))
         else:
+            udp_sending_rate = test_config["udp_sending_rate"]
             os.system("tcpdump -i any udp -s 96 port {} -w {} > /dev/null 2>&1 &".format(iperf_port, output_pcap))
         client_timer = utils.DokiTimer(expired_time=task_time)
         while not client_timer.is_expire():
@@ -114,7 +117,6 @@ class TraceDataCollectionClient(TraceDataCollector):
         pcap_result_path = os.path.join(test_config["pcap_path"], "{}_{}_{}_{}".format(network, direction, variant, experiment_id))
 
         iperf_logging_interval = test_config["iperf_logging_interval"]
-        udp_sending_rate = test_config["udp_sending_rate"]
         task_time = test_config["task_time"]
         iperf_port = test_config["iperf_port"]
 
@@ -127,6 +129,7 @@ class TraceDataCollectionClient(TraceDataCollector):
                 if variant != "udp":
                     P_iperf_client = subprocess.Popen("exec iperf3 -c {} -p {} -t {} -i {}".format(self.server_ip, iperf_port, task_time, iperf_logging_interval) , shell=True)
                 else:
+                    udp_sending_rate = test_config["udp_sending_rate"]
                     P_iperf_client = subprocess.Popen("exec iperf3 -c {} -p {} --length 1472 -u -b {}m -t {} -i {}".format(self.server_ip, iperf_port, udp_sending_rate, task_time, iperf_logging_interval) , shell=True)
                 P_iperf_client.wait(task_time)
                 if time.time() - retry_start_time <= 5: # assume no experiment is running, retry
@@ -187,7 +190,6 @@ class TraceDataCollectionServer(TraceDataCollector):
         pcap_result_path = os.path.join(test_config["pcap_path"], "{}_{}_{}_{}".format(network, direction, variant, experiment_id))
 
         iperf_logging_interval = test_config["iperf_logging_interval"]
-        udp_sending_rate = test_config["udp_sending_rate"]
         task_time = test_config["task_time"]
         iperf_port = test_config["iperf_port"]
 
@@ -198,6 +200,7 @@ class TraceDataCollectionServer(TraceDataCollector):
         if variant != "udp":
             os.system("tcpdump -i any tcp -s 96 dst port {} -w {} > /dev/null 2>&1 &".format(iperf_port, output_pcap))
         else:
+            udp_sending_rate = test_config["udp_sending_rate"]
             os.system("tcpdump -i any udp -s 96 port {} -w {} > /dev/null 2>&1 &".format(iperf_port, output_pcap))
 
         try:
