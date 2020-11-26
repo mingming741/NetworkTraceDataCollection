@@ -83,6 +83,16 @@ class TraceDataSchedulerClient(TraceDataScheduler):
                 data_collector.data_collection(test_config)
                 break
 
+        client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        if not my_socket.retry_connect(client_socket, (self.server_ip, self.scheduling_server_port)):
+            logger.error("Connect To server Fail, retry")
+            time.sleep(60)
+        message = json.dumps({"operation": "end"})
+        if not my_socket.retry_send(client_socket, message):
+            logger.error("Connect Send Message, retry")
+            time.sleep(60)
+        self.logger.info("Client Exit Scheduling, Experiment Done")
+
 
 class TraceDataSchedulerServer(TraceDataScheduler):
     def __init__(self, schedule_config=None, web_server_config=None, host_machine_config=None, role="server"):

@@ -114,7 +114,7 @@ class TraceDataCollectionClient(TraceDataCollector):
         return {"pcap_result_path": pcap_result_path, "status": 0}
 
 
-    def iperf_tcp_dump_upload(self, test_config):
+    def iperf_tcpdump_upload(self, test_config):
         task_name = test_config["task_name"]
         network = self.SIM
         direction = test_config["direction"]
@@ -187,7 +187,7 @@ class TraceDataCollectionServer(TraceDataCollector):
         return {"status" : 0}
 
 
-    def iperf_tcp_dump_upload(self, test_config):
+    def iperf_tcpdump_upload(self, test_config):
         task_name = test_config["task_name"]
         network = self.SIM
         direction = test_config["direction"]
