@@ -23,7 +23,7 @@ def test_scheduler():
 
 
 
-def test_collector()
+def test_collector():
     host_machine_config = utils.parse_config("config/host_machine_config.json")
     test_config_download = utils.parse_config("config/test_config_all.json")["iperf_tcpdump_download"]
     test_config_upload = utils.parse_config("config/test_config_all.json")["iperf_tcpdump_upload"]

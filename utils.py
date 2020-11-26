@@ -5,6 +5,7 @@ import time
 import logging
 import random
 import string
+import copy
 
 
 def parse_config(path):

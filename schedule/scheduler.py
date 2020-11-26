@@ -12,6 +12,8 @@ import utils
 
 class TraceDataScheduler(object):
     def __init__(self, schedule_config=None, web_server_config=None, host_machine_config=None, role=None):
+        logging.basicConfig(level=logging.DEBUG, format='%(levelname)-1s [%(filename)s:%(lineno)d] %(message)s', datefmt='%Y-%m-%d:%H:%M:%S')
+        self.logger = logging.getLogger(__name__)
         if web_server_config != None:
             self.web_server_config = web_server_config
         else:
@@ -24,7 +26,9 @@ class TraceDataScheduler(object):
             self.schedule_config = schedule_config
         else:
             self.schedule_config = utils.parse_config("config/schedule_config.json")
-        self.scheduling_list = self.schedule_config["schedule_config"]
+        self.hostname = socket.gethostname()
+        self.config = self.host_machine_config[self.hostname]
+        self.scheduling_list = self.schedule_config["scheduling_list"]
         self.scheduling_general_config = self.schedule_config["scheduling_general_config"]
         self.test_config_list = self.generate_test_config_list()
         if role in ["client", "server", None]:
@@ -42,7 +46,7 @@ class TraceDataScheduler(object):
     def generate_test_config_list(self):
         test_config_list = []
         for test_config in self.scheduling_list:
-            new_config = util.merge_config(test_config, self.scheduling_general_config)
+            new_config = utils.merge_config(test_config, self.scheduling_general_config)
             test_config_list.append(new_config)
         return test_config_list
 
