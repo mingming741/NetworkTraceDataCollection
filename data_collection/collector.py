@@ -94,7 +94,10 @@ class TraceDataCollectionClient(TraceDataCollector):
                     break
         self.logger.debug("Trace Send Done, start to analyze")
         output_txt_file_name = "{}txt".format(output_pcap[0:-4])
-        trace_log = {"task_name": task_name, "network": network, "direction": direction, "variant": variant, "start_time": experiment_start_time, "task_time": task_time, "trace_file_name": output_txt_file_name, "udp_sending_rate": udp_sending_rate}
+        output_graph_file_name = "{}png".format(output_pcap[0:-4])
+        trace_log = {"task_name": task_name, "network": network, "direction": direction, "variant": variant, "start_time": experiment_start_time,
+            "task_time": task_time, "trace_file_name": output_txt_file_name, "udp_sending_rate": udp_sending_rate, "graph_path": output_graph_file_name
+        }
         with open(os.path.join(pcap_result_path ,"experiment_result.json"), "w") as f:
             json.dump(trace_log, f)
         self.pcap_to_txt(output_pcap, output_txt_file_name)
@@ -211,7 +214,10 @@ class TraceDataCollectionServer(TraceDataCollector):
 
         self.logger.debug("Trace Send Done, start to analyze")
         output_txt_file_name = "{}txt".format(output_pcap[0:-4])
-        trace_log = {"task_name": task_name, "network": network, "direction": direction, "variant": variant, "start_time": experiment_start_time, "task_time": task_time, "trace_file_name": output_txt_file_name, "udp_sending_rate": udp_sending_rate}
+        output_graph_file_name = "{}png".format(output_pcap[0:-4])
+        trace_log = {"task_name": task_name, "network": network, "direction": direction, "variant": variant, "start_time": experiment_start_time,
+            "task_time": task_time, "trace_file_name": output_txt_file_name, "udp_sending_rate": udp_sending_rate, "graph_path": output_graph_file_name
+        }
         with open(os.path.join(pcap_result_path ,"experiment_result.json"), "w") as f:
             json.dump(trace_log, f)
         self.pcap_to_txt(output_pcap, output_txt_file_name)

@@ -19,8 +19,12 @@ def main():
 
     data_collector.print_attribute()
 
-    #data_collector.iperf_tcpdump_download(test_config_download)
-    data_collector.iperf_tcp_dump_upload(test_config_upload)
+    download_result_log = data_collector.iperf_tcpdump_download(test_config_download)
+    upload_result_log = data_collector.iperf_tcp_dump_upload(test_config_upload)
+
+    data_analyzer = analyzer.TraceDataAnalyzer(web_server_config)
+    data_analyzer.draw_graph("log/iperf_tcpdump_result/CSL_4G_download_bbr_-1/")
+    data_analyzer.post_file_to_server("log/iperf_tcpdump_result/CSL_4G_download_bbr_-1/")
 
 
 
