@@ -193,7 +193,7 @@ class TraceDataCollectionServer(TraceDataCollector):
         output_pcap = os.path.join(pcap_result_path, "{}_{}_{}_{}.pcap".format(network, direction, variant, experiment_start_time))
 
         if variant != "udp":
-            os.system("tcpdump -i any tcp -s 96 src port {} -w {} > /dev/null 2>&1 &".format(iperf_port, output_pcap))
+            os.system("tcpdump -i any tcp -s 96 dst port {} -w {} > /dev/null 2>&1 &".format(iperf_port, output_pcap))
         else:
             os.system("tcpdump -i any udp -s 96 port {} -w {} > /dev/null 2>&1 &".format(iperf_port, output_pcap))
 
