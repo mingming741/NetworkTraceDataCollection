@@ -24,13 +24,13 @@ class TraceDataCollector(object):
     def print_attribute(self):
         for item in self.__dict__:
             if "config" not in item:
-                self.logger.info("{} : {}".format(item, self.__dict__[item]))
+                self.logger.debug("{} : {}".format(item, self.__dict__[item]))
 
 
     def pcap_to_txt(self, file_full_path, output_file_name):
         if os.path.exists(file_full_path):
             os.system("tshark -r " + file_full_path + " -T fields -e frame.time_epoch -e frame.len > " + output_file_name)
-            os.system("rm " + file_full_path)
+            #os.system("rm " + file_full_path)
         else:
             self.logger.error("Output trace data:{} to {}".format(file_full_path, output_file_name))
 
@@ -48,7 +48,7 @@ class TraceDataCollectionClient(TraceDataCollector):
     def iperf_tcpdump_download(self, test_config):
         task_name = test_config["task_name"]
         network = self.SIM
-        direction = "download"
+        direction = test_config["direction"]
         variant = test_config["variant"]
         experiment_id = test_config["experiment_id"]
         pcap_result_path = os.path.join(test_config["pcap_path"], "{}_{}_{}_{}".format(network, direction, variant, experiment_id))
@@ -84,7 +84,7 @@ class TraceDataCollectionClient(TraceDataCollector):
                     break
             except subprocess.TimeoutExpired as timeout:
                 if P_iperf_client.poll() == None:
-                    self.logger.info("Time up, Let iperf End")
+                    self.logger.debug("Time up, Let iperf End")
                     P_iperf_client.terminate()
                     break
             except Exception as e:
@@ -92,19 +92,20 @@ class TraceDataCollectionClient(TraceDataCollector):
                     self.logger.error("Exception happen, Let Server End")
                     P_iperf_client.terminate()
                     break
-        self.logger.info("Trace Send Done, start to analyze")
+        self.logger.debug("Trace Send Done, start to analyze")
         output_txt_file_name = "{}txt".format(output_pcap[0:-4])
         trace_log = {"task_name": task_name, "network": network, "direction": direction, "variant": variant, "start_time": experiment_start_time, "task_time": task_time, "trace_file_name": output_txt_file_name, "udp_sending_rate": udp_sending_rate}
         with open(os.path.join(pcap_result_path ,"experiment_result.json"), "w") as f:
             json.dump(trace_log, f)
         self.pcap_to_txt(output_pcap, output_txt_file_name)
+        self.logger.info("Download Client Done")
         return {"pcap_result_path": pcap_result_path, "status": 0}
 
 
     def iperf_tcp_dump_upload(self, test_config):
         task_name = test_config["task_name"]
         network = self.SIM
-        direction = "download"
+        direction = test_config["direction"]
         variant = test_config["variant"]
         experiment_id = test_config["experiment_id"]
         pcap_result_path = os.path.join(test_config["pcap_path"], "{}_{}_{}_{}".format(network, direction, variant, experiment_id))
@@ -133,7 +134,7 @@ class TraceDataCollectionClient(TraceDataCollector):
                     break
             except subprocess.TimeoutExpired as timeout:
                 if P_iperf_client.poll() == None:
-                    self.logger.info("Time up, Let iperf End")
+                    self.logger.debug("Time up, Let iperf End")
                     P_iperf_client.terminate()
                     break
             except Exception as e:
@@ -141,6 +142,8 @@ class TraceDataCollectionClient(TraceDataCollector):
                     self.logger.error("Exception happen, Let Server End")
                     P_iperf_client.terminate()
                     break
+        self.logger.info("Upload Client Done")
+        return {"status" : 0}
 
 
 
@@ -162,19 +165,20 @@ class TraceDataCollectionServer(TraceDataCollector):
             P_iperf_server.wait(task_time)
         except subprocess.TimeoutExpired as timeout:
             if P_iperf_server.poll() == None:
-                self.logger.info("Time up, Let iperf End")
+                self.logger.debug("Time up, Let iperf End")
                 P_iperf_server.terminate()
         except Exception as e:
             if P_iperf_server.poll() == 0:
                 self.logger.error("Exception happen, Let Server End")
                 P_iperf_server.terminate()
+        self.logger.info("Download Server Done")
         return {"status" : 0}
 
 
     def iperf_tcp_dump_upload(self, test_config):
         task_name = test_config["task_name"]
         network = self.SIM
-        direction = "download"
+        direction = test_config["direction"]
         variant = test_config["variant"]
         experiment_id = test_config["experiment_id"]
         pcap_result_path = os.path.join(test_config["pcap_path"], "{}_{}_{}_{}".format(network, direction, variant, experiment_id))
@@ -198,19 +202,20 @@ class TraceDataCollectionServer(TraceDataCollector):
             P_iperf_server.wait(task_time)
         except subprocess.TimeoutExpired as timeout:
             if P_iperf_server.poll() == None:
-                self.logger.info("Time up, Let iperf End")
+                self.logger.debug("Time up, Let iperf End")
                 P_iperf_server.terminate()
         except Exception as e:
             if P_iperf_server.poll() == 0:
                 self.logger.error("Exception happen, Let Server End")
                 P_iperf_server.terminate()
 
-        self.logger.info("Trace Send Done, start to analyze")
+        self.logger.debug("Trace Send Done, start to analyze")
         output_txt_file_name = "{}txt".format(output_pcap[0:-4])
         trace_log = {"task_name": task_name, "network": network, "direction": direction, "variant": variant, "start_time": experiment_start_time, "task_time": task_time, "trace_file_name": output_txt_file_name, "udp_sending_rate": udp_sending_rate}
         with open(os.path.join(pcap_result_path ,"experiment_result.json"), "w") as f:
             json.dump(trace_log, f)
         self.pcap_to_txt(output_pcap, output_txt_file_name)
+        self.logger.info("Upload Server Done")
         return {"pcap_result_path": pcap_result_path, "status": 0}
 
 

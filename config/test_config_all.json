@@ -18,7 +18,7 @@
     "direction": "upload",
     "variant": "cubic",
     "experiment_id": "-1",
-    "iperf_port": 7780,
+    "iperf_port": 7777,
     "iperf_logging_interval": 1,
     "udp_sending_rate": 20,
     "task_time": 20
