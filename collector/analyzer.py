@@ -122,9 +122,10 @@ class TraceDataAnalyzer(object):
         Task_Time = test_result['task_time']
         Task_Name = test_result['task_name']
         file_path = test_result['trace_file_name']
+        graph_path = test_result['graph_path']
         network_dict, variant_dict, direction_dict = self.get_db_info()
         parameters = {"Network_ID": network_dict[network], "Variant_ID": variant_dict[variant], "Direction_ID": direction_dict[direction], "Start_Time": Start_Time,"Task_Time": Task_Time,"Task_Name": Task_Name}
-        files = {'file': open(file_path,'rb')}
+        files = {'file': open(file_path,'rb'), 'graph': open(graph_path,'rb')}
         response = requests.post(server_url, files=files, data=parameters)
         self.logger.debug(response.json())
 
