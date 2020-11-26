@@ -32,7 +32,7 @@ class TraceDataCollector(object):
             os.system("tshark -r " + file_full_path + " -T fields -e frame.time_epoch -e frame.len > " + output_file_name)
             os.system("rm " + file_full_path)
         else:
-            self.logger.error("Output trace data:{} to {}".format(file_full_path, txt_dir))
+            self.logger.error("Output trace data:{} to {}".format(file_full_path, output_file_name))
 
 
 
@@ -115,6 +115,7 @@ class TraceDataCollectionClient(TraceDataCollector):
         iperf_port = test_config["iperf_port"]
 
 
+        client_timer = utils.DokiTimer(expired_time=task_time)
         while not client_timer.is_expire():
             try:
                 if "retry_start_time" not in locals():
