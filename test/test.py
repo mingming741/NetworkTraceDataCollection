@@ -18,8 +18,8 @@ def main():
 
     data_collector.print_attribute()
 
-    data_collector.iperf_tcpdump_download(test_config)
-
+    #data_collector.iperf_tcpdump_download(test_config)
+    data_collector.iperf_tcp_dump_upload(test_config)
 
 
 
