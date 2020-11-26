@@ -115,7 +115,7 @@ class TraceDataCollectionClient(TraceDataCollector):
         task_time = test_config["task_time"]
         iperf_port = test_config["iperf_port"]
 
-
+        os.system("sudo sysctl net.ipv4.tcp_congestion_control={}".format(variant))
         client_timer = utils.DokiTimer(expired_time=task_time)
         while not client_timer.is_expire():
             try:
