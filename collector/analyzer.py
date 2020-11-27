@@ -84,7 +84,9 @@ class TraceDataAnalyzer(object):
                 time_scale = "millisecond"
                 time_scale_unit = pre_config_timescale[time_scale]
         df_result = pd.DataFrame(data={"time" : [int(x/time_scale_unit) for x in df_result["time"].values], "packet_size" : df_result["packet_size"].values}).groupby("time").sum().reset_index()
-        df_throughput = pd.DataFrame(data={"time" : df_result["time"].values, "throughput" : [round(x/(1000000*time_scale_unit), 3) for x in df_result["packet_size"].values]}) # throughput in Mbps
+        print(df_result)
+        df_throughput = pd.DataFrame(data={"time" : df_result["time"].values, "throughput" : [round(x*8/(1000000*time_scale_unit), 3) for x in df_result["packet_size"].values]}) # throughput in Mbps
+        print(df_throughput)
         x_plot = df_throughput["time"].values
         count_list = df_throughput["throughput"].values
         fig, axs = plt.subplots(nrows = 1, ncols = 1, **figure_config["single"])

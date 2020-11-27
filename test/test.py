@@ -8,8 +8,8 @@ from schedule import scheduler
 
 
 def main():
-    #test_scheduler()
-    test_collector()
+    test_scheduler()
+    #test_collector()
 
 
 def test_scheduler():
@@ -37,7 +37,7 @@ def test_collector():
 
     data_collector.print_attribute()
 
-    download_result_log = data_collector.iperf_tcpdump_download(test_config_download)
+    #download_result_log = data_collector.iperf_tcpdump_download(test_config_download)
     #upload_result_log = data_collector.iperf_tcp_dump_upload(test_config_upload)
 
     data_analyzer = analyzer.TraceDataAnalyzer()
