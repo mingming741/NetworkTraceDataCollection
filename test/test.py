@@ -21,7 +21,7 @@ def test_scheduler():
         my_scheduler = scheduler.TraceDataSchedulerClient()
 
     my_scheduler.print_attribute()
-    my_scheduler.scheduling()
+    my_scheduler.scheduling(loop=True)
 
 
 
