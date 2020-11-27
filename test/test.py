@@ -8,7 +8,8 @@ from schedule import scheduler
 
 
 def main():
-    test_scheduler()
+    #test_scheduler()
+    test_collector()
 
 
 def test_scheduler():

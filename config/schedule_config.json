@@ -1,5 +1,6 @@
 {
   "scheduling_server_port": 2000,
+  "time_for_loop_scheduling": 600,
   "time_wait_peer_operation": 120,
   "scheduling_general_config":{
     "trace_path": "trace/",
@@ -13,39 +14,39 @@
       "task_name": "iperf_tcpdump_download",
       "direction": "download",
       "variant": "bbr",
-      "task_time": 3600
+      "task_time": 10800
     },
     {
       "task_name": "iperf_tcpdump_download",
       "direction": "download",
       "variant": "cubic",
-      "task_time": 3600
+      "task_time": 10800
     },
     {
       "task_name": "iperf_tcpdump_download",
       "direction": "download",
       "variant": "udp",
       "udp_sending_rate": 20,
-      "task_time": 3600
+      "task_time": 10800
     },
     {
       "task_name": "iperf_tcpdump_upload",
       "direction": "upload",
       "variant": "bbr",
-      "task_time": 3600
+      "task_time": 10800
     },
     {
       "task_name": "iperf_tcpdump_upload",
       "direction": "upload",
       "variant": "cubic",
-      "task_time": 3600
+      "task_time": 10800
     },
     {
       "task_name": "iperf_tcpdump_upload",
       "direction": "upload",
       "variant": "udp",
       "udp_sending_rate": 20,
-      "task_time": 3600
+      "task_time": 10800
     }
   ]
 }

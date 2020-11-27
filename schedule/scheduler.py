@@ -70,31 +70,38 @@ class TraceDataSchedulerClient(TraceDataScheduler):
         self.peer_hostname = self.config["peer_hostname"]
         self.peer_config = self.host_machine_config[self.peer_hostname]
         self.server_ip = self.peer_config["server_ip"]
+        self.time_for_loop_scheduling = self.schedule_config["time_for_loop_scheduling"] # in seconds
 
 
-    def scheduling(self):
-        for i in range(0, len(self.test_config_list)):
-            test_config = self.test_config_list[i]
+    def scheduling(self, loop=False):
+        while True:
+            for i in range(0, len(self.test_config_list)):
+                test_config = self.test_config_list[i]
 
-            while True:
-                client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                if not my_socket.retry_connect(client_socket, (self.server_ip, self.scheduling_server_port),max_try=30):
-                    logger.error("Connect To server Fail, retry")
-                    time.sleep(60)
-                    continue
-                message = json.dumps({"operation": "test", "test_config": test_config})
-                if not my_socket.retry_send(client_socket, message):
-                    logger.error("Connect Send Message, retry")
-                    time.sleep(60)
-                    continue
+                while True:
+                    client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                    if not my_socket.retry_connect(client_socket, (self.server_ip, self.scheduling_server_port),max_try=30):
+                        logger.error("Connect To server Fail, retry")
+                        time.sleep(60)
+                        continue
+                    message = json.dumps({"operation": "test", "test_config": test_config})
+                    if not my_socket.retry_send(client_socket, message):
+                        logger.error("Connect Send Message, retry")
+                        time.sleep(60)
+                        continue
 
-                data_collection_result = self.data_collector.data_collection(test_config)
-                if "pcap_result_path" in data_collection_result:
-                    self.data_analyzer.draw_graph(data_collection_result["pcap_result_path"])
-                    self.data_analyzer.post_file_to_server(data_collection_result["pcap_result_path"])
-                else: # wait somethings for server to do operation
-                    time.sleep(self.time_wait_peer_operation)
+                    data_collection_result = self.data_collector.data_collection(test_config)
+                    if "pcap_result_path" in data_collection_result:
+                        self.data_analyzer.draw_graph(data_collection_result["pcap_result_path"])
+                        self.data_analyzer.post_file_to_server(data_collection_result["pcap_result_path"])
+                    else: # wait somethings for server to do operation
+                        time.sleep(self.time_wait_peer_operation)
+                    break
+
+            if loop == False:
                 break
+            else:
+                time.sleep(self.time_for_loop_scheduling)
 
         client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         if not my_socket.retry_connect(client_socket, (self.server_ip, self.scheduling_server_port)):
@@ -113,7 +120,7 @@ class TraceDataSchedulerServer(TraceDataScheduler):
         self.server_ip = self.config["server_ip"]
 
 
-    def scheduling(self):
+    def scheduling(self, loop=False):
         server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         my_socket.retry_bind(server_socket, (self.server_ip, self.scheduling_server_port))
         server_socket.listen(10)
