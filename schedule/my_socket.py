@@ -36,7 +36,7 @@ def retry_send(my_socket, message, retry_timeout=5, stable_wait_time=1, max_try=
         try:
             my_socket.send(message)
             time.sleep(stable_wait_time)
-            logger.debug("{}--> Send message {}, success".format(current_script, message))
+            logger.debug("{}--> Send message {}".format(current_script, message))
             return True
         except Exception as e:
             logger.warning("{}--> Exception happen send message: {}".format(current_script, e))

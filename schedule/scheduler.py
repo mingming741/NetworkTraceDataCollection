@@ -84,6 +84,7 @@ class TraceDataSchedulerClient(TraceDataScheduler):
                         logger.error("Connect To server Fail, retry")
                         time.sleep(60)
                         continue
+                    time.sleep(2)
                     message = json.dumps({"operation": "test", "test_config": test_config})
                     if not my_socket.retry_send(client_socket, message):
                         logger.error("Connect Send Message, retry")
@@ -127,7 +128,7 @@ class TraceDataSchedulerServer(TraceDataScheduler):
         while True:
             self.logger.info("Wait for client command")
             client_socket, client_address = server_socket.accept()
-            self.logger.debug("Recieve from client {}".format(client_address))
+            self.logger.debug("Recieve from client {}, wait for client command".format(client_address))
             message = my_socket.wait_receive_message(client_socket)
             if message == None:
                 self.logger.error("Recieve client message Error! Redo scheduling")
