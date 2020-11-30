@@ -6,46 +6,46 @@
     "pcap_path": "log/iperf_tcpdump_result/",
     "iperf_port": 7777,
     "experiment_id": "",
-    "iperf_logging_interval": 1
+    "iperf_logging_interval": 60
   },
   "scheduling_list" : [
     {
-      "task_name": "iperf_tcpdump_download",
-      "direction": "download",
-      "variant": "bbr",
-      "task_time": 60
-    },
-    {
-      "task_name": "iperf_tcpdump_download",
-      "direction": "download",
+      "task_name": "iperf_tcpdump_upload",
+      "direction": "upload",
       "variant": "cubic",
-      "task_time": 60
-    },
-    {
-      "task_name": "iperf_tcpdump_download",
-      "direction": "download",
-      "variant": "udp",
-      "udp_sending_rate": 20,
-      "task_time": 60
+      "task_time": 21600
     },
     {
       "task_name": "iperf_tcpdump_upload",
       "direction": "upload",
       "variant": "bbr",
-      "task_time": 60
-    },
-    {
-      "task_name": "iperf_tcpdump_upload",
-      "direction": "upload",
-      "variant": "cubic",
-      "task_time": 60
+      "task_time": 21600
     },
     {
       "task_name": "iperf_tcpdump_upload",
       "direction": "upload",
       "variant": "udp",
       "udp_sending_rate": 20,
-      "task_time": 60
+      "task_time": 21600
+    },
+    {
+      "task_name": "iperf_tcpdump_download",
+      "direction": "download",
+      "variant": "cubic",
+      "task_time": 21600
+    },
+    {
+      "task_name": "iperf_tcpdump_download",
+      "direction": "download",
+      "variant": "bbr",
+      "task_time": 21600
+    },
+    {
+      "task_name": "iperf_tcpdump_download",
+      "direction": "download",
+      "variant": "udp",
+      "udp_sending_rate": 20,
+      "task_time": 21600
     }
   ]
 }

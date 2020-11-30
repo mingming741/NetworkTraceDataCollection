@@ -97,7 +97,9 @@ class TraceDataSchedulerClient(TraceDataScheduler):
                             break
 
                     # Data collection
+                    time.sleep(5)
                     data_collection_result = self.data_collector.data_collection(test_config)
+                    time.sleep(5)
 
                     # Exchange Uploading to web Information
                     if "pcap_result_path" in data_collection_result and self.exit == False:
@@ -116,6 +118,7 @@ class TraceDataSchedulerClient(TraceDataScheduler):
                         message = my_socket.wait_receive_message(client_socket, timeout=-1)
                         if message == "ACK":
                             my_socket.retry_send(client_socket, "ACK")
+                    time.sleep(5)
                     break
 
             if loop == False:
@@ -169,7 +172,9 @@ class TraceDataSchedulerServer(TraceDataScheduler):
                     if message_json["operation"] == "test" and self.is_running == True:
                         message = "ACK"
                         my_socket.retry_send(client_socket, message)
+                        time.sleep(5)
                         data_collection_result = self.data_collector.data_collection(message_json["test_config"])
+                        time.sleep(5)
                         if "pcap_result_path" in data_collection_result and self.is_running == True:
                             self.data_analyzer.draw_graph(data_collection_result["pcap_result_path"])
                             self.data_analyzer.post_file_to_server(data_collection_result["pcap_result_path"])
@@ -193,6 +198,7 @@ class TraceDataSchedulerServer(TraceDataScheduler):
                     client_socket.close()
                     self.is_running = False
                     break
+        time.sleep(5)
         self.handle_client_connection_return = True
         self.logger.info("Handler client connection threading exit..")
 
