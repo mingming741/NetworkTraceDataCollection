@@ -45,7 +45,6 @@ class TraceDataScheduler(object):
         else:
             self.data_collector = collector.TraceDataCollectionServer(host_machine_config=self.host_machine_config)
         self.data_analyzer = analyzer.TraceDataAnalyzer(web_server_config=self.web_server_config)
-        self.time_wait_peer_operation = self.schedule_config["time_wait_peer_operation"] # in seconds
 
 
 
