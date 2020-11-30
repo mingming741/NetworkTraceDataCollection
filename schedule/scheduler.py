@@ -133,6 +133,7 @@ class TraceDataSchedulerServer(TraceDataScheduler):
     def __init__(self, schedule_config=None, web_server_config=None, host_machine_config=None, role="server"):
         super(TraceDataSchedulerServer, self).__init__(schedule_config, web_server_config, host_machine_config, role)
         self.server_ip = self.config["server_ip"]
+        self.is_running = False
 
 
     def scheduling(self, loop=False):
