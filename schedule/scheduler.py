@@ -87,8 +87,7 @@ class TraceDataSchedulerClient(TraceDataScheduler):
 
                     # Exchange config with server
                     while self.exit == False:
-                        if not my_socket.retry_send(client_socket, json.dumps({"operation": "test", "test_config": test_config})):
-                            continue
+                        my_socket.retry_send(client_socket, json.dumps({"operation": "test", "test_config": test_config}))
                         message = my_socket.wait_receive_message(client_socket, timeout=30)
                         if message == None:
                             self.logger.info("Server ACK timeout, resend test config")
@@ -105,8 +104,7 @@ class TraceDataSchedulerClient(TraceDataScheduler):
                         self.data_analyzer.draw_graph(data_collection_result["pcap_result_path"])
                         self.data_analyzer.post_file_to_server(data_collection_result["pcap_result_path"])
                         while self.exit == False:
-                            if not my_socket.retry_send(client_socket, "ACK"):
-                                continue
+                            my_socket.retry_send(client_socket, "ACK")
                             message = my_socket.wait_receive_message(client_socket, timeout=30)
                             if message == None:
                                 self.logger.info("Server ACK timeout, resend ACK")
@@ -117,8 +115,7 @@ class TraceDataSchedulerClient(TraceDataScheduler):
                     else: # wait somethings for server to do operation
                         message = my_socket.wait_receive_message(client_socket, timeout=-1)
                         if message == "ACK":
-                            if not my_socket.retry_send(client_socket, "ACK"):
-                                continue
+                            my_socket.retry_send(client_socket, "ACK")
                     break
 
             if loop == False:
@@ -171,13 +168,13 @@ class TraceDataSchedulerServer(TraceDataScheduler):
                     message_json = json.loads(message)
                     if message_json["operation"] == "test" and self.is_running == True:
                         message = "ACK"
-                        my_socket.retry_send(client_socket, message):
+                        my_socket.retry_send(client_socket, message)
                         data_collection_result = self.data_collector.data_collection(message_json["test_config"])
                         if "pcap_result_path" in data_collection_result and self.is_running == True:
                             self.data_analyzer.draw_graph(data_collection_result["pcap_result_path"])
                             self.data_analyzer.post_file_to_server(data_collection_result["pcap_result_path"])
                             while self.is_running == True:
-                                my_socket.retry_send(client_socket, "ACK"):
+                                my_socket.retry_send(client_socket, "ACK")
                                 message = my_socket.wait_receive_message(client_socket, timeout=30)
                                 if message == None:
                                     self.logger.info("Client ACK timeout, resend ACK")
@@ -188,7 +185,7 @@ class TraceDataSchedulerServer(TraceDataScheduler):
                         else:
                             message = my_socket.wait_receive_message(client_socket, timeout=-1)
                             if message == "ACK":
-                                my_socket.retry_send(client_socket, "ACK"):
+                                my_socket.retry_send(client_socket, "ACK")
                                 self.is_running = False
 
                 except Exception as e:
