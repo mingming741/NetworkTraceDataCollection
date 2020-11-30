@@ -4,6 +4,7 @@ import os
 import time
 import logging
 import json
+import threading
 from datetime import datetime
 
 import context
@@ -74,44 +75,58 @@ class TraceDataSchedulerClient(TraceDataScheduler):
 
 
     def scheduling(self, loop=False):
-        while True:
+        self.exit = False
+        while self.exit == False:
             for i in range(0, len(self.test_config_list)):
                 test_config = self.test_config_list[i]
 
-                while True:
+                while self.exit == False:
                     client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                    if not my_socket.retry_connect(client_socket, (self.server_ip, self.scheduling_server_port),max_try=30):
-                        logger.error("Connect To server Fail, retry")
-                        time.sleep(60)
-                        continue
-                    time.sleep(2)
-                    message = json.dumps({"operation": "test", "test_config": test_config})
-                    if not my_socket.retry_send(client_socket, message):
-                        logger.error("Connect Send Message, retry")
-                        time.sleep(60)
-                        continue
+                    if not my_socket.retry_connect(client_socket, (self.server_ip, self.scheduling_server_port), max_try=10):
+                        raise Exception("Unable to connect to server, exiting scheduling")
+                    time.sleep(1)
 
+                    # Exchange config with server
+                    while self.exit == False:
+                        if not my_socket.retry_send(client_socket, json.dumps({"operation": "test", "test_config": test_config})):
+                            continue
+                        message = my_socket.wait_receive_message(client_socket, timeout=30)
+                        if message == None:
+                            self.logger.info("Server ACK timeout, resend test config")
+                            continue
+                        elif message == "ACK":
+                            self.logger.info("Recieve Server ACK, trace collection start")
+                            break
+
+                    # Data collection
                     data_collection_result = self.data_collector.data_collection(test_config)
-                    if "pcap_result_path" in data_collection_result:
+
+                    # Exchange Uploading to web Information
+                    if "pcap_result_path" in data_collection_result and self.exit == False:
                         self.data_analyzer.draw_graph(data_collection_result["pcap_result_path"])
                         self.data_analyzer.post_file_to_server(data_collection_result["pcap_result_path"])
+                        while self.exit == False:
+                            if not my_socket.retry_send(client_socket, "ACK"):
+                                continue
+                            message = my_socket.wait_receive_message(client_socket, timeout=30)
+                            if message == None:
+                                self.logger.info("Server ACK timeout, resend ACK")
+                                continue
+                            elif message == "ACK":
+                                self.logger.info("Recieve Server ACK, current trace collection end")
+                                break
                     else: # wait somethings for server to do operation
-                        time.sleep(self.time_wait_peer_operation)
+                        message = my_socket.wait_receive_message(client_socket, timeout=-1)
+                        if message == "ACK":
+                            if not my_socket.retry_send(client_socket, "ACK"):
+                                continue
                     break
 
             if loop == False:
-                break
+                self.exit = True
             else:
                 time.sleep(self.time_for_loop_scheduling)
 
-        client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        if not my_socket.retry_connect(client_socket, (self.server_ip, self.scheduling_server_port)):
-            logger.error("Connect To server Fail, retry")
-            time.sleep(60)
-        message = json.dumps({"operation": "end"})
-        if not my_socket.retry_send(client_socket, message):
-            logger.error("Connect Send Message, retry")
-            time.sleep(60)
         self.logger.info("Client Exit Scheduling, Experiment Done")
 
 
@@ -126,30 +141,68 @@ class TraceDataSchedulerServer(TraceDataScheduler):
         my_socket.retry_bind(server_socket, (self.server_ip, self.scheduling_server_port))
         server_socket.listen(10)
         while True:
-            self.logger.info("Wait for client command")
-            client_socket, client_address = server_socket.accept()
+            self.logger.info("Wait for client connection..")
+            (client_socket, client_address) = server_socket.accept()
+            if self.is_running == False: # Create sub threading
+                client_thread = threading.Thread(target=handle_client_connection, args=(client_socket, client_address), daemon=True)
+                client_thread.start()
+            elif self.is_running == True: # Discard current sub threading
+                self.is_running = False
+                while True:
+                    if self.handle_client_connection_return == True: # wait for current sub threading exit
+                        client_thread = threading.Thread(target=handle_client_connection, args=(client_socket, client_address), daemon=True)
+                        client_thread.start()
+                        break
+
+
+    def handle_client_connection(self, client_socket, client_address):
+        self.is_running = True
+        self.handle_client_connection_return = False
+        while self.is_running:
             self.logger.debug("Recieve from client {}, wait for client command".format(client_address))
             message = my_socket.wait_receive_message(client_socket)
             if message == None:
                 self.logger.error("Recieve client message Error! Redo scheduling")
                 client_socket.close()
-                continue
+                self.is_running = False
+                break
             else:
                 try:
                     message_json = json.loads(message)
-                    if message_json["operation"] == "end":
-                        break
-                    if message_json["operation"] == "test":
-                        test_config =  message_json["test_config"]
-                        data_collection_result = self.data_collector.data_collection(test_config)
-                        if "pcap_result_path" in data_collection_result:
+                    if message_json["operation"] == "test" and self.is_running == True:
+                        message = "ACK"
+                        if not my_socket.retry_send(client_socket, message):
+                            self.logger.error("Send Message, retry")
+                            time.sleep(60)
+                            continue
+                        data_collection_result = self.data_collector.data_collection(message_json["test_config"])
+                        if "pcap_result_path" in data_collection_result and self.is_running == True:
                             self.data_analyzer.draw_graph(data_collection_result["pcap_result_path"])
                             self.data_analyzer.post_file_to_server(data_collection_result["pcap_result_path"])
+                            while self.is_running == True:
+                                if not my_socket.retry_send(client_socket, "ACK"):
+                                    continue
+                                message = my_socket.wait_receive_message(client_socket, timeout=30)
+                                if message == None:
+                                    self.logger.info("Client ACK timeout, resend ACK")
+                                    continue
+                                elif message == "ACK":
+                                    self.logger.info("Recieve Client ACK, current trace collection end")
+                                    break
+                        else:
+                            message = my_socket.wait_receive_message(client_socket, timeout=-1)
+                            if message == "ACK":
+                                if not my_socket.retry_send(client_socket, "ACK"):
+                                    continue
+
                 except Exception as e:
                     self.logger.error("Cannot decode client message! Redo scheduling")
                     client_socket.close()
-                    continue
-        self.logger.info("Server Exit Scheduling, Experiment Done")
+                    self.is_running = False
+                    break
+        self.handle_client_connection_return = True
+        self.logger.info("Handler client connection threading exit..")
+
 
 
 

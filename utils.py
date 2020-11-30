@@ -78,6 +78,8 @@ class DokiTimer:
 
 
     def is_expire(self):
+        if self.expired_time == -1: # -1 is pre-config never expired timer
+            return False
         current_time = time.perf_counter()
         if (current_time - self._start_time) >=  self._expired_time:
             if self._repeat == True:
