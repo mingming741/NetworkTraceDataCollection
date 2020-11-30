@@ -14,7 +14,6 @@ current_script = os.path.basename(__file__)
 
 def wait_receive_message(my_socket, timeout=300):
     message = ""
-    my_socket.setblocking(0)
     try:
         my_timer = DokiTimer(expired_time=timeout)
         while my_timer.is_expire() == False:
