@@ -12,12 +12,15 @@ logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 current_script = os.path.basename(__file__)
 
-def wait_receive_message(my_socket, timeout=300):
+def wait_receive_message(my_socket, timeout=120):
     message = ""
+    my_socket.setblocking(0)
     try:
         my_timer = DokiTimer(expired_time=timeout)
         while my_timer.is_expire() == False:
-            data = my_socket.recv(1024).decode("utf-8")
+            ready = select.select([my_socket], [], [], 10)
+            if ready[0]:
+                data = my_socket.recv(1024).decode("utf-8")
             message = message + data
             if "##DOKI##" in data:
                 message = message.replace("##DOKI##", "")
@@ -29,7 +32,7 @@ def wait_receive_message(my_socket, timeout=300):
         return None
 
 
-def retry_send(my_socket, message, retry_timeout=30, max_try=10):
+def retry_send(my_socket, message, retry_timeout=10, max_try=10):
     message = (message + "##DOKI##").encode("utf-8")
     exit_flag = 0
     while exit_flag < max_try:
@@ -66,7 +69,7 @@ def retry_bind(my_socket, my_socket_address_port, retry_timeout=300, max_try=10)
         return False
 
 
-def retry_connect(my_socket, server_address_port, retry_timeout=30, max_try=10):
+def retry_connect(my_socket, server_address_port, retry_timeout=10, max_try=10):
     exit_flag = 0
     while exit_flag < max_try:
         try:
