@@ -6,7 +6,7 @@
     "pcap_path": "log/iperf_tcpdump_result/",
     "iperf_port": 7777,
     "experiment_id": "",
-    "iperf_logging_interval": 60
+    "iperf_logging_interval": 1
   },
   "scheduling_list" : [
     {
