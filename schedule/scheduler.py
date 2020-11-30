@@ -147,8 +147,8 @@ class TraceDataSchedulerServer(TraceDataScheduler):
                 client_thread = threading.Thread(target=self.handle_client_connection, args=(client_socket, client_address), daemon=True)
                 client_thread.start()
             elif self.is_running == True: # Discard current sub threading
-                self.is_running = False
                 while True:
+                    self.is_running = False
                     if self.handle_client_connection_return == True: # wait for current sub threading exit
                         client_thread = threading.Thread(target=self.handle_client_connection, args=(client_socket, client_address), daemon=True)
                         client_thread.start()
@@ -171,17 +171,13 @@ class TraceDataSchedulerServer(TraceDataScheduler):
                     message_json = json.loads(message)
                     if message_json["operation"] == "test" and self.is_running == True:
                         message = "ACK"
-                        if not my_socket.retry_send(client_socket, message):
-                            self.logger.error("Send Message, retry")
-                            time.sleep(60)
-                            continue
+                        my_socket.retry_send(client_socket, message):
                         data_collection_result = self.data_collector.data_collection(message_json["test_config"])
                         if "pcap_result_path" in data_collection_result and self.is_running == True:
                             self.data_analyzer.draw_graph(data_collection_result["pcap_result_path"])
                             self.data_analyzer.post_file_to_server(data_collection_result["pcap_result_path"])
                             while self.is_running == True:
-                                if not my_socket.retry_send(client_socket, "ACK"):
-                                    continue
+                                my_socket.retry_send(client_socket, "ACK"):
                                 message = my_socket.wait_receive_message(client_socket, timeout=30)
                                 if message == None:
                                     self.logger.info("Client ACK timeout, resend ACK")
@@ -192,8 +188,8 @@ class TraceDataSchedulerServer(TraceDataScheduler):
                         else:
                             message = my_socket.wait_receive_message(client_socket, timeout=-1)
                             if message == "ACK":
-                                if not my_socket.retry_send(client_socket, "ACK"):
-                                    continue
+                                my_socket.retry_send(client_socket, "ACK"):
+                                self.is_running = False
 
                 except Exception as e:
                     self.logger.error("Cannot decode client message! Redo scheduling")
