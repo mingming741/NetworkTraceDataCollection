@@ -144,13 +144,13 @@ class TraceDataSchedulerServer(TraceDataScheduler):
             self.logger.info("Wait for client connection..")
             (client_socket, client_address) = server_socket.accept()
             if self.is_running == False: # Create sub threading
-                client_thread = threading.Thread(target=handle_client_connection, args=(client_socket, client_address), daemon=True)
+                client_thread = threading.Thread(target=self.handle_client_connection, args=(client_socket, client_address), daemon=True)
                 client_thread.start()
             elif self.is_running == True: # Discard current sub threading
                 self.is_running = False
                 while True:
                     if self.handle_client_connection_return == True: # wait for current sub threading exit
-                        client_thread = threading.Thread(target=handle_client_connection, args=(client_socket, client_address), daemon=True)
+                        client_thread = threading.Thread(target=self.handle_client_connection, args=(client_socket, client_address), daemon=True)
                         client_thread.start()
                         break
 
