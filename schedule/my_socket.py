@@ -18,9 +18,7 @@ def wait_receive_message(my_socket, timeout=300):
     try:
         my_timer = DokiTimer(expired_time=timeout)
         while my_timer.is_expire() == False:
-            ready = select.select([my_socket], [], [], 30)
-            if ready[0]:
-                data = my_socket.recv(1024).decode("utf-8")
+            data = my_socket.recv(1024).decode("utf-8")
             message = message + data
             if "##DOKI##" in data:
                 message = message.replace("##DOKI##", "")
