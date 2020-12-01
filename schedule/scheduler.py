@@ -104,7 +104,7 @@ class TraceDataSchedulerClient(TraceDataScheduler):
                         # In this case, server will wait for next connection, so does not need to send ACK
                         self.data_analyzer.draw_graph(data_collection_result["pcap_result_path"])
                         self.data_analyzer.post_file_to_server(data_collection_result["pcap_result_path"])
-                        logger.info("Send trace to web interface Done")
+                        self.logger.info("Send trace to web interface Done")
                     else: # wait for server to do the file upload, server will upload the file so cannot setup connection in this case
                         time.sleep(int(test_config["task_time"] / 90) + 1)
                         # 1 hour trace is 150MB, server bandwidth around 30 Mbps,
@@ -123,7 +123,6 @@ class TraceDataSchedulerServer(TraceDataScheduler):
     def __init__(self, schedule_config=None, web_server_config=None, host_machine_config=None, role="server"):
         super(TraceDataSchedulerServer, self).__init__(schedule_config, web_server_config, host_machine_config, role)
         self.server_ip = self.config["server_ip"]
-        self.is_running = False
 
 
     def scheduling(self, loop=False):
