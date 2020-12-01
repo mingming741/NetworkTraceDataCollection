@@ -75,7 +75,7 @@ class TraceDataCollectionClient(TraceDataCollector):
         else:
             udp_sending_rate = test_config["udp_sending_rate"]
             os.system("tcpdump -i any udp -s 96 port {} -w {} > /dev/null 2>&1 &".format(iperf_port, output_pcap))
-        client_timer = utils.DokiTimer(expired_time=task_time)
+        client_timer = utils.DokiTimer(expired_time=min(task_time,300))
         while not client_timer.is_expire():
             try:
                 if "retry_start_time" not in locals():
