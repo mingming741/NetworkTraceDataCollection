@@ -80,6 +80,7 @@ class TraceDataSchedulerClient(TraceDataScheduler):
                 while True:
                     # Connect to server
                     client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                    self.server_ACK_time_out = False
                     if not my_socket.retry_connect(client_socket, (self.server_ip, self.scheduling_server_port), max_try=10):
                         self.logger.info("Unable to connect to server, Redo current experiment...")
                         continue
@@ -89,8 +90,9 @@ class TraceDataSchedulerClient(TraceDataScheduler):
                     my_socket.retry_send(client_socket, json.dumps({"operation": "test", "test_config": test_config}))
                     message = my_socket.wait_receive_message(client_socket, timeout=30)
                     if message == None:
-                        self.logger.info("Server ACK timeout, Redo current experiment...")
-                        continue
+                        self.logger.info("Server ACK timeout, try once experiment current experiment...")
+                        self.server_ACK_time_out = True
+                        server_ACK_time_out_Timer = utils.DokiTimer(expired_time=min(test_config["task_time"], 600))
                     elif message == "ACK":
                         self.logger.info("Recieve Server ACK, trace collection start")
 
@@ -99,12 +101,20 @@ class TraceDataSchedulerClient(TraceDataScheduler):
                     data_collection_result = self.data_collector.data_collection(test_config)
                     time.sleep(1)
 
+                    if self.server_ACK_time_out == True and server_ACK_time_out_Timer.is_expire() == False:
+                        # Server may goes into wait connection status
+                        logger.info("Cannot connect serfer iperf, Redo current experiment...")
+                        continue
+
                     # Exchange Uploading to web Information
                     if "pcap_result_path" in data_collection_result:
                         # In this case, server will wait for next connection, so does not need to send ACK
-                        self.data_analyzer.draw_graph(data_collection_result["pcap_result_path"])
-                        self.data_analyzer.post_file_to_server(data_collection_result["pcap_result_path"])
-                        self.logger.info("Send trace to web interface Done")
+                        if self.data_analyzer.draw_graph(data_collection_result["pcap_result_path"]):
+                            self.data_analyzer.post_file_to_server(data_collection_result["pcap_result_path"])
+                            self.logger.info("Send trace to web interface Done")
+                        else:
+                            self.logger.error("No trace is generated, Redo current experiment")
+                            continue
                     else: # wait for server to do the file upload, server will upload the file so cannot setup connection in this case
                         time.sleep(int(test_config["task_time"] / 90) + 1)
                         # 1 hour trace is 150MB, server bandwidth around 30 Mbps,
@@ -158,8 +168,12 @@ class TraceDataSchedulerServer(TraceDataScheduler):
                 # Upload to server or wait for peer upload
                 if "pcap_result_path" in data_collection_result:
                     # Client will wait some time and reconnect to server, if server does not ready, client will keep on connect
-                    self.data_analyzer.draw_graph(data_collection_result["pcap_result_path"])
-                    self.data_analyzer.post_file_to_server(data_collection_result["pcap_result_path"])
+                    if self.data_analyzer.draw_graph(data_collection_result["pcap_result_path"]):
+                        self.data_analyzer.post_file_to_server(data_collection_result["pcap_result_path"])
+                        self.logger.info("Send trace to web interface Done")
+                    else:
+                        self.logger.error("No trace is generated, Redo current experiment")
+                        continue
 
                 # If client upload the trace, then server can exist and wait for another connection
                 continue

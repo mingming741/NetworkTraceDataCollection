@@ -65,6 +65,8 @@ class TraceDataAnalyzer(object):
         # time_scale, 1 is second, 1000 is milli second, 60 is minutes
         test_result = utils.parse_config(os.path.join(test_result_path, "experiment_result.json"))
         df_result = pd.read_csv(test_result["trace_file_name"], names=["time", "packet_size"], header=None, delimiter='\t')
+        if df_result.shape[0] == 0:
+            return False
 
         pre_config_timescale = {"hour": 3600, "minute": 60, "second":1, "millisecond": 0.001}
         if time_scale in pre_config_timescale:
@@ -95,6 +97,7 @@ class TraceDataAnalyzer(object):
         axs.set_xlim(left=min(x_plot)-1, right=max(x_plot)+1)
         plt.savefig(test_result["graph_path"])
         plt.close()
+        return True
 
 
     def get_db_info(self):

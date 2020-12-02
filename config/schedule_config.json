@@ -13,39 +13,39 @@
       "task_name": "iperf_tcpdump_upload",
       "direction": "upload",
       "variant": "cubic",
-      "task_time": 21600
-    },
-    {
-      "task_name": "iperf_tcpdump_upload",
-      "direction": "upload",
-      "variant": "bbr",
-      "task_time": 21600
-    },
-    {
-      "task_name": "iperf_tcpdump_upload",
-      "direction": "upload",
-      "variant": "udp",
-      "udp_sending_rate": 20,
-      "task_time": 21600
+      "task_time": 10800
     },
     {
       "task_name": "iperf_tcpdump_download",
       "direction": "download",
       "variant": "cubic",
-      "task_time": 21600
+      "task_time": 10800
     },
     {
-      "task_name": "iperf_tcpdump_download",
-      "direction": "download",
-      "variant": "bbr",
-      "task_time": 21600
+      "task_name": "iperf_tcpdump_upload",
+      "direction": "upload",
+      "variant": "udp",
+      "udp_sending_rate": 20,
+      "task_time": 10800
     },
     {
       "task_name": "iperf_tcpdump_download",
       "direction": "download",
       "variant": "udp",
       "udp_sending_rate": 20,
-      "task_time": 21600
+      "task_time": 10800
+    },
+    {
+      "task_name": "iperf_tcpdump_upload",
+      "direction": "upload",
+      "variant": "bbr",
+      "task_time": 10800
+    },
+    {
+      "task_name": "iperf_tcpdump_download",
+      "direction": "download",
+      "variant": "bbr",
+      "task_time": 10800
     }
   ]
 }

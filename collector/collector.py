@@ -127,7 +127,7 @@ class TraceDataCollectionClient(TraceDataCollector):
         iperf_port = test_config["iperf_port"]
 
         os.system("sudo sysctl net.ipv4.tcp_congestion_control={}".format(variant))
-        client_timer = utils.DokiTimer(expired_time=task_time)
+        client_timer = utils.DokiTimer(expired_time=min(task_time,300))
         while not client_timer.is_expire():
             try:
                 if "retry_start_time" not in locals():
@@ -138,7 +138,7 @@ class TraceDataCollectionClient(TraceDataCollector):
                     udp_sending_rate = test_config["udp_sending_rate"]
                     P_iperf_client = subprocess.Popen("exec iperf3 -c {} -p {} --length 1472 -u -b {}m -t {} -i {}".format(self.server_ip, iperf_port, udp_sending_rate, task_time, iperf_logging_interval) , shell=True)
                 P_iperf_client.wait(task_time)
-                if time.time() - retry_start_time <= 5: # assume no experiment is running, retry
+                if time.time() - retry_start_time <= 3: # assume no experiment is running, retry
                     retry_start_time = time.time()
                     self.logger.warning("Error to connect with iperf3 server, retry...")
                     time.sleep(1)
