@@ -77,6 +77,7 @@ class TraceDataSchedulerClient(TraceDataScheduler):
         while True:
             for i in range(0, len(self.test_config_list)):
                 test_config = self.test_config_list[i]
+                test_config["experiment_id"] = datetime.fromtimestamp(time.time()).strftime("%Y_%m_%d_%H_%M_%S")
                 while True:
                     # Connect to server
                     client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
