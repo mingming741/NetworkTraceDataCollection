@@ -104,7 +104,7 @@ class TraceDataSchedulerClient(TraceDataScheduler):
 
                     if self.server_ACK_time_out == True and server_ACK_time_out_Timer.is_expire() == False:
                         # Server may goes into wait connection status
-                        logger.info("Cannot connect serfer iperf, Redo current experiment...")
+                        self.logger.info("Cannot connect serfer iperf, Redo current experiment...")
                         continue
 
                     # Exchange Uploading to web Information
@@ -180,7 +180,7 @@ class TraceDataSchedulerServer(TraceDataScheduler):
                 continue
 
             # Exiting
-            logger.info("One Experiment Done, back to wait connection state")
+            self.logger.info("One Experiment Done, back to wait connection state")
             time.sleep(5)
 
 
