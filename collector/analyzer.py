@@ -64,6 +64,9 @@ class TraceDataAnalyzer(object):
     def draw_graph(self, test_result_path, time_scale=None):
         # time_scale, 1 is second, 1000 is milli second, 60 is minutes
         test_result = utils.parse_config(os.path.join(test_result_path, "experiment_result.json"))
+        year, month, day, hour, minute, second = test_result["start_time"].split("_")
+        start_time_datetime = datetime(int(year), int(month), int(day), int(hour), int(minute), int(second))
+        start_timestamp = start_time_datetime.timestamp()
         df_result = pd.read_csv(test_result["trace_file_name"], names=["time", "packet_size"], header=None, delimiter='\t')
         if df_result.shape[0] == 0:
             return False
@@ -85,7 +88,7 @@ class TraceDataAnalyzer(object):
             else:
                 time_scale = "millisecond"
                 time_scale_unit = pre_config_timescale[time_scale]
-        df_result = pd.DataFrame(data={"time" : [int(x/time_scale_unit) for x in df_result["time"].values], "packet_size" : df_result["packet_size"].values}).groupby("time").sum().reset_index()
+        df_result = pd.DataFrame(data={"time" : [int((x-start_timestamp)/time_scale_unit) for x in df_result["time"].values], "packet_size" : df_result["packet_size"].values}).groupby("time").sum().reset_index()
         df_throughput = pd.DataFrame(data={"time" : df_result["time"].values, "throughput" : [round(x*8/(1000000*time_scale_unit), 3) for x in df_result["packet_size"].values]}) # throughput in Mbps
         x_plot = df_throughput["time"].values
         count_list = df_throughput["throughput"].values
