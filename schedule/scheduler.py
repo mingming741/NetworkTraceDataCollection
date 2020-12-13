@@ -16,7 +16,7 @@ from schedule import my_socket
 
 class TraceDataScheduler(object):
     def __init__(self, schedule_config=None, web_server_config=None, host_machine_config=None, role=None):
-        logging.basicConfig(level=logging.DEBUG, format='%(levelname)-1s [%(filename)s:%(lineno)d] %(message)s', datefmt='%Y-%m-%d:%H:%M:%S')
+        logging.basicConfig(level=logging.DEBUG, format='%(asctime)s | %(levelname)-1s [%(filename)s:%(lineno)d] %(message)s', datefmt='%Y-%m-%d:%H:%M:%S')
         self.logger = logging.getLogger(__name__)
         if role in ["client", "server", None]:
             self.role = role

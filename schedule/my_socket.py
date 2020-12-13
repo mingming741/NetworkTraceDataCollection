@@ -8,7 +8,7 @@ import os
 from utils import DokiTimer
 
 
-logging.basicConfig(level=logging.DEBUG, format='%(levelname)-1s [%(filename)s:%(lineno)d] %(message)s', datefmt='%Y-%m-%d:%H:%M:%S')
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s | %(levelname)-1s [%(filename)s:%(lineno)d] %(message)s', datefmt='%Y-%m-%d:%H:%M:%S')
 logger = logging.getLogger(__name__)
 
 

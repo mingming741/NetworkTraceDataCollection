@@ -17,7 +17,7 @@ class TraceDataCollector(object):
             self.host_machine_config = utils.parse_config("config/host_machine_config.json")
         self.hostname = socket.gethostname()
         self.config = self.host_machine_config[self.hostname]
-        logging.basicConfig(level=logging.DEBUG, format='%(levelname)-1s [%(filename)s:%(lineno)d] %(message)s', datefmt='%Y-%m-%d:%H:%M:%S')
+        logging.basicConfig(level=logging.DEBUG, format='%(asctime)s | %(levelname)-1s [%(filename)s:%(lineno)d] %(message)s', datefmt='%Y-%m-%d:%H:%M:%S')
         self.logger = logging.getLogger(__name__)
         if role in ["client", "server", None]:
             self.role = role
