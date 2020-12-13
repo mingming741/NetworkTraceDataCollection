@@ -13,6 +13,18 @@
       "task_name": "iperf_tcpdump_upload",
       "direction": "upload",
       "variant": "cubic",
+      "task_time": 60
+    },
+    {
+      "task_name": "iperf_tcpdump_download",
+      "direction": "download",
+      "variant": "cubic",
+      "task_time": 60
+    },
+    {
+      "task_name": "iperf_tcpdump_upload",
+      "direction": "upload",
+      "variant": "cubic",
       "task_time": 3600
     },
     {
