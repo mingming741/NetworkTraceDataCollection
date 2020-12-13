@@ -4,7 +4,7 @@
     "SIM": "CSL_4G",
     "client_ip": "",
     "client_ip_dual": "192.168.80.83",
-    "peer_hostname": "dokiserver-OptiPlex-9020"
+    "peer_hostname": "mclab40"
   },
   "doki5-OptiPlex-9010":{
     "role": "client",
@@ -13,7 +13,7 @@
     "client_ip_dual": "192.168.80.85",
     "peer_hostname": "dokiserver2-OptiPlex-990"
   },
-  "dokiserver-OptiPlex-9020": {
+  "mclab40": {
     "role": "server",
     "server_ip": "103.49.160.131",
     "peer_hostname": "doki3-OptiPlex-9010"
