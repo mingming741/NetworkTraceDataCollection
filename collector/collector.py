@@ -53,6 +53,7 @@ class TraceDataCollectionClient(TraceDataCollector):
         self.peer_hostname = self.config["peer_hostname"]
         self.peer_config = self.host_machine_config[self.peer_hostname]
         self.server_ip = self.peer_config["server_ip"]
+        self.udp_sending_rate = self.host_machine_config["udp_sending_rate"]
 
     def iperf_tcpdump_download(self, test_config):
         task_name = test_config["task_name"]
@@ -73,7 +74,6 @@ class TraceDataCollectionClient(TraceDataCollector):
         if variant != "udp":
             os.system("tcpdump -i any tcp -s 96 src port {} -w {} > /dev/null 2>&1 &".format(iperf_port, output_pcap))
         else:
-            udp_sending_rate = test_config["udp_sending_rate"]
             os.system("tcpdump -i any udp -s 96 port {} -w {} > /dev/null 2>&1 &".format(iperf_port, output_pcap))
         client_timer = utils.DokiTimer(expired_time=min(task_time,300))
         while not client_timer.is_expire():
@@ -83,7 +83,7 @@ class TraceDataCollectionClient(TraceDataCollector):
                 if variant != "udp":
                     P_iperf_client = subprocess.Popen("exec iperf3 -c {} -p {} -R -t {} -i {}".format(self.server_ip, iperf_port, task_time, iperf_logging_interval) , shell=True)
                 else:
-                    P_iperf_client = subprocess.Popen("exec iperf3 -c {} -p {} -R --length 1472 -u -b {}m -t {} -i {}".format(self.server_ip, iperf_port, udp_sending_rate, task_time, iperf_logging_interval) , shell=True)
+                    P_iperf_client = subprocess.Popen("exec iperf3 -c {} -p {} -R --length 1472 -u -b {}m -t {} -i {}".format(self.server_ip, iperf_port, self.udp_sending_rate, task_time, iperf_logging_interval) , shell=True)
                 P_iperf_client.wait(task_time)
                 if time.time() - retry_start_time <= 5: # assume no experiment is running, retry
                     retry_start_time = time.time()
@@ -135,8 +135,7 @@ class TraceDataCollectionClient(TraceDataCollector):
                 if variant != "udp":
                     P_iperf_client = subprocess.Popen("exec iperf3 -c {} -p {} -t {} -i {}".format(self.server_ip, iperf_port, task_time, iperf_logging_interval) , shell=True)
                 else:
-                    udp_sending_rate = test_config["udp_sending_rate"]
-                    P_iperf_client = subprocess.Popen("exec iperf3 -c {} -p {} --length 1472 -u -b {}m -t {} -i {}".format(self.server_ip, iperf_port, udp_sending_rate, task_time, iperf_logging_interval) , shell=True)
+                    P_iperf_client = subprocess.Popen("exec iperf3 -c {} -p {} --length 1472 -u -b {}m -t {} -i {}".format(self.server_ip, iperf_port, self.udp_sending_rate, task_time, iperf_logging_interval) , shell=True)
                 P_iperf_client.wait(task_time)
                 if time.time() - retry_start_time <= 3: # assume no experiment is running, retry
                     retry_start_time = time.time()
@@ -206,7 +205,6 @@ class TraceDataCollectionServer(TraceDataCollector):
         if variant != "udp":
             os.system("tcpdump -i any tcp -s 96 dst port {} -w {} > /dev/null 2>&1 &".format(iperf_port, output_pcap))
         else:
-            udp_sending_rate = test_config["udp_sending_rate"]
             os.system("tcpdump -i any udp -s 96 port {} -w {} > /dev/null 2>&1 &".format(iperf_port, output_pcap))
 
         try:
