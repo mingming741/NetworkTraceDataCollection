@@ -50,10 +50,11 @@ class TraceDataCollectionClient(TraceDataCollector):
         super(TraceDataCollectionClient, self).__init__(host_machine_config, role)
         self.SIM = self.config["SIM"]
         self.client_ip_dual = self.config["client_ip_dual"]
+        self.udp_sending_rate = self.config["udp_sending_rate"]
         self.peer_hostname = self.config["peer_hostname"]
         self.peer_config = self.host_machine_config[self.peer_hostname]
         self.server_ip = self.peer_config["server_ip"]
-        self.udp_sending_rate = self.host_machine_config["udp_sending_rate"]
+
 
     def iperf_tcpdump_download(self, test_config):
         task_name = test_config["task_name"]
