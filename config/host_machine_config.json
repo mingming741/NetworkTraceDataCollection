@@ -22,5 +22,17 @@
     "role": "server",
     "server_ip": "103.49.160.132",
     "peer_hostname": "doki5-OptiPlex-9010"
+  },
+  "mclab39": {
+    "role": "server",
+    "server_ip": "103.49.160.130",
+    "peer_hostname": "mclab38"
+  },
+  "mclab38":{
+    "role": "client",
+    "SIM": "Netgear_R7000_WiFi",
+    "client_ip": "",
+    "client_ip_dual": "192.168.80.228",
+    "peer_hostname": "mclab39"
   }
 }
