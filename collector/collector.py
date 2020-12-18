@@ -102,7 +102,9 @@ class TraceDataCollectionClient(TraceDataCollector):
                     self.logger.error("Exception happen, Let Server End")
                     P_iperf_client.terminate()
                     break
+
         self.logger.debug("Trace Send Done, start to analyze")
+        os.system("sudo killall tcpdump")
         output_txt_file_name = "{}txt".format(output_pcap[0:-4])
         output_graph_file_name = "{}png".format(output_pcap[0:-4])
         trace_log = {"task_name": task_name, "network": network, "direction": direction, "variant": variant, "start_time": experiment_start_time,
@@ -227,6 +229,7 @@ class TraceDataCollectionServer(TraceDataCollector):
                 P_iperf_server.terminate()
 
         self.logger.debug("Trace Send Done, start to analyze")
+        os.system("sudo killall tcpdump")
         output_txt_file_name = "{}txt".format(output_pcap[0:-4])
         output_graph_file_name = "{}png".format(output_pcap[0:-4])
         trace_log = {"task_name": task_name, "network": network, "direction": direction, "variant": variant, "start_time": experiment_start_time,
