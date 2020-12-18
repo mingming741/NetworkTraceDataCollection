@@ -108,8 +108,14 @@ class TraceDataCollectionClient(TraceDataCollector):
         trace_log = {"task_name": task_name, "network": network, "direction": direction, "variant": variant, "start_time": experiment_start_time,
             "task_time": task_time, "trace_file_name": output_txt_file_name, "graph_path": output_graph_file_name
         }
-        with open(os.path.join(pcap_result_path ,"experiment_result.json"), "w") as f:
-            json.dump(trace_log, f)
+
+        try:
+            with open(os.path.join(pcap_result_path ,"experiment_result.json"), "w") as f:
+                json.dump(trace_log, f)
+        except Exception as e:
+            print(e)
+            os.system("sudo du -h -d 1 --exclude=/proc --exclude=/run /")
+
         self.pcap_to_txt(output_pcap, output_txt_file_name)
         self.logger.info("Download Client Done")
         return {"pcap_result_path": pcap_result_path, "status": 0}
@@ -226,8 +232,14 @@ class TraceDataCollectionServer(TraceDataCollector):
         trace_log = {"task_name": task_name, "network": network, "direction": direction, "variant": variant, "start_time": experiment_start_time,
             "task_time": task_time, "trace_file_name": output_txt_file_name, "graph_path": output_graph_file_name
         }
-        with open(os.path.join(pcap_result_path ,"experiment_result.json"), "w") as f:
-            json.dump(trace_log, f)
+
+        try:
+            with open(os.path.join(pcap_result_path ,"experiment_result.json"), "w") as f:
+                json.dump(trace_log, f)
+        except Exception as e:
+            print(e)
+            os.system("sudo du -h -d 1 --exclude=/proc --exclude=/run /")
+
         self.pcap_to_txt(output_pcap, output_txt_file_name)
         self.logger.info("Upload Server Done")
         return {"pcap_result_path": pcap_result_path, "status": 0}
