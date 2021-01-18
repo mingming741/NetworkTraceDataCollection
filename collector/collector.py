@@ -35,7 +35,7 @@ class TraceDataCollector(object):
             os.system("tshark -r " + file_full_path + " -T fields -e frame.time_epoch -e frame.len > " + output_file_name)
             os.system("rm " + file_full_path)
         else:
-            self.logger.error("Output trace data:{} to {}".format(file_full_path, output_file_name))
+            self.logger.error("Output trace data: {} to {}".format(file_full_path, output_file_name))
 
 
     def data_collection(self, test_config):

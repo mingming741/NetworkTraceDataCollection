@@ -10,12 +10,6 @@
   },
   "scheduling_list" : [
     {
-      "task_name": "iperf_tcpdump_upload",
-      "direction": "upload",
-      "variant": "cubic",
-      "task_time": 60
-    },
-    {
       "task_name": "iperf_tcpdump_download",
       "direction": "download",
       "variant": "cubic",
@@ -24,6 +18,25 @@
     {
       "task_name": "iperf_tcpdump_upload",
       "direction": "upload",
+      "variant": "udp",
+      "task_time": 60
+    },
+    {
+      "task_name": "iperf_tcpdump_download",
+      "direction": "download",
+      "variant": "udp",
+      "task_time": 60
+    },
+    {
+      "task_name": "iperf_tcpdump_upload",
+      "direction": "upload",
+      "variant": "cubic",
+      "task_time": 60
+    },
+
+    {
+      "task_name": "iperf_tcpdump_upload",
+      "direction": "upload",
       "variant": "cubic",
       "task_time": 3600
     },
@@ -111,26 +124,27 @@
     {
       "task_name": "iperf_tcpdump_upload",
       "direction": "upload",
-      "variant": "udp",
+      "variant": "bbr",
       "task_time": 86400
     },
     {
       "task_name": "iperf_tcpdump_download",
       "direction": "download",
-      "variant": "udp",
+      "variant": "bbr",
       "task_time": 86400
     },
     {
       "task_name": "iperf_tcpdump_upload",
       "direction": "upload",
-      "variant": "bbr",
+      "variant": "udp",
       "task_time": 86400
     },
     {
       "task_name": "iperf_tcpdump_download",
       "direction": "download",
-      "variant": "bbr",
+      "variant": "udp",
       "task_time": 86400
     }
+
   ]
 }
