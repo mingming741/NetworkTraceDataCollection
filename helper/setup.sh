@@ -8,3 +8,4 @@ git config --global user.name mingming741
 python3 -m pip install --upgrade pip
 python3 -m pip install matplotlib
 python3 -m pip install pandas
+python3 -m pip install requests
