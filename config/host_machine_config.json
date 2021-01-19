@@ -14,7 +14,7 @@
   },
   "doki5-OptiPlex-9010":{
     "role": "client",
-    "SIM": "3HK_4G",
+    "SIM": "UNICOM_5G",
     "client_ip": "",
     "client_ip_dual": "192.168.80.85",
     "udp_sending_rate": 20,
