@@ -1,28 +1,28 @@
 {
-  "doki3-OptiPlex-9010":{
+  "dokitrace-Vostro-3420":{
     "role": "client",
-    "SIM": "CSL_4G",
+    "SIM": "CNSZ_WIFI_LONGGANG",
     "client_ip": "",
-    "client_ip_dual": "192.168.80.83",
+    "client_ip_dual": "",
     "udp_sending_rate": 20,
     "peer_hostname": "mclab40"
   },
   "mclab40": {
     "role": "server",
     "server_ip": "103.49.160.240",
-    "peer_hostname": "doki3-OptiPlex-9010"
+    "peer_hostname": "dokitrace-Vostro-3420"
   },
-  "doki5-OptiPlex-9010":{
+  "doki9-HP-ProDesk-400-G7-Small-Form-Factor-PC":{
     "role": "client",
-    "SIM": "CMHK_5G",
+    "SIM": "MCLAB_WIRE",
     "client_ip": "",
-    "client_ip_dual": "192.168.80.85",
+    "client_ip_dual": "",
     "udp_sending_rate": 20,
     "peer_hostname": "mclab39"
   },
   "mclab39": {
     "role": "server",
     "server_ip": "103.49.160.239",
-    "peer_hostname": "doki5-OptiPlex-9010"
+    "peer_hostname": "doki9-HP-ProDesk-400-G7-Small-Form-Factor-PC"
   }
 }

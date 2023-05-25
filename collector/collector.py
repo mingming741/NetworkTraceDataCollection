@@ -39,10 +39,12 @@ class TraceDataCollector(object):
 
 
     def data_collection(self, test_config):
-        if test_config["direction"] == "download":
+        if test_config["direction"] == "download" and test_config["task_name"] == "iperf_tcpdump_download":
             return self.iperf_tcpdump_download(test_config)
-        if test_config["direction"] == "upload":
+        if test_config["direction"] == "upload" and test_config["task_name"] == "iperf_tcpdump_upload":
             return self.iperf_tcpdump_upload(test_config)
+        if test_config["direction"] == "download" and test_config["task_name"] == "wget_tcpdump_download":
+            return self.wget_tcpdump_download(test_config)
 
 
 class TraceDataCollectionClient(TraceDataCollector):
@@ -166,6 +168,72 @@ class TraceDataCollectionClient(TraceDataCollector):
         return {"status" : 0}
 
 
+    def wget_tcpdump_download(self, test_config):
+        task_name = test_config["task_name"]
+        network = self.SIM
+        direction = test_config["direction"]
+        variant = test_config["variant"]
+        experiment_id = test_config["experiment_id"]
+        pcap_result_path = os.path.join(test_config["pcap_path"], "{}_{}_{}_{}".format(network, direction, variant, experiment_id))
+
+        iperf_logging_interval = test_config["iperf_logging_interval"]
+        task_time = test_config["task_time"]
+        iperf_port = test_config["iperf_port"]
+
+        utils.remake_public_dir(pcap_result_path)
+        experiment_start_time = datetime.fromtimestamp(time.time()).strftime("%Y_%m_%d_%H_%M_%S")
+        output_pcap = os.path.join(pcap_result_path, "{}_{}_{}_{}.pcap".format(network, direction, variant, experiment_start_time))
+        output_dummy_file = os.path.join(pcap_result_path, "{}_{}_{}_{}_Dummy.txt".format(network, direction, variant, experiment_start_time))
+        server_file_path = "{}/dummy.txt".format(self.server_ip)
+
+        if variant != "udp":
+            os.system("tcpdump -i any tcp -s 96 src port {} -w {} > /dev/null 2>&1 &".format(iperf_port, output_pcap))
+        else:
+            os.system("tcpdump -i any udp -s 96 port {} -w {} > /dev/null 2>&1 &".format(iperf_port, output_pcap))
+        client_timer = utils.DokiTimer(expired_time=min(task_time,300))
+        while not client_timer.is_expire():
+            try:
+                if "retry_start_time" not in locals():
+                    retry_start_time = time.time()
+                P_wget_client = subprocess.Popen("exec wget -P {} {}".format(output_dummy_file, server_file_path) , shell=True)
+                P_wget_client.wait(task_time)
+                if time.time() - retry_start_time <= 5: # assume no experiment is running, retry
+                    retry_start_time = time.time()
+                    self.logger.warning("Error to connect with iperf3 server, retry...")
+                    time.sleep(1)
+                else:
+                    break
+            except subprocess.TimeoutExpired as timeout:
+                if P_wget_client.poll() == None:
+                    self.logger.debug("Time up, Let wget End")
+                    P_wget_client.terminate()
+                    break
+            except Exception as e:
+                if P_wget_client.poll() == 0:
+                    self.logger.error("Exception happen, Let Server End")
+                    P_wget_client.terminate()
+                    break
+
+        self.logger.debug("Trace Send Done, start to analyze")
+        os.system("sudo killall tcpdump")
+        output_txt_file_name = "{}txt".format(output_pcap[0:-4])
+        output_graph_file_name = "{}png".format(output_pcap[0:-4])
+        trace_log = {"task_name": task_name, "network": network, "direction": direction, "variant": variant, "start_time": experiment_start_time,
+            "task_time": task_time, "trace_file_name": output_txt_file_name, "graph_path": output_graph_file_name
+        }
+
+        try:
+            with open(os.path.join(pcap_result_path ,"experiment_result.json"), "w") as f:
+                json.dump(trace_log, f)
+        except Exception as e:
+            print(e)
+            os.system("sudo du -h -d 1 --exclude=/proc --exclude=/run /")
+
+        self.pcap_to_txt(output_pcap, output_txt_file_name)
+        self.logger.info("Download Client Done")
+        return {"pcap_result_path": pcap_result_path, "status": 0}
+
+
 
 class TraceDataCollectionServer(TraceDataCollector):
     def __init__(self, host_machine_config=None, role="server"):
@@ -247,6 +315,14 @@ class TraceDataCollectionServer(TraceDataCollector):
         self.logger.info("Upload Server Done")
         return {"pcap_result_path": pcap_result_path, "status": 0}
 
+
+    def wget_tcpdump_download(self, test_config):
+        iperf_logging_interval = test_config["iperf_logging_interval"]
+        task_time = test_config["task_time"]
+        iperf_port = test_config["iperf_port"]
+        os.system("sudo sysctl net.ipv4.tcp_congestion_control={}".format(test_config["variant"]))
+        time.sleep(task_time)
+        return {"status" : 0}
 
 
 
