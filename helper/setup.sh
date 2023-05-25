@@ -17,6 +17,6 @@ python3 -m pip install pandas
 python3 -m pip install requests
 
 # Only run for wget server
-#sudo apt install apache2
+#sudo apt install -y apache2
 #sudo chmod -R 777 /var/www/html
 #truncate -s 18000M /var/www/html/dummy.txt
