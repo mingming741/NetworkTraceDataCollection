@@ -5,11 +5,11 @@
     "client_ip": "",
     "client_ip_dual": "",
     "udp_sending_rate": 20,
-    "peer_hostname": "mclab39"
+    "peer_hostname": "mclab40"
   },
-  "mclab39": {
+  "mclab40": {
     "role": "server",
-    "server_ip": "103.49.160.239",
+    "server_ip": "103.49.160.240",
     "peer_hostname": "dokitrace-Vostro-3420"
   },
   "doki9-HP-ProDesk-400-G7-Small-Form-Factor-PC":{
@@ -18,11 +18,11 @@
     "client_ip": "",
     "client_ip_dual": "",
     "udp_sending_rate": 20,
-    "peer_hostname": "mclab40"
+    "peer_hostname": "mclab39"
   },
-  "mclab40": {
+  "mclab39": {
     "role": "server",
-    "server_ip": "103.49.160.240",
+    "server_ip": "103.49.160.239",
     "peer_hostname": "doki9-HP-ProDesk-400-G7-Small-Form-Factor-PC"
   }
 }

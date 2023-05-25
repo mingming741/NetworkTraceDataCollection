@@ -186,10 +186,8 @@ class TraceDataCollectionClient(TraceDataCollector):
         output_dummy_file = os.path.join(pcap_result_path, "{}_{}_{}_{}_Dummy.txt".format(network, direction, variant, experiment_start_time))
         server_file_path = "{}/dummy.txt".format(self.server_ip)
 
-        if variant != "udp":
-            os.system("tcpdump -i any tcp -s 96 src port {} -w {} > /dev/null 2>&1 &".format(iperf_port, output_pcap))
-        else:
-            os.system("tcpdump -i any udp -s 96 port {} -w {} > /dev/null 2>&1 &".format(iperf_port, output_pcap))
+
+        os.system("tcpdump -i any -s 96 ip host {} -w {} > /dev/null 2>&1 &".format(self.server_ip, output_pcap))
         client_timer = utils.DokiTimer(expired_time=min(task_time,300))
         while not client_timer.is_expire():
             try:
