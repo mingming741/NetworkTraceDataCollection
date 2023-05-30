@@ -175,6 +175,7 @@ class TraceDataCollectionClient(TraceDataCollector):
 
 
     def wget_tcpdump_download(self, test_config):
+        print(test_config)
         task_name = test_config["task_name"]
         network = self.SIM
         direction = test_config["direction"]
@@ -331,10 +332,14 @@ class TraceDataCollectionServer(TraceDataCollector):
         iperf_port = test_config["iperf_port"]
         os.system("sudo sysctl net.ipv4.tcp_congestion_control={}".format(test_config["variant"]))
         if test_config["keep_pcap_file"] == 1:
+            pcap_result_path = os.path.join(test_config["pcap_path"], "{}_{}_{}_{}".format(network, direction, variant, experiment_id))
+            utils.remake_public_dir(pcap_result_path)
+            experiment_start_time = datetime.fromtimestamp(time.time()).strftime("%Y_%m_%d_%H_%M_%S")
+            output_pcap = os.path.join(pcap_result_path, "{}_{}_{}_{}.pcap".format(network, direction, variant, experiment_start_time))
             if variant != "udp":
                 os.system("tcpdump -i any tcp -s 96 port {} -w {} > /dev/null 2>&1 &".format(iperf_port, output_pcap))
             else:
-                os.system("tcpdump -i any udp -s 96 port {} -w {} > /dev/null 2>&1 &".format(iperf_port, output_pcap))        
+                os.system("tcpdump -i any udp -s 96 port {} -w {} > /dev/null 2>&1 &".format(iperf_port, output_pcap))
         time.sleep(task_time)
         return {"status" : 0}
 
