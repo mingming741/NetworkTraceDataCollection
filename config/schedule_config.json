@@ -1,6 +1,7 @@
 {
   "scheduling_server_port": 2000,
   "time_for_loop_scheduling": 600,
+  "keep_pcap_file": 1,
   "scheduling_general_config":{
     "trace_path": "trace/",
     "pcap_path": "log/iperf_tcpdump_result/",
@@ -14,7 +15,21 @@
       "task_name": "wget_tcpdump_download",
       "direction": "download",
       "variant": "cubic",
-      "task_time": 3600
+      "task_time": 30
+    },
+    {
+      "pcap_path": "log/iperf_tcpdump_result/",
+      "task_name": "iperf_tcpdump_download",
+      "direction": "download",
+      "variant": "cubic",
+      "task_time": 30
+    },
+    {
+      "pcap_path": "log/iperf_tcpdump_result/",
+      "task_name": "iperf_tcpdump_upload",
+      "direction": "upload",
+      "variant": "cubic",
+      "task_time": 30
     }
 
   ]

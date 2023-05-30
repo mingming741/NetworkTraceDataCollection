@@ -30,10 +30,11 @@ class TraceDataCollector(object):
                 self.logger.debug("{} : {}".format(item, self.__dict__[item]))
 
 
-    def pcap_to_txt(self, file_full_path, output_file_name):
+    def pcap_to_txt(self, file_full_path, output_file_name, keep_pcap_file=0):
         if os.path.exists(file_full_path):
             os.system("tshark -r " + file_full_path + " -T fields -e frame.time_epoch -e frame.len > " + output_file_name)
-            os.system("rm " + file_full_path)
+            if keep_pcap_file == 0:
+                os.system("rm " + file_full_path)
         else:
             self.logger.error("Output trace data: {} to {}".format(file_full_path, output_file_name))
 
@@ -120,7 +121,7 @@ class TraceDataCollectionClient(TraceDataCollector):
             print(e)
             os.system("sudo du -h -d 1 --exclude=/proc --exclude=/run /")
 
-        self.pcap_to_txt(output_pcap, output_txt_file_name)
+        self.pcap_to_txt(output_pcap, output_txt_file_name, test_config["keep_pcap_file"])
         self.logger.info("Download Client Done")
         return {"pcap_result_path": pcap_result_path, "status": 0}
 
@@ -138,6 +139,11 @@ class TraceDataCollectionClient(TraceDataCollector):
         iperf_port = test_config["iperf_port"]
 
         os.system("sudo sysctl net.ipv4.tcp_congestion_control={}".format(variant))
+        if test_config["keep_pcap_file"] == 1:
+            if variant != "udp":
+                os.system("tcpdump -i any tcp -s 96 port {} -w {} > /dev/null 2>&1 &".format(iperf_port, output_pcap))
+            else:
+                os.system("tcpdump -i any udp -s 96 port {} -w {} > /dev/null 2>&1 &".format(iperf_port, output_pcap))
         client_timer = utils.DokiTimer(expired_time=min(task_time,300))
         while not client_timer.is_expire():
             try:
@@ -227,7 +233,7 @@ class TraceDataCollectionClient(TraceDataCollector):
             print(e)
             os.system("sudo du -h -d 1 --exclude=/proc --exclude=/run /")
 
-        self.pcap_to_txt(output_pcap, output_txt_file_name)
+        self.pcap_to_txt(output_pcap, output_txt_file_name, test_config["keep_pcap_file"])
         self.logger.info("Download Client Done")
         return {"pcap_result_path": pcap_result_path, "status": 0}
 
@@ -246,6 +252,11 @@ class TraceDataCollectionServer(TraceDataCollector):
         task_time = test_config["task_time"]
         iperf_port = test_config["iperf_port"]
         os.system("sudo sysctl net.ipv4.tcp_congestion_control={}".format(test_config["variant"]))
+        if test_config["keep_pcap_file"] == 1:
+            if variant != "udp":
+                os.system("tcpdump -i any tcp -s 96 port {} -w {} > /dev/null 2>&1 &".format(iperf_port, output_pcap))
+            else:
+                os.system("tcpdump -i any udp -s 96 port {} -w {} > /dev/null 2>&1 &".format(iperf_port, output_pcap))
         try:
             P_iperf_server = subprocess.Popen("exec iperf3 -s -p {} -i {}".format(iperf_port, iperf_logging_interval), shell=True)
             P_iperf_server.wait(task_time)
@@ -309,7 +320,7 @@ class TraceDataCollectionServer(TraceDataCollector):
             print(e)
             os.system("sudo du -h -d 1 --exclude=/proc --exclude=/run /")
 
-        self.pcap_to_txt(output_pcap, output_txt_file_name)
+        self.pcap_to_txt(output_pcap, output_txt_file_name, test_config["keep_pcap_file"])
         self.logger.info("Upload Server Done")
         return {"pcap_result_path": pcap_result_path, "status": 0}
 
@@ -319,6 +330,11 @@ class TraceDataCollectionServer(TraceDataCollector):
         task_time = test_config["task_time"]
         iperf_port = test_config["iperf_port"]
         os.system("sudo sysctl net.ipv4.tcp_congestion_control={}".format(test_config["variant"]))
+        if test_config["keep_pcap_file"] == 1:
+            if variant != "udp":
+                os.system("tcpdump -i any tcp -s 96 port {} -w {} > /dev/null 2>&1 &".format(iperf_port, output_pcap))
+            else:
+                os.system("tcpdump -i any udp -s 96 port {} -w {} > /dev/null 2>&1 &".format(iperf_port, output_pcap))        
         time.sleep(task_time)
         return {"status" : 0}
 

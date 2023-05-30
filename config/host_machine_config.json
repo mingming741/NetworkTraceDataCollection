@@ -12,17 +12,34 @@
     "server_ip": "103.49.160.240",
     "peer_hostname": "dokitrace-Vostro-3420"
   },
+
+
   "doki9-HP-ProDesk-400-G7-Small-Form-Factor-PC":{
     "role": "client",
     "SIM": "MCLAB_WIRE",
     "client_ip": "",
     "client_ip_dual": "",
     "udp_sending_rate": 20,
-    "peer_hostname": "mclab39"
+    "peer_hostname": "mclab38"
   },
-  "mclab39": {
+  "mclab38": {
     "role": "server",
-    "server_ip": "103.49.160.239",
+    "server_ip": "103.49.160.238",
     "peer_hostname": "doki9-HP-ProDesk-400-G7-Small-Form-Factor-PC"
+  },
+
+
+  "doki8-HP-ProDesk-400-G7-Small-Form-Factor-PC":{
+    "role": "client",
+    "SIM": "MCLAB_WIRE",
+    "client_ip": "",
+    "client_ip_dual": "",
+    "udp_sending_rate": 20,
+    "peer_hostname": "mclab36"
+  },
+  "mclab36": {
+    "role": "server",
+    "server_ip": "103.49.160.236",
+    "peer_hostname": "doki8-HP-ProDesk-400-G7-Small-Form-Factor-PC"
   }
 }
