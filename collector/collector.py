@@ -140,6 +140,9 @@ class TraceDataCollectionClient(TraceDataCollector):
 
         os.system("sudo sysctl net.ipv4.tcp_congestion_control={}".format(variant))
         if test_config["keep_pcap_file"] == 1:
+            utils.remake_public_dir(pcap_result_path)
+            experiment_start_time = datetime.fromtimestamp(time.time()).strftime("%Y_%m_%d_%H_%M_%S")
+            output_pcap = os.path.join(pcap_result_path, "{}_{}_{}_{}.pcap".format(network, direction, variant, experiment_start_time))
             if variant != "udp":
                 os.system("tcpdump -i any tcp -s 96 port {} -w {} > /dev/null 2>&1 &".format(iperf_port, output_pcap))
             else:
@@ -247,12 +250,21 @@ class TraceDataCollectionServer(TraceDataCollector):
         self.peer_config = self.host_machine_config[self.peer_hostname]
         self.SIM = self.peer_config["SIM"]
 
+
     def iperf_tcpdump_download(self, test_config):
+        variant = test_config["variant"]
         iperf_logging_interval = test_config["iperf_logging_interval"]
         task_time = test_config["task_time"]
         iperf_port = test_config["iperf_port"]
         os.system("sudo sysctl net.ipv4.tcp_congestion_control={}".format(test_config["variant"]))
         if test_config["keep_pcap_file"] == 1:
+            network = self.SIM
+            direction = test_config["direction"]
+            experiment_id = test_config["experiment_id"]
+            pcap_result_path = os.path.join(test_config["pcap_path"], "{}_{}_{}_{}".format(network, direction, variant, experiment_id))
+            utils.remake_public_dir(pcap_result_path)
+            experiment_start_time = datetime.fromtimestamp(time.time()).strftime("%Y_%m_%d_%H_%M_%S")
+            output_pcap = os.path.join(pcap_result_path, "{}_{}_{}_{}.pcap".format(network, direction, variant, experiment_start_time))
             if variant != "udp":
                 os.system("tcpdump -i any tcp -s 96 port {} -w {} > /dev/null 2>&1 &".format(iperf_port, output_pcap))
             else:
