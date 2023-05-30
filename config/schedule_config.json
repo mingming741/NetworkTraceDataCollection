@@ -11,13 +11,6 @@
   },
   "scheduling_list" : [
     {
-      "pcap_path": "log/wget_tcpdump_result/",
-      "task_name": "wget_tcpdump_download",
-      "direction": "download",
-      "variant": "cubic",
-      "task_time": 30
-    },
-    {
       "pcap_path": "log/iperf_tcpdump_result/",
       "task_name": "iperf_tcpdump_download",
       "direction": "download",
